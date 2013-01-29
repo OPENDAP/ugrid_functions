@@ -2,6 +2,7 @@
 # Build libugridFunctions, part of libdap.
 
 AUTOMAKE_OPTIONS = foreign
+ACLOCAL_AMFLAGS = -I conf
 
 # AM_CPPFLAGS = 
 
