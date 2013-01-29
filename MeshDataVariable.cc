@@ -44,7 +44,7 @@ namespace gf3 {
 
 MeshDataVariable::MeshDataVariable(){}
 
-void MeshDataVariable::init(Array *rangeVar)
+void MeshDataVariable::init(libdap::Array *rangeVar)
 {
 	meshDataVar = rangeVar;
 	DBG(cerr << "init() - The user submitted the range data array: " << rangeVar->name() << endl);

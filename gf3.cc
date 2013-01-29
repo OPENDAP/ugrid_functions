@@ -52,10 +52,9 @@
 #include "debug.h"
 #include "util.h"
 
-
+#include "ugrid_utils.h"
 #include "MeshDataVariable.h"
 #include "TwoDMeshTopology.h"
-#include "ugrid_utils.h"
 
 
 //  We wrapped VC++ 6.x strtod() to account for a short coming
@@ -381,7 +380,7 @@ static string ugr3Syntax =
  */
 struct Ugrid3RestrictArgs {
 	locationType dimension;
-	vector<Array *> rangeVars;
+	vector<libdap::Array *> rangeVars;
 	string filterExpression;
 };
 
@@ -865,7 +864,7 @@ static TwoDMeshTopology *getNewMeshTopology(DDS &dds, string meshVarName) {
  * a new mesh topology is created. Once the associated mesh topology had been found (or created), the rangeVar
  * is added to the vector of rangeVars held by the mesh topology for later evaluation.
  */
-static void addRangeVar(DDS &dds, Array *rangeVar, map<string, TwoDMeshTopology *> &meshTopologies) {
+static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshTopology *> &meshTopologies) {
 
 	MeshDataVariable *mdv = new MeshDataVariable();
 
@@ -901,7 +900,7 @@ static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType * argv[]) {
 	DBG(cerr << "processUgrArgs() - BEGIN" << endl);
 
 	Ugrid3RestrictArgs args;
-	args.rangeVars = vector<Array *>();
+	args.rangeVars = vector<libdap::Array *>();
 
 	// Check number of arguments; DBG is a macro. Use #define
 	// DODS_DEBUG to activate the debugging stuff.
@@ -949,7 +948,7 @@ static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType * argv[]) {
 							+ ugr3Syntax + "  was passed a/an "
 							+ bt->type_name());
 
-		Array *newRangeVar = dynamic_cast<Array*>(bt);
+		libdap::Array *newRangeVar = dynamic_cast<libdap::Array*>(bt);
 		if (newRangeVar == 0) {
 			throw Error(malformed_expr,
 					"Wrong type for second argument. " + ugr3Syntax
@@ -1418,9 +1417,9 @@ void function_ugr3(int argc, BaseType * argv[], DDS &dds, BaseType **btpp)
 	map<string, TwoDMeshTopology *> meshTopologies;
 
 	int rangeVarCount =0;
-	vector<Array *>::iterator it;
+	vector<libdap::Array *>::iterator it;
 	for (it = args.rangeVars.begin(); it != args.rangeVars.end(); ++it) {
-		Array *rangeVar = *it;
+		libdap::Array *rangeVar = *it;
 	    addRangeVar(dds, rangeVar, meshTopologies);
 	    rangeVarCount++;
 	}

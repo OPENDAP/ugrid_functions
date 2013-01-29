@@ -41,8 +41,8 @@ using namespace libdap;
 
 namespace gf3 {
 
-class BaseType;
-class Array;
+class libdap::BaseType;
+class libdap::Array;
 class MeshDataVariable;
 class Grid;
 
@@ -78,7 +78,7 @@ private:
 	 * longitude, and optional elevation or other coordinates). These auxiliary coordinate
 	 * variables will have length nNodes.
 	 */
-	vector<Array *> *nodeCoordinateArrays;
+	vector<libdap::Array *> *nodeCoordinateArrays;
 
 	/**
 	 * REQUIRED
@@ -111,7 +111,7 @@ private:
 	 * indexing for more details.
 	 *
 	 */
-	Array *faceNodeConnectivityArray;
+	libdap::Array *faceNodeConnectivityArray;
 
 	vector<MeshDataVariable *> *rangeDataArrays;
 
@@ -187,29 +187,29 @@ private:
 	GF::Node *sharedNodeArray;
 
 
-	Array *getFaceNodeConnectivityArray(BaseType *meshTopology, DDS &dds);
-	vector<Array *> *getNodeCoordinateArrays(BaseType *meshTopology, DDS &dds);
+	libdap::Array *getFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS &dds);
+	vector<libdap::Array *> *getNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds);
 
-	GF::Node *getFncArrayAsGFNodes(Array *fncVar);
-	int getStartIndex(Array *array);
+	GF::Node *getFncArrayAsGFNodes(libdap::Array *fncVar);
+	int getStartIndex(libdap::Array *array);
 	GF::CellArray *getFaceNodeConnectivityCells();
 
-	Array *getRankZeroAttributeNodeSetAsDapArray(GF::GridField *resultGridField, Array *sourceArray);
-	Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, Array *sourceFcnArray);
-	Array *getNewFcnDapArray(Array *templateArray, int N);
+	libdap::Array *getRankZeroAttributeNodeSetAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceArray);
+	libdap::Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray);
+	libdap::Array *getNewFcnDapArray(libdap::Array *templateArray, int N);
 
 
 public:
 	TwoDMeshTopology();
 	~TwoDMeshTopology();
-	void init(string meshVarName, DDS &dds);
+	void init(string meshVarName, libdap::DDS &dds);
 	void addDataVariable(MeshDataVariable *mdt);
 	string name(){ return myVar->name();}
-	BaseType *getDapVariable(){ return myVar; }
+	libdap::BaseType *getDapVariable(){ return myVar; }
 
 	void buildGridFieldsTopology();
 	void applyRestrictOperator(locationType loc, string filterExpression);
-	vector<BaseType *> *convertResultGridFieldToDapObjects();
+	vector<libdap::BaseType *> *convertResultGridFieldToDapObjects();
 
 };
 

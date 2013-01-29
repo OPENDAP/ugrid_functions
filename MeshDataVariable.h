@@ -32,8 +32,9 @@
 
 using namespace std;
 using namespace libdap;
+using namespace ugrid;
 
-class Array;
+class libdap::Array;
 
 namespace gf3 {
 
@@ -44,7 +45,7 @@ private:
 	/**
 	 * The DAP dataset variable that the user requested.
 	 */
-	Array *meshDataVar;
+	libdap::Array *meshDataVar;
 
 	/**
 	 * REQUIRED
@@ -58,7 +59,7 @@ private:
 	 * The first DAP dataset variable in the dataset that has a 'cf_role' attribute whose value is equal the value of
 	 * the string 'mesh' or an attribute named 'standard_name' whose value is the same as the value of the string 'mesh'.
 	 */
-	BaseType *meshTopologyVariable;
+	libdap::BaseType *meshTopologyVariable;
 
 	/**
 	 * REQUIRED
@@ -96,9 +97,9 @@ public:
 
 	string getName(){ return meshDataVar->name();}
 
-	Array *getDapArray(){ return meshDataVar;}
+	libdap::Array *getDapArray(){ return meshDataVar;}
 
-	void init(Array *dapArray);
+	void init(libdap::Array *dapArray);
 
 
 };

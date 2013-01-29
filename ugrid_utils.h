@@ -54,23 +54,23 @@ class Array;
 #define UGRID_START_INDEX "start_index"
 
 
-GF::Array *extractGridFieldArray(Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
-template<typename T> T *extract_array(Array * a);
-template<typename DODS, typename T> T *extract_array_helper(Array *a);
+GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
+template<typename T> T *extract_array(libdap::Array * a);
+template<typename DODS, typename T> T *extract_array_helper(libdap::Array *a);
 
 
-string getAttributeValue(BaseType *bt, string aName) ;
-bool matchesCfRoleOrStandardName(BaseType *bt, string aValue);
-bool same_dimensions(Array *arr1, Array *arr2);
+string getAttributeValue(libdap::BaseType *bt, string aName) ;
+bool matchesCfRoleOrStandardName(libdap::BaseType *bt, string aValue);
+bool same_dimensions(libdap::Array *arr1, libdap::Array *arr2);
 
-bool checkAttributeValue(BaseType *bt, string aName, string aValue);
+bool checkAttributeValue(libdap::BaseType *bt, string aName, string aValue);
 
 
 vector<string> split(const string &s, char delim);
 vector<string> &split(const string &s, char delim, vector<string> &elems);
 
 
-int getNfrom3byNArray(Array *array);
+int getNfrom3byNArray(libdap::Array *array);
 
 
 

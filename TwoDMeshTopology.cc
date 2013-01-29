@@ -130,13 +130,13 @@ void TwoDMeshTopology::init(string meshVarName, DDS &dds)
 void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
 {
 
-	Array *dapArray = mdv->getDapArray();
+	libdap::Array *dapArray = mdv->getDapArray();
 
 	// Make sure that the requested range variable is the same shape as the node coordinate arrays
 	// We only need to test the first nodeCoordinate array against the first rangeVar array
 	// because we have already made sure all of the node coordinate arrays are the same size and
 	// that all the rangeVar arrays are the same size. This is just to compare the two collections.
-	Array *firstCoordinate = (*(nodeCoordinateArrays))[0];
+	libdap::Array *firstCoordinate = (*(nodeCoordinateArrays))[0];
 	if (!same_dimensions(dapArray, firstCoordinate))
 		throw Error(
 				"The dimensions of the requested range variable "
@@ -157,7 +157,7 @@ void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
  * Locates the the DAP variable identified by the face_node_connectivity attribute of the
  * meshTopology variable.
  */
-Array *TwoDMeshTopology::getFaceNodeConnectivityArray(BaseType *meshTopology, DDS &dds)
+libdap::Array *TwoDMeshTopology::getFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS &dds)
 {
 
     DBG(cerr << "getFaceNodeConnectivityArray() - "  << "Locating FNCA" << endl);
@@ -185,7 +185,7 @@ Array *TwoDMeshTopology::getFaceNodeConnectivityArray(BaseType *meshTopology, DD
     // Additional QC??
 
     // Is it an array?
-    Array *fncArray = dynamic_cast<Array*>(btp);
+    libdap::Array *fncArray = dynamic_cast<libdap::Array*>(btp);
     if(fncArray == 0) {
         throw Error(malformed_expr,"Face Node Connectivity variable '"+face_node_connectivity_var_name+"' is not an Array type. It's an instance of " + btp->type_name());
     }
@@ -203,7 +203,7 @@ Array *TwoDMeshTopology::getFaceNodeConnectivityArray(BaseType *meshTopology, DD
  * throws an error if the node_coordinates attribute is missing, if the coordinates are not arrays, and
  * if the arrays are not all the same shape.
  */
-vector<Array *> *TwoDMeshTopology::getNodeCoordinateArrays(BaseType *meshTopology, DDS &dds)
+vector<libdap::Array *> *TwoDMeshTopology::getNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds)
 {
 	DBG(cerr << "getNodeCoordinatesArrays() - " << "BEGIN Gathering node coordinate arrays..." << endl);
 
@@ -219,7 +219,7 @@ vector<Array *> *TwoDMeshTopology::getNodeCoordinateArrays(BaseType *meshTopolog
 				" variable! The mesh_topology variable is named " + meshTopology->name());
 	}
 
-	vector<Array *> *nodeCoordinateArrays = new vector<Array *>();
+	vector<libdap::Array *> *nodeCoordinateArrays = new vector<libdap::Array *>();
 
 	// Split the node_coordinates string up on spaces
 	// TODO make this work on situations where multiple spaces in the node_coorindates string doesn't hose the split()
@@ -240,7 +240,7 @@ vector<Array *> *TwoDMeshTopology::getNodeCoordinateArrays(BaseType *meshTopolog
 							+ "The mesh_topology variable is named "
 							+ meshTopology->name());
 
-		Array *newNodeCoordArray = dynamic_cast<Array*>(btp);
+		libdap::Array *newNodeCoordArray = dynamic_cast<libdap::Array*>(btp);
 		if (newNodeCoordArray == 0) {
 			throw Error(malformed_expr,
 					"Node coordinate variable '" + nodeCoordinateName
@@ -249,11 +249,11 @@ vector<Array *> *TwoDMeshTopology::getNodeCoordinateArrays(BaseType *meshTopolog
 		}
 
 		// Make sure this node coordinate variable has the same shape as all the others on the list - error if not true.
-		vector<Array *>::iterator cachedCoorVar_it;
+		vector<libdap::Array *>::iterator cachedCoorVar_it;
 		for (cachedCoorVar_it = nodeCoordinateArrays->begin();
 				cachedCoorVar_it != nodeCoordinateArrays->end();
 				++cachedCoorVar_it) {
-			Array *cachedNodeCoordinateArray = *cachedCoorVar_it;
+			libdap::Array *cachedNodeCoordinateArray = *cachedCoorVar_it;
 			if (!same_dimensions(newNodeCoordArray, cachedNodeCoordinateArray))
 				throw Error(
 						"The node coordinate array '" + nodeCoordinateName
@@ -309,9 +309,9 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 
 	// We read and add the coordinate data (using GridField->addAttribute() to the GridField at
 	// grid dimension/rank/dimension 0 (a.k.a. node)
-	vector<Array *>::iterator ncit;
+	vector<libdap::Array *>::iterator ncit;
 	for (ncit = nodeCoordinateArrays->begin(); ncit != nodeCoordinateArrays->end(); ++ncit) {
-		Array *nca = *ncit;
+		libdap::Array *nca = *ncit;
 		DBG(cerr << "buildGridFieldsTopology() - Adding node coordinate "<< nca->name() << " to GF::GridField at rank 0" << endl);
 		GF::Array *gfa = extractGridFieldArray(nca,sharedIntArrays,sharedFloatArrays);
 		inputGridField->AddAttribute(node, gfa);
@@ -341,7 +341,7 @@ void TwoDMeshTopology::buildGridFieldsTopology()
  *FIXME Make this use less memory. Certainly consider reading the values directly from
  *FIXME the DAP array (after it's read method has been called)
  */
-GF::Node *TwoDMeshTopology::getFncArrayAsGFNodes(Array *fncVar)
+GF::Node *TwoDMeshTopology::getFncArrayAsGFNodes(libdap::Array *fncVar)
 {
 
 	DBG(cerr << "getFncArrayAsGFNodes() - BEGIN" << endl);
@@ -378,7 +378,7 @@ GF::Node *TwoDMeshTopology::getFncArrayAsGFNodes(Array *fncVar)
  * Returns the value of the "start_index" attribute for the passed Array. If the start_index
  * is missing the value 0 is returned.
  */
-int TwoDMeshTopology::getStartIndex(Array *array)
+int TwoDMeshTopology::getStartIndex(libdap::Array *array)
 {
 	AttrTable &at = array->get_attr_table();
 	AttrTable::Attr_iter start_index_iter = at.simple_find(UGRID_START_INDEX);
@@ -471,10 +471,10 @@ vector<BaseType *> *TwoDMeshTopology::convertResultGridFieldToDapObjects()
 
 	// Add the coordinate node arrays to the response.
 	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the coordinate node arrays to the response." << endl);
-	vector<Array *>::iterator it;
+	vector<libdap::Array *>::iterator it;
 	for (it = nodeCoordinateArrays->begin(); it != nodeCoordinateArrays->end(); ++it) {
-		Array *sourceCoordinateArray = *it;
-		Array *resultCoordinateArray = getRankZeroAttributeNodeSetAsDapArray(resultGridField, sourceCoordinateArray);
+		libdap::Array *sourceCoordinateArray = *it;
+		libdap::Array *resultCoordinateArray = getRankZeroAttributeNodeSetAsDapArray(resultGridField, sourceCoordinateArray);
 		results->push_back(resultCoordinateArray);
 	}
 
@@ -483,13 +483,13 @@ vector<BaseType *> *TwoDMeshTopology::convertResultGridFieldToDapObjects()
 	vector<MeshDataVariable *>::iterator mdvIt;
 	for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
 		MeshDataVariable *mdv = *mdvIt;
-		Array *resultRangeVar = getRankZeroAttributeNodeSetAsDapArray(resultGridField, mdv->getDapArray());
+		libdap::Array *resultRangeVar = getRankZeroAttributeNodeSetAsDapArray(resultGridField, mdv->getDapArray());
 		results->push_back(resultRangeVar);
 	}
 
 	// Add the new face node connectivity array - make sure it has the same attributes as the original.
 	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the new face node connectivity array to the response." << endl);
-	Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField, faceNodeConnectivityArray);
+	libdap::Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField, faceNodeConnectivityArray);
 	results->push_back(resultFaceNodeConnectivityDapArray);
 
 	DBG(cerr << "convertResultGridFieldToDapObject() - END" << endl);
@@ -505,7 +505,7 @@ vector<BaseType *> *TwoDMeshTopology::convertResultGridFieldToDapObjects()
  * as the templateArray. Make the new array's second dimension size N.
  * Returns a DAP Array with an Int32 type template.
  */
-Array *TwoDMeshTopology::getNewFcnDapArray(Array *templateArray, int N)
+libdap::Array *TwoDMeshTopology::getNewFcnDapArray(libdap::Array *templateArray, int N)
 {
 
 	// Is the template array a 2D array?
@@ -517,19 +517,19 @@ Array *TwoDMeshTopology::getNewFcnDapArray(Array *templateArray, int N)
 						+ long_to_string(dimCount) + " dimensions.");
 
 	// Is the template array really 3xN?
-	Array::Dim_iter di = templateArray->dim_begin();
+	libdap::Array::Dim_iter di = templateArray->dim_begin();
 	if (di->c_size != 3) {
 		string msg =
 				"Expected a 2 dimensional array with shape of 3xN! The array "
 						+ templateArray->name() + " has a first "
-						+ "dimension of size " + long_to_string(di->c_size);
+						+ "dimension of size " + libdap::long_to_string(di->c_size);
 		DBG(cerr << msg << endl);
 		throw Error(malformed_expr, msg);
 	}
 
 	// Get a new template variable for our new array (should be just like the template for the source array)
 	//BaseType *arrayTemplate = getDapVariableInstance(templateArray->var(0)->name(),templateArray->var(0)->type());
-	Array *newArray = new Array(templateArray->name(),
+	libdap::Array *newArray = new libdap::Array(templateArray->name(),
 			new Int32(templateArray->name()));
 
 	//Add the first dimension (size 3 same same as template array's first dimension)
@@ -562,7 +562,7 @@ Array *TwoDMeshTopology::getNewFcnDapArray(Array *templateArray, int N)
  * extracted and re-packed into a 3xN DAP Array. This is the inverse operation to
  * getFncArrayAsGFNodes()
  */
-Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, Array *sourceFcnArray)
+libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray)
 {
 
 	DBG(cerr << "getGridFieldCellArrayAsDapArray() - BEGIN" << endl);
@@ -573,7 +573,7 @@ Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGr
 	// This is a vector of size N holding vectors of size 3
 	vector<vector<int> > nodes2 = gfCellArray->makeArrayInts();
 
-	Array *resultFcnDapArray = getNewFcnDapArray(sourceFcnArray, nodes2.size());
+	libdap::Array *resultFcnDapArray = getNewFcnDapArray(sourceFcnArray, nodes2.size());
 
 	// Make a vector to hold the re-packed cell nodes.
 	vector<dods_int32> rowMajorNodes;
@@ -617,7 +617,7 @@ Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGr
  * Retrieves a single dimensional rank 0 GF attribute array from a GF::GridField and places the data into
  * DAP array of the appropriate type.
  */
-Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridField *resultGridField, Array *sourceArray)
+libdap::Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceArray)
 {
 
 	DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - BEGIN" << endl);
@@ -628,7 +628,7 @@ Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridField *re
 			sourceArray->name() << "'" << endl);
 	GF::Array* gfa = resultGridField->GetAttribute(node, sourceArray->name());
 
-	Array *dapArray;
+	libdap::Array *dapArray;
 	BaseType *templateVar = sourceArray->var();
 	string dimName;
 
@@ -642,7 +642,7 @@ Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridField *re
 		DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of int, retrieve it as such." << endl);
 		vector<dods_int32> GF_ints = gfa->makeArray();
 		// Make a DAP array to put the data into.
-		dapArray = new Array(sourceArray->name(), new Int32(sourceArray->name()));
+		dapArray = new libdap::Array(sourceArray->name(), new Int32(sourceArray->name()));
 		// Add the dimension
 		dimName = sourceArray->dimension_name(sourceArray->dim_begin());
 		dapArray->append_dim(GF_ints.size(), dimName);
@@ -656,7 +656,7 @@ Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridField *re
 		DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of float, retrieve it as such." << endl);
 		vector<dods_float64> GF_floats = gfa->makeArrayf();
 		// Make a DAP array to put the data into.
-		dapArray = new Array(sourceArray->name(), new Float64(sourceArray->name()));
+		dapArray = new libdap::Array(sourceArray->name(), new Float64(sourceArray->name()));
 		// Add the dimension
 		dimName = sourceArray->dimension_name(sourceArray->dim_begin());
 		dapArray->append_dim(GF_floats.size(), dimName);

@@ -77,7 +77,7 @@ namespace ugrid {
 /**
  * DAP Array data extraction helper method.
  */
-template<typename DODS, typename T>T *extract_array_helper(Array *a) {
+template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
 	int length = a->length();
 
 	DBG(
@@ -211,7 +211,7 @@ static GF::Array *extract_gridfield_array(Array *a) {
  * @param a The DAP Array. Extract values from this array
  * @return A GF::Array
  */
-GF::Array *extractGridFieldArray(Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays) {
+GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays) {
 	if ((a->type() == dods_array_c && !a->var()->is_simple_type())
 			|| a->var()->type() == dods_str_c || a->var()->type() == dods_url_c)
 		throw Error(malformed_expr,
@@ -292,7 +292,7 @@ GF::Array *extractGridFieldArray(Array *a, vector<int*> *sharedIntArrays, vector
  values and return in an array of T. This function allocates the
  array using 'new T[n]' so delete[] can be used when you are done
  the data. */
-template<typename T> T *extract_array(Array * a) {
+template<typename T> T *extract_array(libdap::Array * a) {
 
 	// Simple types are Byte, ..., Float64, String and Url.
 	if ((a->type() == dods_array_c && !a->var()->is_simple_type())
@@ -414,9 +414,9 @@ bool matchesCfRoleOrStandardName(BaseType *bt, string aValue) {
  If the two arrays have the exact dimensions in the same order, with the same name, size, start, stop, and stride values,
  return true.  Otherwise return false.
  */
-bool same_dimensions(Array *arr1, Array *arr2) {
-	Array::Dim_iter ait1;
-	Array::Dim_iter ait2;
+bool same_dimensions(libdap::Array *arr1, libdap::Array *arr2) {
+	libdap::Array::Dim_iter ait1;
+	libdap::Array::Dim_iter ait2;
 	DBG(cerr<< "same_dimensions() - " << "comparing array " << arr1->name() << " and array " << arr2->name() << endl);
 
 	if (arr1->dimensions(true) != arr1->dimensions(true))
@@ -427,8 +427,8 @@ bool same_dimensions(Array *arr1, Array *arr2) {
 	// that the two sets are the same size.
 	for (ait1 = arr1->dim_begin(), ait2 = arr2->dim_begin();
 			ait1 != arr1->dim_end(); ++ait1, ++ait2) {
-		Array::dimension ad1 = *ait1;
-		Array::dimension ad2 = *ait2;
+		libdap::Array::dimension ad1 = *ait1;
+		libdap::Array::dimension ad2 = *ait2;
 		DBG(cerr << "same_dimensions() - " << "Comparing: "<< arr1->name() << "["<< ad1.name << "=" << ad1.size << "] AND "<< arr2->name() << "[" << ad2.name << "=" << ad2.size << "] "<< endl);
 		if (ad2.name != ad1.name or ad2.size != ad1.size
 				or ad2.stride != ad1.stride or ad2.stop != ad1.stop)
@@ -470,7 +470,7 @@ bool checkAttributeValue(BaseType *bt, string aName, string aValue) {
  * Retrieves the size of the second dimension from a 3xN array. Throws an
  * Error if the array is not the correct shape.
  */
-int getNfrom3byNArray(Array *array)
+int getNfrom3byNArray(libdap::Array *array)
 {
 
 	int dimCount = array->dimensions(true);
@@ -478,15 +478,15 @@ int getNfrom3byNArray(Array *array)
 	if (dimCount != 2)
 		throw Error(
 				"Expected a 2 dimensional array. The array '" + array->name()
-						+ "' has " + long_to_string(dimCount) + " dimensions.");
+						+ "' has " + libdap::long_to_string(dimCount) + " dimensions.");
 
 	// Check the first dimension to be sure it's size is 3.
-	Array::Dim_iter di = array->dim_begin();
+	libdap::Array::Dim_iter di = array->dim_begin();
 	if (di->c_size != 3) {
 		string msg =
 				"Expected a 2 dimensional array with shape of 3xN! The array "
 						+ array->name() + " has a first " + "dimension of size "
-						+ long_to_string(di->c_size);
+						+ libdap::long_to_string(di->c_size);
 		DBG(cerr << msg << endl);
 		throw Error(malformed_expr, msg);
 	}

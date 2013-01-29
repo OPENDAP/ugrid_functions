@@ -55,35 +55,95 @@ AC_CHECK_BES([3.9.0], [], [ AC_MSG_ERROR([Could not find bes library and headers
 
 
 
-# Which copy of GDAL should be used for the build?
-GDAL_FOUND=
 
-AC_ARG_WITH(gdal, AS_HELP_STRING([--with-gdal], [Use the copy of GDAL at this location]),
-            with_gdal_prefix="$withval", with_gdal_prefix="")
+dnl When pkgconfig support is added, use this
+libdap_libgridfields_module='libgridfields >= 0.7.0'
 
-if test -n "$with_gdal_prefix" -a -x $with_gdal_prefix/bin/gdal-config
-then
-    AC_MSG_NOTICE([Using $with_gdal_prefix as the GDAL prefix directory.])
-    GDAL_LDFLAGS="`$with_gdal_prefix/bin/gdal-config --libs`"
-    GDAL_CFLAGS="`$with_gdal_prefix/bin/gdal-config --cflags`"
-    GDAL_FOUND="yes"
-elif test -n "$with_gdal_prefix"
-then
-    AC_MSG_ERROR([You set the gdal-prefix directory to $with_gdal_prefix, but gdal-config is not there.])
-fi
+libgf_ok="no"
 
-if test -z "$GDAL_FOUND"
+AC_ARG_WITH([gridfields],
+    AC_HELP_STRING([--with-gridfields=path], [Use the gridfields library at this location.]),
+    [if test "$withval" = "yes"
+     then
+         AC_MSG_ERROR([You must supply a path when using --with-gridfields; try --enable-gridfields.])
+     else
+         AC_MSG_NOTICE([Using $withval as the GridFields prefix directory.])
+         GF_LIBS="-L$withval/lib -lgridfields"
+         GF_CFLAGS="-I$withval/include"
+         AC_DEFINE([GRIDFIELDS],[1],[define if gridfields lib is present])
+         libgf_ok="yes"
+     fi],
+    [])
+
+AC_ARG_ENABLE([gridfields],
+    AC_HELP_STRING([--enable-gridfields], [Enable libgridfields-based server functions (default is NO)]))
+
+if test "$libgf_ok" = "no" -a "$enable_gridfields" = "yes"
 then
-    AX_LIB_GDAL([1.7.2])
-    if test ! -z "$GDAL_CFLAGS" -a ! -z "$GDAL_LDFLAGS"; then
-        GDAL_FOUND="yes"
+     
+AC_MSG_CHECKING([for libgridfields])
+if gridfields-config --version > /dev/null 2>&1
+then
+    version_libgf=`gridfields-config --version | sed 's@libgridfields \(.*\)@\1@'`
+
+    version_M=`echo $version_libgf | sed 's@^\([[0-9]]\)*\.\([[0-9]]*\)\.\([[0-9]]*\)$@\1@'`
+    version_m=`echo $version_libgf | sed 's@^\([[0-9]]\)*\.\([[0-9]]*\)\.\([[0-9]]*\)$@\2@'`
+    version_m_m=`echo $version_libgf | sed 's@^\([[0-9]]\)*\.\([[0-9]]*\)\.\([[0-9]]*\)$@\3@'`
+    
+    dnl Test for several different versions of libgridfields
+    
+    if test $version_M -gt 0
+    then
+        libgf_ok='yes'
+    elif test $version_M -eq 0 && test $version_m -gt 7
+    then
+        libgf_ok='yes'
+    elif test $version_M -eq 0 && test $version_m -eq 7 && test $version_m_m -gt 0
+    then
+        libgf_ok='yes'
+    else
+        libgf_ok='no'
     fi
+
+    if test "$libgf_ok"="no"
+    then
+        AC_MSG_ERROR([must have libgf 0.7.0 or greater, found $version_libgf])
+    fi
+
+    GF_LIBS="`gridfields-config --libs`"
+    GF_CFLAGS="`gridfields-config --cflags`"
+
+    AC_DEFINE([GRDIFIELDS],[1],[define if gridfields lib is present])
+    AC_MSG_RESULT([yes; used gridfields-config])
+else
+    AC_MSG_ERROR([I could not find libgridfields])
 fi
 
-if test -z "$GDAL_FOUND"
-then
-    AC_MSG_ERROR([I could not find GDAL.])
 fi
+
+AC_SUBST([GF_LIBS])
+AC_SUBST([GF_CFLAGS])
+
+if test "$libgf_ok" = "yes"
+then
+    echo "Set gridfields CFLAGS to $GF_CFLAGS"
+    echo "Set gridfields LIBS to $GF_LIBS"
+    AM_CONDITIONAL([USING_GRIDFIELDS],[true])
+else
+    AC_MSG_ERROR([You must provide the location of the GridFields library. Use --with-gridfields to do so...])
+fi
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
