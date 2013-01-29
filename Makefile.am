@@ -18,10 +18,10 @@ TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 noinst_LTLIBRARIES = libugrid_functions.la
 
-libugridFunctions_la_SOURCES = $(SRCS) $(HDRS)
-libugridFunctions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
-libugridFunctions_la_LDFLAGS = 
-libugridFunctions_la_LIBADD = $(GF_LIBS) 
+libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)
+libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
+libugrid_functions_la_LDFLAGS = -avoid-version -module 
+libugrid_functions_la_LIBADD = $(GF_LIBS) 
 
 SRCS = \
 	gf2.cc \
