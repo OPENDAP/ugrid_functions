@@ -24,7 +24,6 @@ lib_bes_LTLIBRARIES = libugrid_functions.la
 #noinst_LTLIBRARIES = libugrid_functions.la
 
 SRCS = UgridFunctions.cc \
-	gf2.cc \
 	ugrid_utils.cc \
 	MeshDataVariable.cc \
 	TwoDMeshTopology.cc  \
@@ -37,7 +36,6 @@ HDRS = UgridFunctions.h\
 	ugrid_utils.h \
 	MeshDataVariable.h  \
 	TwoDMeshTopology.h \
-	gf2.h \
 	gf3.h
 
 libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)

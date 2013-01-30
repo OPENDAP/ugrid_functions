@@ -43,8 +43,8 @@ namespace ugrid {
 
 class libdap::BaseType;
 class libdap::Array;
-class MeshDataVariable;
-class Grid;
+class ugrid::MeshDataVariable;
+class libdap::Grid;
 
 /**
  * Identifies the location/rank/dimension that various grid components are associated with.

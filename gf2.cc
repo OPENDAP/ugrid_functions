@@ -388,6 +388,7 @@ static T *extract_array(libdap::Array * a) {
  * *******************************************************************************************************
  */
 
+#if 0
 /**
  * Splits the string on the passed char. Returns vector of substrings.
  * TODO make this work on situations where multiple spaces doesn't hose the split()
@@ -408,6 +409,7 @@ static vector<string> split(const string &s, char delim) {
 	vector<string> elems;
 	return split(s, delim, elems);
 }
+#endif
 
 /**
  *  UGrid attribute vocabulary
@@ -1040,7 +1042,7 @@ static int getNfrom3byNArray(Array *array) {
  *FIXME Make this use less memory. Certainly consider reading the values directly from
  *FIXME the DAP array (after it's read method has been called)
  */
-static GF::Node *getFncArrayAsGFNodes(Array *fncVar) {
+ GF::Node *getFncArrayAsGFNodes(Array *fncVar) {
 
 	DBG(cerr << "getFncArrayAsGFNodes() - BEGIN" << endl);
 
