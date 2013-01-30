@@ -7,7 +7,7 @@
   <bes:setContainer name="catalogContainer" space="catalog">/data/nc/fnoc1.nc</bes:setContainer>
   <bes:define name="d1" space="default">
     <bes:container name="catalogContainer">
-      <bes:constraint>ugr2(0,depth,%2228.0%3Clat%20&amp;%20lat%3C29.0%20&amp;%20-89.0%3Clon%20&amp;%20lon%3C-88.0%22)</bes:constraint>
+      <bes:constraint>ugr3(0,depth,%2228.0%3Clat%20&amp;%20lat%3C29.0%20&amp;%20-89.0%3Clon%20&amp;%20lon%3C-88.0%22)</bes:constraint>
     </bes:container>
   </bes:define>
   <bes:get type="dds" definition="d1"  />
