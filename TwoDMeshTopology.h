@@ -39,7 +39,7 @@
 using namespace std;
 using namespace libdap;
 
-namespace gf3 {
+namespace ugrid {
 
 class libdap::BaseType;
 class libdap::Array;

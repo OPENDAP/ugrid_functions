@@ -36,7 +36,7 @@ using namespace ugrid;
 
 class libdap::Array;
 
-namespace gf3 {
+namespace ugrid {
 
 class MeshDataVariable {
 

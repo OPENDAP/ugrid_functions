@@ -13,17 +13,17 @@ ACLOCAL_AMFLAGS = -I conf
 CXXFLAGS_DEBUG = -g3 -O0 -fno-defer-pop -Wall -W -Wcast-align -Werror
 TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
+
+
 # SUBDIRS = 
 # DIST_SUBDIRS = 
 
-noinst_LTLIBRARIES = libugrid_functions.la
+lib_besdir=$(libdir)/bes
+lib_bes_LTLIBRARIES = libugrid_functions.la
 
-libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)
-libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
-libugrid_functions_la_LDFLAGS = -avoid-version -module 
-libugrid_functions_la_LIBADD = $(GF_LIBS) 
+#noinst_LTLIBRARIES = libugrid_functions.la
 
-SRCS = \
+SRCS = UgridFunctions.cc \
 	gf2.cc \
 	ugrid_utils.cc \
 	MeshDataVariable.cc \
@@ -32,10 +32,42 @@ SRCS = \
 
 # NC_GOES_Dataset.cpp NC_GOES_Dataset.h
 
-HDRS = \
+HDRS = UgridFunctions.h\
 	LocationType.h \
 	ugrid_utils.h \
 	MeshDataVariable.h  \
 	TwoDMeshTopology.h \
 	gf2.h \
 	gf3.h
+
+libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)
+libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
+libugrid_functions_la_LDFLAGS = -avoid-version -module 
+libugrid_functions_la_LIBADD = $(GF_LIBS) 
+
+
+	
+install-data-local: ugrid_functions.conf
+	@currdate=`date +"%y%m%d%H%M"`; \
+	test -d $(DESTDIR)$(sysconfdir)/bes || $(MKDIR_P) $(DESTDIR)$(sysconfdir)/bes; \
+	test -d $(DESTDIR)$(sysconfdir)/bes/modules || $(MKDIR_P) $(DESTDIR)$(sysconfdir)/bes/modules; \
+	test -f $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf && mv -f $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf.$$currdate; \
+	$(INSTALL_DATA) ugrid_functions.conf $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf
+	
+uninstall-local:
+	rm -f $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf
+	
+ugrid_functions.conf: ugrid_functions.conf.in ../config.status
+	sed -e "s%[@]pkgdatadir[@]%${pkgdatadir}%" \
+                -e "s%[@]sysconfdir[@]%${sysconfdir}%" \
+                -e "s%[@]pkglibdir[@]%${pkglibdir}%" \
+                -e "s%[@]datarootdir[@]%${datarootdir}%" \
+                -e "s%[@]datadir[@]%${datadir}%" \
+                -e "s%[@]bindir[@]%${bindir}%" \
+                -e "s%[@]bes_modules_dir[@]%${lib_besdir}%" $< > ugrid_functions.conf
+
+
+
+
+
+	

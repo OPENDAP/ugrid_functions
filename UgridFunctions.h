@@ -1,13 +1,10 @@
-// -*- mode: c++; c-basic-offset:4 -*-
+// UgridFunctions.h
 
-// This file is part of libdap, A C++ implementation of the OPeNDAP Data
-// Access Protocol.
+// This file is part of bes, A C++ back-end server implementation framework
+// for the OPeNDAP Data Access Protocol.
 
-// Copyright (c) 2002,2003,2011,2012 OPeNDAP, Inc.
-// Authors: Nathan Potter <ndp@opendap.org>
-//          James Gallagher <jgallagher@opendap.org>
-//          Scott Moe <smeest1@gmail.com>
-//          Bill Howe <billhowe@cs.washington.edu>
+// Copyright (c) 2013 OPeNDAP, Inc.
+// Author: Nathan Potter <ndp@opendap.org>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -25,21 +22,31 @@
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 
-// NOTE: This file is built only when the gridfields library is linked with
-// the netcdf_handler (i.e., the handler's build is configured using the
-// --with-gridfields=... option to the 'configure' script).
 
-#ifndef _gf3_h
-#define _gf3_h
+#ifndef UGRIDFUNCTIONS_H_
+#define UGRIDFUNCTIONS_H_
 
-#include "BaseType.h"
-#include "DDS.h"
+//namespace ugrid {
 
-using namespace libdap;
+#include "BESAbstractModule.h"
 
-namespace gf3 {
+class UgridFunctions: public BESAbstractModule {
+public:
+	UgridFunctions()
+    {
+    }
+    virtual ~UgridFunctions()
+    {
+    }
+    virtual void initialize(const string &modname);
+    virtual void terminate(const string &modname);
 
-void function_ugr3(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp) ;
+    virtual void dump(ostream &strm) const;
+};
 
-}
-#endif // _gf3_h
+
+
+
+
+//} /* namespace ugrid */
+#endif /* UGRIDFUNCTIONS_H_ */

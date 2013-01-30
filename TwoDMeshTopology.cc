@@ -54,14 +54,19 @@
 
 using namespace std;
 using namespace libdap;
+using namespace ugrid;
 
-namespace gf3 {
+namespace ugrid {
 
 TwoDMeshTopology::TwoDMeshTopology():myVar(0),gridTopology(0),inputGridField(0),resultGridField(0),sharedNodeArray(0)
 {
 	rangeDataArrays = new vector<MeshDataVariable *>();
 	sharedIntArrays = new vector<int *>();
 	sharedFloatArrays = new vector<float *>();
+
+	nodeCount = 0;
+	nodeCoordinateArrays = 0;
+	faceNodeConnectivityArray = 0;
 }
 
 TwoDMeshTopology::~TwoDMeshTopology()

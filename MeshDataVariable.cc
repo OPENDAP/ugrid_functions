@@ -39,10 +39,15 @@
 
 using namespace std;
 using namespace libdap;
+using namespace ugrid;
 
-namespace gf3 {
+namespace ugrid {
 
-MeshDataVariable::MeshDataVariable(){}
+MeshDataVariable::MeshDataVariable(){
+	myLocation = node;
+	meshDataVar = 0;
+	meshTopologyVariable = 0;
+}
 
 void MeshDataVariable::init(libdap::Array *rangeVar)
 {

@@ -32,11 +32,12 @@
 #ifndef _gf2_h
 #define _gf2_h
 
-//#include <BaseType.h>
-//#include <DDS.h>
+
+using namespace libdap;
+
 namespace gf2 {
 
-void function_ugr2(int argc, BaseType * argv[], DDS &dds, BaseType **btpp) ;
+void function_ugr2(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp) ;
 
 }
 #endif // _gf2_h
