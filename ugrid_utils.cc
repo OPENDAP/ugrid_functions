@@ -499,6 +499,16 @@ int getNfrom3byNArray(libdap::Array *array)
 }
 
 
+/**
+ * Retrieves the size of the second dimension from a 3xN array. Throws an
+ * Error if the array is not the correct shape.
+ */
+int shmoo()
+{
+	extractArray<unsigned int>(0);
+	return 1;
+}
+
 
 
 } // namespace ugrid
