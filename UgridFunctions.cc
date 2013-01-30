@@ -30,7 +30,7 @@ using std::endl;
 #include "gf3.h"
 #include "gf2.h"
 #include "ce_functions.h"
-#include "BESServerFunctionsList.h"
+#include "ServerFunctionsList.h"
 #include "BESDebug.h"
 
 //namespace ugrid {
@@ -38,8 +38,8 @@ using std::endl;
 void UgridFunctions::initialize(const string &modname) {
 	BESDEBUG( "UgridFunctions", "Initializing UgridFunctions:" << endl );
 
-	BESServerFunctionsList::TheList()->add_function("ugr3", gf3::function_ugr3);
-	BESServerFunctionsList::TheList()->add_function("ugr2", gf2::function_ugr2);
+	libdap::ServerFunctionsList::TheList()->add_function("ugr3", gf3::function_ugr3);
+	libdap::ServerFunctionsList::TheList()->add_function("ugr2", gf2::function_ugr2);
 
 	BESDEBUG( "UgridFunctions", "Done initializing UgridFunctions" << endl );
 }
