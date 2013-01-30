@@ -29,6 +29,8 @@ SRCS = UgridFunctions.cc \
 	TwoDMeshTopology.cc  \
 	gf3.cc
 
+#        gf2.cc 
+
 # NC_GOES_Dataset.cpp NC_GOES_Dataset.h
 
 HDRS = UgridFunctions.h\
@@ -38,23 +40,24 @@ HDRS = UgridFunctions.h\
 	TwoDMeshTopology.h \
 	gf3.h
 
+#       gf2.h 
+
 libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)
 libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
 libugrid_functions_la_LDFLAGS = -avoid-version -module 
 libugrid_functions_la_LIBADD = $(GF_LIBS) 
 
 
-	
 install-data-local: ugrid_functions.conf
 	@currdate=`date +"%y%m%d%H%M"`; \
 	test -d $(DESTDIR)$(sysconfdir)/bes || $(MKDIR_P) $(DESTDIR)$(sysconfdir)/bes; \
 	test -d $(DESTDIR)$(sysconfdir)/bes/modules || $(MKDIR_P) $(DESTDIR)$(sysconfdir)/bes/modules; \
 	test -f $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf && mv -f $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf.$$currdate; \
 	$(INSTALL_DATA) ugrid_functions.conf $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf
-	
+
 uninstall-local:
 	rm -f $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf
-	
+
 ugrid_functions.conf: ugrid_functions.conf.in ../config.status
 	sed -e "s%[@]pkgdatadir[@]%${pkgdatadir}%" \
                 -e "s%[@]sysconfdir[@]%${sysconfdir}%" \
@@ -63,9 +66,3 @@ ugrid_functions.conf: ugrid_functions.conf.in ../config.status
                 -e "s%[@]datadir[@]%${datadir}%" \
                 -e "s%[@]bindir[@]%${bindir}%" \
                 -e "s%[@]bes_modules_dir[@]%${lib_besdir}%" $< > ugrid_functions.conf
-
-
-
-
-
-	

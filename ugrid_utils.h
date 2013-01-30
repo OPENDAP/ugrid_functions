@@ -53,10 +53,88 @@ class libdap::Array;
 #define UGRID_MESH "mesh"
 #define UGRID_START_INDEX "start_index"
 
-
 GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
-template<typename T> T *extractArray(libdap::Array * a);
-template<typename DODS, typename T> T *extract_array_helper(libdap::Array *a);
+
+/**
+ * DAP Array data extraction helper method.
+ */
+template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
+    int length = a->length();
+
+    DODS *src = new DODS[length];
+
+    a->value(src);
+
+    T *dest = new T[length];
+
+    for (int i = 0; i < length; ++i)
+        dest[i] = (T) src[i];
+
+    delete [] src;
+
+    return dest;
+}
+
+/** Given a pointer to an Array that holds a numeric type, extract the
+ values and return in an array of T. This function allocates the
+ array using 'new T[n]' so delete[] can be used when you are done
+ the data. */
+template<typename T> T *extractArray(libdap::Array *a) {
+
+    // Simple types are Byte, ..., Float64, String and Url.
+    if ((a->type() == dods_array_c && !a->var()->is_simple_type())
+            || a->var()->type() == dods_str_c || a->var()->type() == dods_url_c)
+        throw Error(malformed_expr,
+                "The function requires a DAP numeric-type array argument.");
+
+    a->set_send_p(true);
+    a->read();
+    // This test should never pass due to the previous two lines;
+    // reading here seems to make
+    // sense rather than letting the caller forget to do so.
+    // is read() idemopotent?
+    if (!a->read_p())
+        throw InternalErr(__FILE__, __LINE__,
+                string("The Array '") + a->name()
+                        + "'does not contain values. send_read_p() not called?");
+
+
+
+    // The types of arguments that the CE Parser will build for numeric
+    // constants are limited to Uint32, Int32 and Float64. See ce_expr.y.
+    // Expanded to work for any numeric type so it can be used for more than
+    // just arguments.
+    switch (a->var()->type()) {
+    case dods_byte_c:
+        return extract_array_helper<dods_byte, T>(a);
+
+    case dods_uint16_c:
+        return extract_array_helper<dods_uint16, T>(a);
+
+    case dods_int16_c:
+        return extract_array_helper<dods_int16, T>(a);
+
+    case dods_uint32_c:
+        return extract_array_helper<dods_uint32, T>(a);
+
+    case dods_int32_c:
+        return extract_array_helper<dods_int32, T>(a);
+
+    case dods_float32_c:
+        // Added the following line. jhrg 8/7/12
+        return extract_array_helper<dods_float32, T>(a);
+
+    case dods_float64_c:
+        return extract_array_helper<dods_float64, T>(a);
+
+    default:
+        throw InternalErr(__FILE__, __LINE__,
+                "The argument list built by the CE parser contained an unsupported numeric type.");
+    }
+}
+
+//template<typename T> T *extractArray(libdap::Array * a);
+//template<typename DODS, typename T> T *extract_array_helper(libdap::Array *a);
 
 
 string getAttributeValue(libdap::BaseType *bt, string aName) ;

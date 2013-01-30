@@ -74,6 +74,7 @@ using namespace std;
 
 namespace ugrid {
 
+#if 0
 /**
  * DAP Array data extraction helper method.
  */
@@ -115,7 +116,7 @@ template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
 
 	return dest;
 }
-
+#endif
 #if 0
 /**
  * Extract data from a DAP array and return those values in a gridfields
@@ -288,7 +289,7 @@ GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays
 	return gfa;
 }
 
-
+#if 0
 /** Given a pointer to an Array that holds a numeric type, extract the
  values and return in an array of T. This function allocates the
  array using 'new T[n]' so delete[] can be used when you are done
@@ -354,6 +355,7 @@ template<typename T> T *extractArray(libdap::Array *a) {
 				"The argument list built by the CE parser contained an unsupported numeric type.");
 	}
 }
+#endif
 
 /**
  * Splits the string on the passed char. Returns vector of substrings.
