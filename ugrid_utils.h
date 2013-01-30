@@ -36,7 +36,7 @@ using namespace libdap;
 
 namespace ugrid {
 
-class Array;
+class libdap::Array;
 
 /**
  *  UGrid attribute vocabulary
@@ -55,7 +55,7 @@ class Array;
 
 
 GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
-template<typename T> T *extract_array(libdap::Array * a);
+template<typename T> T *extractArray(libdap::Array * a);
 template<typename DODS, typename T> T *extract_array_helper(libdap::Array *a);
 
 

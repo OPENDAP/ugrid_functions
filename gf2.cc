@@ -70,6 +70,8 @@
 #include <gridfields/implicit0cells.h>
 #include <gridfields/gridfieldoperator.h>
 
+#include "ugrid_utils.h"
+
 //  We wrapped VC++ 6.x strtod() to account for a short coming
 //  in that function in regards to "NaN".  I don't know if this
 //  still applies in more recent versions of that product.
@@ -81,14 +83,17 @@ double w32strtod(const char *, char **);
 
 using namespace std;
 using namespace libdap;
+using namespace ugrid;
 
 namespace gf2 {
 
+
+#if 0
 /**
  * DAP Array data extraction helper method.
  */
 template<typename DODS, typename T>
-static T *extract_array_helper(Array *a) {
+static T *extract_array_helper(libdap::Array *a) {
 	int length = a->length();
 
 	DBG(
@@ -223,7 +228,7 @@ static GF::Array *extract_gridfield_array(Array *a) {
  * @param a The DAP Array. Extract values from this array
  * @return A GF::Array
  */
-static GF::Array *extractGridFieldArray(Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays) {
+static GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays) {
 	if ((a->type() == dods_array_c && !a->var()->is_simple_type())
 			|| a->var()->type() == dods_str_c || a->var()->type() == dods_url_c)
 		throw Error(malformed_expr,
@@ -305,7 +310,7 @@ static GF::Array *extractGridFieldArray(Array *a, vector<int*> *sharedIntArrays,
  array using 'new T[n]' so delete[] can be used when you are done
  the data. */
 template<typename T>
-static T *extract_array(Array * a) {
+static T *extract_array(libdap::Array * a) {
 
 	// Simple types are Byte, ..., Float64, String and Url.
 	if ((a->type() == dods_array_c && !a->var()->is_simple_type())
@@ -366,6 +371,7 @@ static T *extract_array(Array * a) {
 				"The argument list built by the CE parser contained an unsupported numeric type.");
 	}
 }
+#endif
 
 
 /**
@@ -1044,7 +1050,7 @@ static GF::Node *getFncArrayAsGFNodes(Array *fncVar) {
 	GF::Node *cellids = new GF::Node[fncVar->length()];
 
 	DBG(cerr << "getFncArrayAsGFNodes() - Reading DAP data into GF::Node array." << endl);
-	GF::Node *cellids2 = extract_array<GF::Node>(fncVar);
+	GF::Node *cellids2 = ugrid::extractArray<GF::Node>(fncVar);
 
 	// Reorganize the cell ids so that cellids contains
 	// the cells in three consecutive values (0,1,2; 3,4,5; ...).

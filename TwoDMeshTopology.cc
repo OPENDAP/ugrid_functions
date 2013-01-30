@@ -357,7 +357,7 @@ GF::Node *TwoDMeshTopology::getFncArrayAsGFNodes(libdap::Array *fncVar)
 	GF::Node *cellids = new GF::Node[fncVar->length()];
 
 	DBG(cerr << "getFncArrayAsGFNodes() - Reading DAP data into GF::Node array." << endl);
-	GF::Node *cellids2 = extract_array<GF::Node>(fncVar);
+	GF::Node *cellids2 = ugrid::extractArray<GF::Node>(fncVar);
 
 	// Reorganize the cell ids so that cellids contains
 	// the cells in three consecutive values (0,1,2; 3,4,5; ...).

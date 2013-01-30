@@ -70,7 +70,7 @@
 #include "ugrid_utils.h"
 
 using namespace std;
-using namespace libdap;
+//using namespace libdap;
 
 namespace ugrid {
 
@@ -288,11 +288,12 @@ GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays
 	return gfa;
 }
 
+
 /** Given a pointer to an Array that holds a numeric type, extract the
  values and return in an array of T. This function allocates the
  array using 'new T[n]' so delete[] can be used when you are done
  the data. */
-template<typename T> T *extract_array(libdap::Array * a) {
+template<typename T> T *extractArray(libdap::Array *a) {
 
 	// Simple types are Byte, ..., Float64, String and Url.
 	if ((a->type() == dods_array_c && !a->var()->is_simple_type())
