@@ -1394,7 +1394,7 @@ static void releaseTDMT(TwoDMeshTopology *tdmt){
 
  @exception Error Thrown If the Array is not a one dimensional
  array. */
-void function_ugr3(int argc, BaseType * argv[], DDS &dds, BaseType **btpp)
+void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
 	DBG(cerr << "function_ugr3() - BEGIN" << endl);
 
