@@ -47,28 +47,6 @@ public:
 };
 
 
-/**
- * The UGrid3Function class encapsulates the echo arguments function 'gf3::function_ugr3'
- * along with additional meta-data regarding its use and applicability.
- */
-class UGridRestrict3Function: public libdap::AbstractFunction {
-public:
-	UGridRestrict3Function()
-    {
-		setName("ugr3");
-		setDescriptionString("This function can subset the node data of a two dimensional triangular mesh unstructured grid.");
-		setUsageString("ugr3(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
-		setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
-		setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
-		setFunction(gf3::function_ugr3);
-		setVersion("1.0");
-    }
-    virtual ~UGridRestrict3Function()
-    {
-    }
-
-};
-
 
 
 

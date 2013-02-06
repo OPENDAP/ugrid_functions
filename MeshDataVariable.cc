@@ -30,7 +30,7 @@
 #include <gridfields/array.h>
 
 #include "Array.h"
-#include "debug.h"
+#include "BesDebug.h"
 
 #include "ugrid_utils.h"
 #include "LocationType.h"
@@ -52,7 +52,7 @@ MeshDataVariable::MeshDataVariable(){
 void MeshDataVariable::init(libdap::Array *rangeVar)
 {
 	meshDataVar = rangeVar;
-	DBG(cerr << "init() - The user submitted the range data array: " << rangeVar->name() << endl);
+	BESDEBUG("MeshDataVariable::init", "The user submitted the range data array: " << rangeVar->name() << endl);
 
 	/**
 	 * TODO: STOP doing this check and deal with face nodes!
@@ -74,7 +74,7 @@ void MeshDataVariable::init(libdap::Array *rangeVar)
 
 	meshName = getAttributeValue(rangeVar, UGRID_MESH);
 
-	DBG(cerr << "init() - Range data array refers to 'mesh' variable:: " << meshVarName << endl);
+	BESDEBUG("MeshDataVariable::init", "Range data array refers to 'mesh' variable:: " << meshName << endl);
 
 }
 

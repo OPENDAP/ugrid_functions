@@ -87,6 +87,8 @@ private:
 	//vector<Array *> *coordinateArrays;
 public:
 
+
+
 	MeshDataVariable();
 
 	void setLocation(locationType loc){myLocation = loc;}

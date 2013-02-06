@@ -50,7 +50,7 @@
 #include "MeshDataVariable.h"
 #include "TwoDMeshTopology.h"
 
-#include "debug.h"
+#include "BesDebug.h"
 
 using namespace std;
 using namespace libdap;
@@ -71,47 +71,48 @@ TwoDMeshTopology::TwoDMeshTopology():myVar(0),gridTopology(0),inputGridField(0),
 
 TwoDMeshTopology::~TwoDMeshTopology()
 {
-    DBG(cerr << "Entering ~TwoDMeshTopology (" << this << ")" << endl);
+	BESDEBUG("~TwoDMeshTopology", "BEGIN" << endl);
+	BESDEBUG("~TwoDMeshTopology", "(" << this << ")" << endl);
 
-	DBG(cerr << "~TwoDMeshTopology() - Deleting resultGridField." << endl);
+	BESDEBUG("~TwoDMeshTopology", "Deleting resultGridField." << endl);
 	delete resultGridField;
 
-	DBG(cerr << "~TwoDMeshTopology() - Deleting inputGridField." << endl);
+	BESDEBUG("~TwoDMeshTopology", "Deleting inputGridField." << endl);
 	delete inputGridField;
 
-	DBG(cerr << "releaseTDMT() - Deleting gridTopology." << endl);
+	BESDEBUG("~TwoDMeshTopology", "Deleting gridTopology." << endl);
 	delete gridTopology;
 
-	DBG(cerr << "~TwoDMeshTopology() - Deleting sharedIntArrays..." << endl);
+	BESDEBUG("~TwoDMeshTopology", "Deleting sharedIntArrays..." << endl);
 	for (vector<int *>::iterator it = sharedIntArrays->begin(); it != sharedIntArrays->end(); ++it) {
 		int *i = *it;
-		DBG(cerr << "~TwoDMeshTopology() - Deleting int array '" << i << "'" << endl);
+		BESDEBUG("~TwoDMeshTopology", "Deleting int array '" << i << "'" << endl);
 		delete [] i;
 	}
 	delete sharedIntArrays;
 
-	DBG(cerr << "~TwoDMeshTopology() - Deleting sharedFloatArrays..." << endl);
+	BESDEBUG("~TwoDMeshTopology", "Deleting sharedFloatArrays..." << endl);
 	for (vector<float *>::iterator it = sharedFloatArrays->begin(); it != sharedFloatArrays->end(); ++it) {
 		float *f = *it;
-		DBG(cerr << "~TwoDMeshTopology() - Deleting float array '" << f << "'" << endl);
+		BESDEBUG("~TwoDMeshTopology", "Deleting float array '" << f << "'" << endl);
 		delete [] f;
 	}
 	delete sharedFloatArrays;
 
-	DBG(cerr << "~TwoDMeshTopology() - Deleting MeshDataVariables..." << endl);
+	BESDEBUG("~TwoDMeshTopology", "Deleting MeshDataVariables..." << endl);
 	vector<MeshDataVariable *>::iterator mdvIt;
 	for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
 		MeshDataVariable *mdv = *mdvIt;
-		DBG(cerr << "~TwoDMeshTopology() - Deleting MeshDataVariable '"<< mdv->meshDataVar->name()<< "'" << endl);
+		BESDEBUG("~TwoDMeshTopology", "Deleting MeshDataVariable '"<< mdv->getName() << "'" << endl);
 		delete mdv;
 	}
 	delete rangeDataArrays;
 
-	DBG(cerr << "~TwoDMeshTopology() - Deleting GF::Node array." << endl);
+	BESDEBUG("~TwoDMeshTopology", "Deleting GF::Node array." << endl);
 	delete sharedNodeArray;
 
 
-    DBG(cerr << "Exiting ~TwoDMeshTopology" << endl);
+	BESDEBUG("~TwoDMeshTopology", "END" << endl);
 }
 
 void TwoDMeshTopology::init(string meshVarName, DDS &dds)
@@ -165,7 +166,7 @@ void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
 libdap::Array *TwoDMeshTopology::getFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS &dds)
 {
 
-    DBG(cerr << "getFaceNodeConnectivityArray() - "  << "Locating FNCA" << endl);
+	BESDEBUG("TwoDMeshTopology::getFaceNodeConnectivityArray", "Locating FNCA" << endl);
 
 	string face_node_connectivity_var_name;
     AttrTable at = meshTopology->get_attr_table();
@@ -196,7 +197,7 @@ libdap::Array *TwoDMeshTopology::getFaceNodeConnectivityArray(libdap::BaseType *
     }
 
 
-    DBG(cerr << "getFaceNodeConnectivityArray() - "  << "Got FCNA '"+fncArray->name()+"'" << endl);
+    BESDEBUG("TwoDMeshTopology::getFaceNodeConnectivityArray", "Got FCNA '"+fncArray->name()+"'" << endl);
 
     return fncArray;
 
@@ -210,7 +211,7 @@ libdap::Array *TwoDMeshTopology::getFaceNodeConnectivityArray(libdap::BaseType *
  */
 vector<libdap::Array *> *TwoDMeshTopology::getNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds)
 {
-	DBG(cerr << "getNodeCoordinatesArrays() - " << "BEGIN Gathering node coordinate arrays..." << endl);
+	BESDEBUG("TwoDMeshTopology::getNodeCoordinateArrays", "BEGIN Gathering node coordinate arrays..." << endl);
 
 	string node_coordinates;
 	AttrTable at = meshTopology->get_attr_table();
@@ -273,7 +274,7 @@ vector<libdap::Array *> *TwoDMeshTopology::getNodeCoordinateArrays(libdap::BaseT
 	}
 
 
-	DBG(cerr << "getNodeCoordinatesArrays() - " << "DONE" << endl);
+	BESDEBUG("TwoDMeshTopology::getNodeCoordinateArrays", "DONE" << endl);
 
 	return nodeCoordinateArrays;
 
@@ -282,15 +283,15 @@ vector<libdap::Array *> *TwoDMeshTopology::getNodeCoordinateArrays(libdap::BaseT
 void TwoDMeshTopology::buildGridFieldsTopology()
 {
 
-	DBG(cerr << "buildGridFieldsTopology() - Building GridFields objects for mesh_topology variable "<< tdmt->myVar->name() << endl);
+	BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Building GridFields objects for mesh_topology variable "<< myVar->name() << endl);
 	// Start building the Grid for the GridField operation.
 	// This is, I think essentially a representation of the
 	// mesh_topology
-	DBG(cerr << "buildGridFieldsTopology() - Constructing new GF::Grid for "<< name << endl);
+	BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Constructing new GF::Grid for "<< name() << endl);
 	gridTopology = new GF::Grid(name());
 
 	// 1) Make the implicit nodes - same size as the range and the coordinate node arrays
-	DBG(cerr << "buildGridFieldsTopology() - Building and adding implicit range Nodes to the GF::Grid" << endl);
+	BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Building and adding implicit range Nodes to the GF::Grid" << endl);
 	GF::AbstractCellArray *nodes = new GF::Implicit0Cells(nodeCount);
 	// Attach the implicit nodes to the grid at rank 0
 	gridTopology->setKCells(nodes, node);
@@ -298,17 +299,17 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 	// Attach the Mesh to the grid.
 	// Get the face node connectivity cells (i think these correspond to the GridFields K cells of Rank 2)
 	// FIXME Read this array once! It is read again below..
-	DBG(cerr << "buildGridFieldsTopology() - Building face node connectivity Cell array from the DAP version" << endl);
+	BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Building face node connectivity Cell array from the DAP version" << endl);
 	GF::CellArray *faceNodeConnectivityCells = getFaceNodeConnectivityCells();
 
 	// Attach the Mesh to the grid at rank 2
 	// TODO Is this 2 the same as the value of the "dimension" attribute in the "mesh_topology" variable?
 	// This 2 stands for rank 2, or faces.
-	DBG(cerr << "buildGridFieldsTopology() - Attaching Cell array to GF::Grid" << endl);
+	BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Attaching Cell array to GF::Grid" << endl);
 	gridTopology->setKCells(faceNodeConnectivityCells, face);
 
 	// The Grid is complete. Now we make a GridField from the Grid
-	DBG(cerr << "buildGridFieldsTopology() - Construct new GF::GridField from GF::Grid" << endl);
+	BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Construct new GF::GridField from GF::Grid" << endl);
 	inputGridField = new GF::GridField(gridTopology);
 	// TODO Question for Bill: Can we delete the GF::Grid (tdmt->gridTopology) here?
 
@@ -317,7 +318,7 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 	vector<libdap::Array *>::iterator ncit;
 	for (ncit = nodeCoordinateArrays->begin(); ncit != nodeCoordinateArrays->end(); ++ncit) {
 		libdap::Array *nca = *ncit;
-		DBG(cerr << "buildGridFieldsTopology() - Adding node coordinate "<< nca->name() << " to GF::GridField at rank 0" << endl);
+		BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Adding node coordinate "<< nca->name() << " to GF::GridField at rank 0" << endl);
 		GF::Array *gfa = extractGridFieldArray(nca,sharedIntArrays,sharedFloatArrays);
 		inputGridField->AddAttribute(node, gfa);
 	}
@@ -328,7 +329,7 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 	for (vector<MeshDataVariable *>::iterator mdv_it = rangeDataArrays->begin(); mdv_it != rangeDataArrays->end(); ++mdv_it) {
 		MeshDataVariable *mdVar = *mdv_it;
 		GF::Array *gfa = extractGridFieldArray(mdVar->getDapArray(),sharedIntArrays,sharedFloatArrays);
-		DBG(cerr << "buildGridFieldsTopology() - Adding mesh data variable '"<< mdVar->name() <<"' to GF::GridField at rank 0" << endl);
+		BESDEBUG("TwoDMeshTopology::buildGridFieldsTopology", "Adding mesh data variable '"<< mdVar->getName() <<"' to GF::GridField at rank 0" << endl);
 		inputGridField->AddAttribute(node, gfa);
 	}
 
@@ -349,21 +350,21 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 GF::Node *TwoDMeshTopology::getFncArrayAsGFNodes(libdap::Array *fncVar)
 {
 
-	DBG(cerr << "getFncArrayAsGFNodes() - BEGIN" << endl);
+	BESDEBUG("TwoDMeshTopology::getFncArrayAsGFNodes", "BEGIN" << endl);
 
 	int N = getNfrom3byNArray(fncVar);
 
 	// interpret the array data as triangles
 	GF::Node *cellids = new GF::Node[fncVar->length()];
 
-	DBG(cerr << "getFncArrayAsGFNodes() - Reading DAP data into GF::Node array." << endl);
+	BESDEBUG("TwoDMeshTopology::getFncArrayAsGFNodes", "Reading DAP data into GF::Node array." << endl);
 	GF::Node *cellids2 = ugrid::extractArray<GF::Node>(fncVar);
 
 	// Reorganize the cell ids so that cellids contains
 	// the cells in three consecutive values (0,1,2; 3,4,5; ...).
 	// The the values from  fncVar now in cellids2 and ar organized
 	// as 0,N,2N; 1,1+N,1+2N; ...
-	DBG(cerr << "getFncArrayAsGFNodes() - Re-packing and copying GF::Node array to result." << endl);
+	BESDEBUG("TwoDMeshTopology::getFncArrayAsGFNodes", "Re-packing and copying GF::Node array to result." << endl);
 	for (int j = 0; j < N; j++) {
 		cellids[3 * j] = cellids2[j];
 		cellids[3 * j + 1] = cellids2[j + N];
@@ -371,10 +372,10 @@ GF::Node *TwoDMeshTopology::getFncArrayAsGFNodes(libdap::Array *fncVar)
 	}
 
 
-	DBG(cerr << "getFncArrayAsGFNodes() - Deleting intermediate GF::Node array." << endl);
+	BESDEBUG("TwoDMeshTopology::getFncArrayAsGFNodes", "Deleting intermediate GF::Node array." << endl);
 	delete [] cellids2;
 
-	DBG(cerr << "getFncArrayAsGFNodes() - DONE" << endl);
+	BESDEBUG("TwoDMeshTopology::getFncArrayAsGFNodes", "DONE" << endl);
 
 	return cellids;
 }
@@ -388,11 +389,11 @@ int TwoDMeshTopology::getStartIndex(libdap::Array *array)
 	AttrTable &at = array->get_attr_table();
 	AttrTable::Attr_iter start_index_iter = at.simple_find(UGRID_START_INDEX);
 	if (start_index_iter != at.attr_end()) {
-		DBG(cerr << "getStartIndex() - "<< "Found the "<< _start_index<<" attribute." << endl);
+		BESDEBUG("TwoDMeshTopology::getStartIndex", "Found the "<< UGRID_START_INDEX <<" attribute." << endl);
 		AttrTable::entry *start_index_entry = *start_index_iter;
 		if (start_index_entry->attr->size() == 1) {
 			string val = (*start_index_entry->attr)[0];
-			DBG(cerr << "getStartIndex() - " << "value: " << val << endl);
+			BESDEBUG("TwoDMeshTopology::getStartIndex", "value: " << val << endl);
 			stringstream buffer(val);
 			// what happens if string cannot be converted to an integer?
 			int start_index;
@@ -413,21 +414,22 @@ int TwoDMeshTopology::getStartIndex(libdap::Array *array)
  */
 GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 {
-	DBG(cerr << "getFaceNodeConnectivityCells() - Building face node connectivity Cell " <<
+
+	BESDEBUG("TwoDMeshTopology::getFaceNodeConnectivityCells", "Building face node connectivity Cell " <<
 			"array from the Array "<< faceNodeConnectivityArray->name() << endl);
 
 	int rank2CellCount = getNfrom3byNArray(faceNodeConnectivityArray);
 
 	int total_size = 3 * rank2CellCount;
 
-	DBG(cerr << "getFaceNodeConnectivityCells() - Retrieving shared GF::Node array 'cellids' "<< cellids << endl);
+	BESDEBUG("TwoDMeshTopology::getFaceNodeConnectivityCells", "Converting FNCArray to GF::Node array." << endl);
 	sharedNodeArray = getFncArrayAsGFNodes(faceNodeConnectivityArray);
 
 
 	// adjust for the start_index (cardinal or ordinal array access)
 	int startIndex = getStartIndex(faceNodeConnectivityArray);
 	if (startIndex != 0) {
-		DBG(cerr << "getFaceNodeConnectivityCells() - Applying startIndex to GF::Node array 'cellids'." << endl);
+		BESDEBUG("TwoDMeshTopology::getFaceNodeConnectivityCells", "Applying startIndex to GF::Node array." << endl);
 		for (int j = 0; j < total_size; j++) {
 			sharedNodeArray[j] -= startIndex;
 		}
@@ -438,7 +440,7 @@ GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 	GF::CellArray *rankTwoCells = new GF::CellArray(sharedNodeArray, rank2CellCount, 3);
 
 
-	DBG(cerr << "getFaceNodeConnectivityCells() - DONE" << endl);
+	BESDEBUG("TwoDMeshTopology::getFaceNodeConnectivityCells", "DONE" << endl);
 	return rankTwoCells;
 
 }
@@ -448,12 +450,12 @@ GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpression)
 {
 	// Build the restriction operator;
-	DBG(cerr << "applyOperator() - Constructing new GF::RestrictOp using user "<<
+	BESDEBUG("TwoDMeshTopology::applyRestrictOperator", "Constructing new GF::RestrictOp using user "<<
 			"supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
 	GF::RestrictOp op = GF::RestrictOp(filterExpression, loc, inputGridField);
 
 	// Apply the operator and get the result;
-	DBG(cerr << "applyOperator() - Applying GridField operator." << endl);
+	BESDEBUG("TwoDMeshTopology::applyRestrictOperator", "Applying GridField operator." << endl);
 	GF::GridField *resultGF = op.getResult();
 	resultGridField = resultGF;
 }
@@ -467,15 +469,15 @@ void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpr
 vector<BaseType *> *TwoDMeshTopology::convertResultGridFieldToDapObjects()
 {
 
-	DBG(cerr << "convertResultGridFieldToDapObject() - BEGIN" << endl);
+	BESDEBUG("TwoDMeshTopology::convertResultGridFieldToDapObjects", "BEGIN" << endl);
 
 	vector<BaseType *> *results = new vector<BaseType *>();
 
-	DBG(cerr << "convertResultGridFieldToDapObject() - Normalizing Grid." << endl);
+	BESDEBUG("TwoDMeshTopology::convertResultGridFieldToDapObjects", "Normalizing Grid." << endl);
 	resultGridField->GetGrid()->normalize();
 
 	// Add the coordinate node arrays to the response.
-	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the coordinate node arrays to the response." << endl);
+	BESDEBUG("TwoDMeshTopology::convertResultGridFieldToDapObjects", "Adding the coordinate node arrays to the response." << endl);
 	vector<libdap::Array *>::iterator it;
 	for (it = nodeCoordinateArrays->begin(); it != nodeCoordinateArrays->end(); ++it) {
 		libdap::Array *sourceCoordinateArray = *it;
@@ -484,7 +486,7 @@ vector<BaseType *> *TwoDMeshTopology::convertResultGridFieldToDapObjects()
 	}
 
 	// Add the range variable data arrays to the response.
-	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the range variable data arrays to the response." << endl);
+	BESDEBUG("TwoDMeshTopology::convertResultGridFieldToDapObjects", "Adding the range variable data arrays to the response." << endl);
 	vector<MeshDataVariable *>::iterator mdvIt;
 	for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
 		MeshDataVariable *mdv = *mdvIt;
@@ -493,11 +495,11 @@ vector<BaseType *> *TwoDMeshTopology::convertResultGridFieldToDapObjects()
 	}
 
 	// Add the new face node connectivity array - make sure it has the same attributes as the original.
-	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the new face node connectivity array to the response." << endl);
+	BESDEBUG("TwoDMeshTopology::convertResultGridFieldToDapObjects", "Adding the new face node connectivity array to the response." << endl);
 	libdap::Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField, faceNodeConnectivityArray);
 	results->push_back(resultFaceNodeConnectivityDapArray);
 
-	DBG(cerr << "convertResultGridFieldToDapObject() - END" << endl);
+	BESDEBUG("TwoDMeshTopology::convertResultGridFieldToDapObjects", "END" << endl);
 	return results;
 
 }
@@ -528,7 +530,7 @@ libdap::Array *TwoDMeshTopology::getNewFcnDapArray(libdap::Array *templateArray,
 				"Expected a 2 dimensional array with shape of 3xN! The array "
 						+ templateArray->name() + " has a first "
 						+ "dimension of size " + libdap::long_to_string(di->c_size);
-		DBG(cerr << msg << endl);
+		BESDEBUG("TwoDMeshTopology::getNewFcnDapArray",  msg << endl);
 		throw Error(malformed_expr, msg);
 	}
 
@@ -570,7 +572,7 @@ libdap::Array *TwoDMeshTopology::getNewFcnDapArray(libdap::Array *templateArray,
 libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray)
 {
 
-	DBG(cerr << "getGridFieldCellArrayAsDapArray() - BEGIN" << endl);
+	BESDEBUG("TwoDMeshTopology::getGridFieldCellArrayAsDapArray", "BEGIN" << endl);
 
 	// Get the rank 2 k-cells from the GridField object.
 	GF::CellArray* gfCellArray = (GF::CellArray*) (resultGridField->GetGrid()->getKCells(2));
@@ -612,7 +614,7 @@ libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *
 			resultFcnDapArray->print_val(cerr);
 	)
 #endif
-	DBG(cerr << "getGridFieldCellArrayAsDapArray() - DONE" << endl);
+	BESDEBUG("TwoDMeshTopology::getGridFieldCellArrayAsDapArray", "DONE" << endl);
 
 	return resultFcnDapArray;
 
@@ -625,11 +627,11 @@ libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *
 libdap::Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceArray)
 {
 
-	DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - BEGIN" << endl);
+	BESDEBUG("TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray", "BEGIN" << endl);
 
 	// The result variable is assumed to be bound to the GridField with rank 0
 	// Try to get the Attribute from rank 0 with the same name as the source array
-	DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - Retrieving GF::GridField Attribute '" <<
+	BESDEBUG("TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray", "Retrieving GF::GridField Attribute '" <<
 			sourceArray->name() << "'" << endl);
 	GF::Array* gfa = resultGridField->GetAttribute(node, sourceArray->name());
 
@@ -644,7 +646,7 @@ libdap::Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridF
 	case dods_uint32_c:
 	case dods_int32_c: {
 		// Get the data
-		DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of int, retrieve it as such." << endl);
+		BESDEBUG("TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray", "GF::Array was made from some type of int, retrieve it as such." << endl);
 		vector<dods_int32> GF_ints = gfa->makeArray();
 		// Make a DAP array to put the data into.
 		dapArray = new libdap::Array(sourceArray->name(), new Int32(sourceArray->name()));
@@ -658,7 +660,7 @@ libdap::Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridF
 	case dods_float32_c:
 	case dods_float64_c: {
 		// Get the data
-		DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of float, retrieve it as such." << endl);
+		BESDEBUG("TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray", "GF::Array was made from some type of float, retrieve it as such." << endl);
 		vector<dods_float64> GF_floats = gfa->makeArrayf();
 		// Make a DAP array to put the data into.
 		dapArray = new libdap::Array(sourceArray->name(), new Float64(sourceArray->name()));
@@ -677,7 +679,7 @@ libdap::Array *TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray(GF::GridF
 	// Copy the source objects attributes.
 	dapArray->set_attr_table(sourceArray->get_attr_table());
 
-	DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - DONE" << endl);
+	BESDEBUG("TwoDMeshTopology::getRankZeroAttributeNodeSetAsDapArray", "DONE" << endl);
 
 	return dapArray;
 }

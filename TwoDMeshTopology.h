@@ -177,11 +177,11 @@ private:
 	//vector<string> *edgeCoordinateNames;
 	//vector<Array *> *edgeCoordinateArrays;
 
-	GF::Grid *gridTopology;
+	GF::Grid      *gridTopology;
 	GF::GridField *inputGridField;
 	GF::GridField *resultGridField;
 
-	vector<int *> *sharedIntArrays;
+	vector <int *>  *sharedIntArrays;
 	vector<float *> *sharedFloatArrays;
 
 	GF::Node *sharedNodeArray;

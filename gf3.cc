@@ -49,7 +49,7 @@
 #include "Structure.h"
 #include "Error.h"
 
-#include "debug.h"
+#include "BesDebug.h"
 #include "util.h"
 
 #include "ugrid_utils.h"
@@ -80,38 +80,38 @@ template<typename DODS, typename T>
 static T *extract_array_helper(Array *a) {
 	int length = a->length();
 
-	DBG(
+	BESDEBUG(
 	int status;
 	char *dodsTypeName = abi::__cxa_demangle(typeid(DODS).name(), 0, 0, &status);;
 	char *tTypeName = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);;
 	)
 
-	DBG(cerr << "extract_array_helper() - " << "Extracting data from DAP Array '" << a->name() <<"'"<< endl);
-	DBG(cerr << "extract_array_helper() - " << "Allocating " << length << " of type "<< dodsTypeName << endl);
+	BESDEBUG(cerr << "extract_array_helper() - " << "Extracting data from DAP Array '" << a->name() <<"'"<< endl);
+	BESDEBUG(cerr << "extract_array_helper() - " << "Allocating " << length << " of type "<< dodsTypeName << endl);
 	DODS *src = new DODS[length];
 
-	DBG(cerr << "extract_array_helper() - " << "Copying values from DAP Array "<< a->name() <<
+	BESDEBUG(cerr << "extract_array_helper() - " << "Copying values from DAP Array "<< a->name() <<
 			" to an array of type '" << dodsTypeName <<"'. targetAddress=" << src << endl);
 	a->value(src);
-	DBG(cerr << "extract_array_helper() - " << "Copy complete." << endl);
+	BESDEBUG(cerr << "extract_array_helper() - " << "Copy complete." << endl);
 
-	DBG(cerr << "extract_array_helper() - " << "Allocating " << length << " of type "<< tTypeName << endl);
+	BESDEBUG(cerr << "extract_array_helper() - " << "Allocating " << length << " of type "<< tTypeName << endl);
 	T *dest = new T[length];
 
-	DBG(cerr << "extract_array_helper() - " << "Casting/Copying array of type '" <<
+	BESDEBUG(cerr << "extract_array_helper() - " << "Casting/Copying array of type '" <<
 			 dodsTypeName<<"' to an array of type '" << tTypeName << "'" << endl);
 	for (int i = 0; i < length; ++i)
 		dest[i] = (T) src[i];
 
-	DBG(cerr << "extract_array_helper() - " << "Copy complete." << endl);
+	BESDEBUG(cerr << "extract_array_helper() - " << "Copy complete." << endl);
 
 
 	// We're done with b, so get rid of it.
-	DBG(cerr << "extract_array_helper() - " << "Releasing memory for an array of size "<< length <<
+	BESDEBUG(cerr << "extract_array_helper() - " << "Releasing memory for an array of size "<< length <<
 			" and type '" << dodsTypeName <<"'"<< endl);
 	delete [] src;
 
-	DBG(cerr << "extract_array_helper() - " << "Returning extracted values from DAP Array '" << a->name() <<"'"<< endl);
+	BESDEBUG(cerr << "extract_array_helper() - " << "Returning extracted values from DAP Array '" << a->name() <<"'"<< endl);
 
 	return dest;
 }
@@ -133,7 +133,7 @@ static GF::Array *extract_gridfield_array(Array *a) {
 		throw Error(malformed_expr,
 				"The function requires a DAP numeric-type array argument.");
 
-	DBG(cerr << "extract_gridfield_array() - " << "Reading data values into DAP Array '" << a->name() <<"'"<< endl);
+	BESDEBUG(cerr << "extract_gridfield_array() - " << "Reading data values into DAP Array '" << a->name() <<"'"<< endl);
 	a->set_send_p(true);
 	a->read();
 
@@ -216,7 +216,7 @@ static GF::Array *extractGridFieldArray(Array *a, vector<int*> *sharedIntArrays,
 		throw Error(malformed_expr,
 				"The function requires a DAP numeric-type array argument.");
 
-	DBG(cerr << "extract_gridfield_array() - " << "Reading data values into DAP Array '" << a->name() <<"'"<< endl);
+	BESDEBUG(cerr << "extract_gridfield_array() - " << "Reading data values into DAP Array '" << a->name() <<"'"<< endl);
 	a->set_send_p(true);
 	a->read();
 
@@ -300,7 +300,7 @@ static T *extract_array(Array * a) {
 		throw Error(malformed_expr,
 				"The function requires a DAP numeric-type array argument.");
 
-	DBG(cerr << "extract_array() - " << "Reading data values into DAP Array '" << a->name() <<"'"<< endl);
+	BESDEBUG(cerr << "extract_array() - " << "Reading data values into DAP Array '" << a->name() <<"'"<< endl);
 	a->set_send_p(true);
 	a->read();
 	// This test should never pass due to the previous two lines;
@@ -320,32 +320,32 @@ static T *extract_array(Array * a) {
 	// just arguments.
 	switch (a->var()->type()) {
 	case dods_byte_c:
-		DBG(cerr << "extract_array() - extracting to an array of 'dods_byte_c'" << endl);
+		BESDEBUG(cerr << "extract_array() - extracting to an array of 'dods_byte_c'" << endl);
 		return extract_array_helper<dods_byte, T>(a);
 
 	case dods_uint16_c:
-		DBG(cerr << "extract_array() - extracting to an array of 'dods_uint16_c'" << endl);
+		BESDEBUG(cerr << "extract_array() - extracting to an array of 'dods_uint16_c'" << endl);
 		return extract_array_helper<dods_uint16, T>(a);
 
 	case dods_int16_c:
-		DBG(cerr << "extract_array() - extracting to an array of 'dods_int16_c'" << endl);
+		BESDEBUG(cerr << "extract_array() - extracting to an array of 'dods_int16_c'" << endl);
 		return extract_array_helper<dods_int16, T>(a);
 
 	case dods_uint32_c:
-		DBG(cerr << "extract_array() - extracting to an array of 'dods_uint32_c'" << endl);
+		BESDEBUG(cerr << "extract_array() - extracting to an array of 'dods_uint32_c'" << endl);
 		return extract_array_helper<dods_uint32, T>(a);
 
 	case dods_int32_c:
-		DBG(cerr << "extract_array() - extracting to an array of 'dods_int32_c'" << endl);
+		BESDEBUG(cerr << "extract_array() - extracting to an array of 'dods_int32_c'" << endl);
 		return extract_array_helper<dods_int32, T>(a);
 
 	case dods_float32_c:
-		DBG(cerr << "extract_array() - extracting to an array of 'dods_float32_c'" << endl);
+		BESDEBUG(cerr << "extract_array() - extracting to an array of 'dods_float32_c'" << endl);
 		// Added the following line. jhrg 8/7/12
 		return extract_array_helper<dods_float32, T>(a);
 
 	case dods_float64_c:
-		DBG(cerr << "extract_array() - extracting to an array of 'dods_float64_c'" << endl);
+		BESDEBUG(cerr << "extract_array() - extracting to an array of 'dods_float64_c'" << endl);
 		return extract_array_helper<dods_float64, T>(a);
 
 	default:
@@ -623,15 +623,15 @@ struct TwoDMeshTopology {
 static bool checkAttributeValue(BaseType *bt, string aName, string aValue) {
 
 	AttrTable &at = bt->get_attr_table();
-	DBG(cerr << "checkAttributeValue() - " << "Checking to see if the variable " << bt->name()
+	BESDEBUG(cerr << "checkAttributeValue() - " << "Checking to see if the variable " << bt->name()
 			<< "' has an attribute '"<< aName << "' with value '" << aValue << "'"<<endl);
 
 	// Confirm that submitted variable has an attribute called aName whose value is aValue.
 	AttrTable::Attr_iter loc = at.simple_find(aName);
 	if (loc != at.attr_end()) {
-		DBG(cerr << "checkAttributeValue() - " << "'" << bt->name() << "' has a attribute named '" << aName << "'"<< endl);
+		BESDEBUG(cerr << "checkAttributeValue() - " << "'" << bt->name() << "' has a attribute named '" << aName << "'"<< endl);
 		string value = at.get_attr(loc, 0);
-		DBG(cerr << "checkAttributeValue() - " << "Attribute '"<< aName <<"' has value of '" << value << "'"<< endl);
+		BESDEBUG(cerr << "checkAttributeValue() - " << "Attribute '"<< aName <<"' has value of '" << value << "'"<< endl);
 		if (value != aValue) {
 			return false;
 		}
@@ -645,13 +645,13 @@ static bool checkAttributeValue(BaseType *bt, string aName, string aValue) {
 static string getAttributeValue(BaseType *bt, string aName) {
 
 	AttrTable &at = bt->get_attr_table();
-	DBG(cerr << "getAttributeValue() - " << "Checking to see if the variable " << bt->name()
+	BESDEBUG(cerr << "getAttributeValue() - " << "Checking to see if the variable " << bt->name()
 			<< "' has an attribute '"<< aName << "'"<<endl);
 
 	// Confirm that submitted variable has an attribute called aName whose value is aValue.
 	AttrTable::Attr_iter loc = at.simple_find(aName);
 	if (loc != at.attr_end()) {
-		DBG(cerr << "checkAttributeValue() - " << "'" << bt->name() << "' has a attribute named '" << aName << "'"<< endl);
+		BESDEBUG(cerr << "checkAttributeValue() - " << "'" << bt->name() << "' has a attribute named '" << aName << "'"<< endl);
 		string value = at.get_attr(loc, 0);
 		return value;
 	}
@@ -682,7 +682,7 @@ static bool matchesCfRoleOrStandardName(BaseType *bt, string aValue) {
 static bool same_dimensions(Array *arr1, Array *arr2) {
 	Array::Dim_iter ait1;
 	Array::Dim_iter ait2;
-	DBG(cerr<< "same_dimensions() - " << "comparing array " << arr1->name() << " and array " << arr2->name() << endl);
+	BESDEBUG(cerr<< "same_dimensions() - " << "comparing array " << arr1->name() << " and array " << arr2->name() << endl);
 
 	if (arr1->dimensions(true) != arr1->dimensions(true))
 		return false;
@@ -694,7 +694,7 @@ static bool same_dimensions(Array *arr1, Array *arr2) {
 			ait1 != arr1->dim_end(); ++ait1, ++ait2) {
 		Array::dimension ad1 = *ait1;
 		Array::dimension ad2 = *ait2;
-		DBG(cerr << "same_dimensions() - " << "Comparing: "<< arr1->name() << "["<< ad1.name << "=" << ad1.size << "] AND "<< arr2->name() << "[" << ad2.name << "=" << ad2.size << "] "<< endl);
+		BESDEBUG(cerr << "same_dimensions() - " << "Comparing: "<< arr1->name() << "["<< ad1.name << "=" << ad1.size << "] AND "<< arr2->name() << "[" << ad2.name << "=" << ad2.size << "] "<< endl);
 		if (ad2.name != ad1.name or ad2.size != ad1.size
 				or ad2.stride != ad1.stride or ad2.stop != ad1.stop)
 			return false;
@@ -714,7 +714,7 @@ static bool same_dimensions(Array *arr1, Array *arr2) {
  */
 static vector<Array *> *getNodeCoordinateArrays(BaseType *meshTopology,
 		DDS &dds) {
-	DBG(cerr << "getNodeCoordinatesArrays() - " << "BEGIN Gathering node coordinate arrays..." << endl);
+	BESDEBUG(cerr << "getNodeCoordinatesArrays() - " << "BEGIN Gathering node coordinate arrays..." << endl);
 
 	string node_coordinates;
 	AttrTable at = meshTopology->get_attr_table();
@@ -779,7 +779,7 @@ static vector<Array *> *getNodeCoordinateArrays(BaseType *meshTopology,
 	}
 
 
-	DBG(cerr << "getNodeCoordinatesArrays() - " << "DONE" << endl);
+	BESDEBUG(cerr << "getNodeCoordinatesArrays() - " << "DONE" << endl);
 
 	return nodeCoordinateArrays;
 
@@ -791,7 +791,7 @@ static vector<Array *> *getNodeCoordinateArrays(BaseType *meshTopology,
 static Array *getFaceNodeConnectivityArray(BaseType *meshTopology, DDS &dds)
 {
 
-    DBG(cerr << "getFaceNodeConnectivityArray() - "  << "Locating FNCA" << endl);
+    BESDEBUG(cerr << "getFaceNodeConnectivityArray() - "  << "Locating FNCA" << endl);
 
 	string face_node_connectivity_var_name;
     AttrTable at = meshTopology->get_attr_table();
@@ -822,7 +822,7 @@ static Array *getFaceNodeConnectivityArray(BaseType *meshTopology, DDS &dds)
     }
 
 
-    DBG(cerr << "getFaceNodeConnectivityArray() - "  << "Got FCNA '"+fncArray->name()+"'" << endl);
+    BESDEBUG(cerr << "getFaceNodeConnectivityArray() - "  << "Got FCNA '"+fncArray->name()+"'" << endl);
 
     return fncArray;
 
@@ -876,7 +876,7 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
 	map<string, TwoDMeshTopology *>::iterator mit = meshTopologies.find(meshVarName);
 	if(mit == meshTopologies.end()){
 		// Not there? Make a new one.
-		DBG(cerr << "getMeshDataVar() - MeshTopology object for '" << meshVarName <<"' does NOT exist. Getting a new one... "  << endl);
+		BESDEBUG("getMeshDataVar","MeshTopology object for '" << meshVarName <<"' does NOT exist. Getting a new one... "  << endl);
 
 		meshTopology = new TwoDMeshTopology();
 		meshTopology->init(meshVarName, dds);
@@ -884,7 +884,7 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
 	}
 	else {
 		// Sweet! Found it....
-		DBG(cerr << "getMeshDataVar() - MeshTopology object for '" << meshVarName <<"' exists. Retrieving... "  << endl);
+		BESDEBUG("getMeshDataVar","MeshTopology object for '" << meshVarName <<"' exists. Retrieving... "  << endl);
 		meshTopology = mit->second;
 	}
 
@@ -897,12 +897,12 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
  */
 static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType * argv[]) {
 
-	DBG(cerr << "processUgrArgs() - BEGIN" << endl);
+	BESDEBUG( "processUgrArgs()","BEGIN" << endl);
 
 	Ugrid3RestrictArgs args;
 	args.rangeVars = vector<libdap::Array *>();
 
-	// Check number of arguments; DBG is a macro. Use #define
+	// Check number of arguments; BESDEBUG is a macro. Use #define
 	// DODS_DEBUG to activate the debugging stuff.
 	if (argc < 3)
 		throw Error(malformed_expr,
@@ -957,7 +957,7 @@ static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType * argv[]) {
 		args.rangeVars.push_back(newRangeVar);
 	}
 
-	DBG(cerr << "processUgrArgs() - END" << endl);
+	BESDEBUG("processUgrArgs", "END" << endl);
 
 	return args;
 
@@ -985,7 +985,7 @@ static int getNfrom3byNArray(Array *array) {
 				"Expected a 2 dimensional array with shape of 3xN! The array "
 						+ array->name() + " has a first " + "dimension of size "
 						+ long_to_string(di->c_size);
-		DBG(cerr << msg << endl);
+		BESDEBUG(cerr << msg << endl);
 		throw Error(malformed_expr, msg);
 	}
 
@@ -1007,21 +1007,21 @@ static int getNfrom3byNArray(Array *array) {
  */
 static GF::Node *getFncArrayAsGFNodes(Array *fncVar) {
 
-	DBG(cerr << "getFncArrayAsGFNodes() - BEGIN" << endl);
+	BESDEBUG(cerr << "getFncArrayAsGFNodes() - BEGIN" << endl);
 
 	int N = getNfrom3byNArray(fncVar);
 
 	// interpret the array data as triangles
 	GF::Node *cellids = new GF::Node[fncVar->length()];
 
-	DBG(cerr << "getFncArrayAsGFNodes() - Reading DAP data into GF::Node array." << endl);
+	BESDEBUG(cerr << "getFncArrayAsGFNodes() - Reading DAP data into GF::Node array." << endl);
 	GF::Node *cellids2 = extract_array<GF::Node>(fncVar);
 
 	// Reorganize the cell ids so that cellids contains
 	// the cells in three consecutive values (0,1,2; 3,4,5; ...).
 	// The the values from  fncVar now in cellids2 and ar organized
 	// as 0,N,2N; 1,1+N,1+2N; ...
-	DBG(cerr << "getFncArrayAsGFNodes() - Re-packing and copying GF::Node array to result." << endl);
+	BESDEBUG(cerr << "getFncArrayAsGFNodes() - Re-packing and copying GF::Node array to result." << endl);
 	for (int j = 0; j < N; j++) {
 		cellids[3 * j] = cellids2[j];
 		cellids[3 * j + 1] = cellids2[j + N];
@@ -1029,10 +1029,10 @@ static GF::Node *getFncArrayAsGFNodes(Array *fncVar) {
 	}
 
 
-	DBG(cerr << "getFncArrayAsGFNodes() - Deleting intermediate GF::Node array." << endl);
+	BESDEBUG(cerr << "getFncArrayAsGFNodes() - Deleting intermediate GF::Node array." << endl);
 	delete [] cellids2;
 
-	DBG(cerr << "getFncArrayAsGFNodes() - DONE" << endl);
+	BESDEBUG(cerr << "getFncArrayAsGFNodes() - DONE" << endl);
 
 	return cellids;
 }
@@ -1045,11 +1045,11 @@ static int getStartIndex(Array *array) {
 	AttrTable &at = array->get_attr_table();
 	AttrTable::Attr_iter start_index_iter = at.simple_find(_start_index);
 	if (start_index_iter != at.attr_end()) {
-		DBG(cerr << "getStartIndex() - "<< "Found the "<< _start_index<<" attribute." << endl);
+		BESDEBUG(cerr << "getStartIndex() - "<< "Found the "<< _start_index<<" attribute." << endl);
 		AttrTable::entry *start_index_entry = *start_index_iter;
 		if (start_index_entry->attr->size() == 1) {
 			string val = (*start_index_entry->attr)[0];
-			DBG(cerr << "getStartIndex() - " << "value: " << val << endl);
+			BESDEBUG(cerr << "getStartIndex() - " << "value: " << val << endl);
 			stringstream buffer(val);
 			// what happens if string cannot be converted to an integer?
 			int start_index;
@@ -1069,7 +1069,7 @@ static int getStartIndex(Array *array) {
  * Converts a row major 3xN Face node connectivity DAP array into a GF::CellArray
  */
 static GF::CellArray *getFaceNodeConnectivityCells(TwoDMeshTopology *tdmt) {
-	DBG(cerr << "getFaceNodeConnectivityCells() - Building face node connectivity Cell " <<
+	BESDEBUG(cerr << "getFaceNodeConnectivityCells() - Building face node connectivity Cell " <<
 			"array from the Array "<< tdmt->faceNodeConnectivityArray->name() << endl);
 
 	int rank2CellCount = getNfrom3byNArray(tdmt->faceNodeConnectivityArray);
@@ -1078,13 +1078,13 @@ static GF::CellArray *getFaceNodeConnectivityCells(TwoDMeshTopology *tdmt) {
 
 	GF::Node *cellids = getFncArrayAsGFNodes(tdmt->faceNodeConnectivityArray);
 
-	DBG(cerr << "getFaceNodeConnectivityCells() - Caching shared GF::Node array 'cellids' "<< cellids << endl);
+	BESDEBUG(cerr << "getFaceNodeConnectivityCells() - Caching shared GF::Node array 'cellids' "<< cellids << endl);
 	tdmt->sharedNodeArray = cellids;
 
 	// adjust for the start_index (cardinal or ordinal array access)
 	int startIndex = getStartIndex(tdmt->faceNodeConnectivityArray);
 	if (startIndex != 0) {
-		DBG(cerr << "getFaceNodeConnectivityCells() - Applying startIndex to GF::Node array 'cellids'." << endl);
+		BESDEBUG(cerr << "getFaceNodeConnectivityCells() - Applying startIndex to GF::Node array 'cellids'." << endl);
 		for (int j = 0; j < total_size; j++) {
 			cellids[j] -= startIndex;
 		}
@@ -1094,10 +1094,10 @@ static GF::CellArray *getFaceNodeConnectivityCells(TwoDMeshTopology *tdmt) {
 	// This is where we extend the code for faces with more vertices (nodes).
 	GF::CellArray *rankTwoCells = new GF::CellArray(cellids, rank2CellCount, 3);
 
-	//DBG(cerr << "getFaceNodeConnectivityCells() - Deleting intermediate GF::Node array 'cellids' "<< cellids << endl);
+	//BESDEBUG(cerr << "getFaceNodeConnectivityCells() - Deleting intermediate GF::Node array 'cellids' "<< cellids << endl);
 	//delete [] cellids;
 
-	DBG(cerr << "getFaceNodeConnectivityCells() - DONE" << endl);
+	BESDEBUG(cerr << "getFaceNodeConnectivityCells() - DONE" << endl);
 	return rankTwoCells;
 
 }
@@ -1124,7 +1124,7 @@ static Array *getNewFcnDapArray(Array *templateArray, int N) {
 				"Expected a 2 dimensional array with shape of 3xN! The array "
 						+ templateArray->name() + " has a first "
 						+ "dimension of size " + long_to_string(di->c_size);
-		DBG(cerr << msg << endl);
+		BESDEBUG(cerr << msg << endl);
 		throw Error(malformed_expr, msg);
 	}
 
@@ -1147,7 +1147,7 @@ static Array *getNewFcnDapArray(Array *templateArray, int N) {
 	newArray->reserve_value_capacity(3 * N);
 
 #if 0
-	DBG(cerr<<"getNewFcnDapArray() -"<<endl<<endl;
+	BESDEBUG(cerr<<"getNewFcnDapArray() -"<<endl<<endl;
 			cerr << "Newly minted Array: "<< endl;
 			newArray->print_val(cerr);
 			cerr<<endl<<endl;
@@ -1166,7 +1166,7 @@ static Array *getNewFcnDapArray(Array *templateArray, int N) {
 static Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField,
 		Array *sourceFcnArray) {
 
-	DBG(cerr << "getGridFieldCellArrayAsDapArray() - BEGIN" << endl);
+	BESDEBUG(cerr << "getGridFieldCellArrayAsDapArray() - BEGIN" << endl);
 
 	// Get the rank 2 k-cells from the GridField object.
 	GF::CellArray* gfCellArray = (GF::CellArray*) (resultGridField->GetGrid()->getKCells(2));
@@ -1189,7 +1189,7 @@ static Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField,
 	}
 
 #if 0
-	DBG(
+	BESDEBUG(
 		cerr << "getGridFieldCellArrayAsDapArray() - rowMajorNodes: " << endl << "{";
 		for (unsigned int j=0; j < rowMajorNodes.size(); j++) {
 			dods_int32 val = rowMajorNodes.at(j);
@@ -1203,12 +1203,12 @@ static Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField,
 	resultFcnDapArray->set_value(rowMajorNodes, rowMajorNodes.size());
 
 #if 0
-	DBG(
+	BESDEBUG(
 			cerr << "getGridFieldCellArrayAsDapArray() - DAP Array: "<< endl;
 			resultFcnDapArray->print_val(cerr);
 	)
 #endif
-	DBG(cerr << "getGridFieldCellArrayAsDapArray() - DONE" << endl);
+	BESDEBUG(cerr << "getGridFieldCellArrayAsDapArray() - DONE" << endl);
 
 	return resultFcnDapArray;
 
@@ -1221,11 +1221,11 @@ static Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField,
 static Array *getRankZeroAttributeNodeSetAsDapArray(
 		GF::GridField *resultGridField, Array *sourceArray) {
 
-	DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - BEGIN" << endl);
+	BESDEBUG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - BEGIN" << endl);
 
 	// The result variable is assumed to be bound to the GridField with rank 0
 	// Try to get the Attribute from rank 0 with the same name as the source array
-	DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - Retrieving GF::GridField Attribute '" <<
+	BESDEBUG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - Retrieving GF::GridField Attribute '" <<
 			sourceArray->name() << "'" << endl);
 	GF::Array* gfa = resultGridField->GetAttribute(0, sourceArray->name());
 
@@ -1240,7 +1240,7 @@ static Array *getRankZeroAttributeNodeSetAsDapArray(
 	case dods_uint32_c:
 	case dods_int32_c: {
 		// Get the data
-		DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of int, retrieve it as such." << endl);
+		BESDEBUG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of int, retrieve it as such." << endl);
 		vector<dods_int32> GF_ints = gfa->makeArray();
 		// Make a DAP array to put the data into.
 		dapArray = new Array(sourceArray->name(), new Int32(sourceArray->name()));
@@ -1254,7 +1254,7 @@ static Array *getRankZeroAttributeNodeSetAsDapArray(
 	case dods_float32_c:
 	case dods_float64_c: {
 		// Get the data
-		DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of float, retrieve it as such." << endl);
+		BESDEBUG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - GF::Array was made from some type of float, retrieve it as such." << endl);
 		vector<dods_float64> GF_floats = gfa->makeArrayf();
 		// Make a DAP array to put the data into.
 		dapArray = new Array(sourceArray->name(), new Float64(sourceArray->name()));
@@ -1273,7 +1273,7 @@ static Array *getRankZeroAttributeNodeSetAsDapArray(
 	// Copy the source objects attributes.
 	dapArray->set_attr_table(sourceArray->get_attr_table());
 
-	DBG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - DONE" << endl);
+	BESDEBUG(cerr << "getRankZeroAttributeNodeSetAsDapArray() - DONE" << endl);
 
 	return dapArray;
 }
@@ -1285,15 +1285,15 @@ static Array *getRankZeroAttributeNodeSetAsDapArray(
  */
 static vector<BaseType *> *convertResultGridFieldToDapObjects(TwoDMeshTopology *tdmt){
 
-	DBG(cerr << "convertResultGridFieldToDapObject() - BEGIN" << endl);
+	BESDEBUG(cerr << "convertResultGridFieldToDapObject() - BEGIN" << endl);
 
 	vector<BaseType *> *results = new vector<BaseType *>();
 
-	DBG(cerr << "convertResultGridFieldToDapObject() - Normalizing Grid." << endl);
+	BESDEBUG(cerr << "convertResultGridFieldToDapObject() - Normalizing Grid." << endl);
 	tdmt->resultGridField->GetGrid()->normalize();
 
 	// Add the coordinate node arrays to the response.
-	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the coordinate node arrays to the response." << endl);
+	BESDEBUG(cerr << "convertResultGridFieldToDapObject() - Adding the coordinate node arrays to the response." << endl);
 	vector<Array *>::iterator it;
 	for (it = tdmt->nodeCoordinateArrays->begin(); it != tdmt->nodeCoordinateArrays->end(); ++it) {
 		Array *sourceCoordinateArray = *it;
@@ -1302,7 +1302,7 @@ static vector<BaseType *> *convertResultGridFieldToDapObjects(TwoDMeshTopology *
 	}
 
 	// Add the range variable data arrays to the response.
-	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the range variable data arrays to the response." << endl);
+	BESDEBUG(cerr << "convertResultGridFieldToDapObject() - Adding the range variable data arrays to the response." << endl);
 	vector<MeshDataVariable *>::iterator mdvIt;
 	for (mdvIt = tdmt->rangeDataArrays->begin(); mdvIt != tdmt->rangeDataArrays->end(); ++mdvIt) {
 		MeshDataVariable *mdv = *mdvIt;
@@ -1311,12 +1311,12 @@ static vector<BaseType *> *convertResultGridFieldToDapObjects(TwoDMeshTopology *
 	}
 
 	// Add the new face node connectivity array - make sure it has the same attributes as the original.
-	DBG(cerr << "convertResultGridFieldToDapObject() - Adding the new face node connectivity array to the response." << endl);
+	BESDEBUG(cerr << "convertResultGridFieldToDapObject() - Adding the new face node connectivity array to the response." << endl);
 	Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(
 			tdmt->resultGridField, tdmt->faceNodeConnectivityArray);
 	results->push_back(resultFaceNodeConnectivityDapArray);
 
-	DBG(cerr << "convertResultGridFieldToDapObject() - END" << endl);
+	BESDEBUG(cerr << "convertResultGridFieldToDapObject() - END" << endl);
 	return results;
 
 }
@@ -1326,52 +1326,52 @@ static vector<BaseType *> *convertResultGridFieldToDapObjects(TwoDMeshTopology *
  */
 static void releaseTDMT(TwoDMeshTopology *tdmt){
 
-	DBG(cerr << "releaseTDMT() - BEGIN:   Releasing memory for MeshTopology '" << tdmt->myVar->name() << "'" << endl);
+	BESDEBUG(cerr << "releaseTDMT() - BEGIN:   Releasing memory for MeshTopology '" << tdmt->myVar->name() << "'" << endl);
 
-	DBG(cerr << "releaseTDMT() - Deleting resultGridField." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting resultGridField." << endl);
 	delete tdmt->resultGridField;
 
-	DBG(cerr << "releaseTDMT() - Deleting inputGridField." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting inputGridField." << endl);
 	delete tdmt->inputGridField;
 
 
-	DBG(cerr << "releaseTDMT() - Deleting gridTopology." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting gridTopology." << endl);
 	delete tdmt->gridTopology;
 
 
-	DBG(cerr << "releaseTDMT() - Deleting sharedIntArrays..." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting sharedIntArrays..." << endl);
 	for (vector<int *>::iterator it = tdmt->sharedIntArrays->begin(); it != tdmt->sharedIntArrays->end(); ++it) {
 		int *i = *it;
-		DBG(cerr << "releaseTDMT() - Deleting int array '" << i << "'" << endl);
+		BESDEBUG(cerr << "releaseTDMT() - Deleting int array '" << i << "'" << endl);
 		delete [] i;
 	}
 	delete tdmt->sharedIntArrays;
 
-	DBG(cerr << "releaseTDMT() - Deleting sharedFloatArrays..." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting sharedFloatArrays..." << endl);
 	for (vector<float *>::iterator it = tdmt->sharedFloatArrays->begin(); it != tdmt->sharedFloatArrays->end(); ++it) {
 		float *f = *it;
-		DBG(cerr << "releaseTDMT() - Deleting float array '" << f << "'" << endl);
+		BESDEBUG(cerr << "releaseTDMT() - Deleting float array '" << f << "'" << endl);
 		delete [] f;
 	}
 	delete tdmt->sharedFloatArrays;
 
-	DBG(cerr << "releaseTDMT() - Deleting MeshDataVariables..." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting MeshDataVariables..." << endl);
 	vector<MeshDataVariable *>::iterator mdvIt;
 	for (mdvIt = tdmt->rangeDataArrays->begin(); mdvIt != tdmt->rangeDataArrays->end(); ++mdvIt) {
 		MeshDataVariable *mdv = *mdvIt;
-		DBG(cerr << "releaseTDMT() - Deleting MeshDataVariable '"<< mdv->meshDataVar->name()<< "'" << endl);
+		BESDEBUG(cerr << "releaseTDMT() - Deleting MeshDataVariable '"<< mdv->meshDataVar->name()<< "'" << endl);
 		delete mdv;
 	}
 	delete tdmt->rangeDataArrays;
 
-	DBG(cerr << "releaseTDMT() - Deleting GF::Node array." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting GF::Node array." << endl);
 	delete tdmt->sharedNodeArray;
 
 
-	DBG(cerr << "releaseTDMT() - Deleting TwoDMeshTopology." << endl);
+	BESDEBUG(cerr << "releaseTDMT() - Deleting TwoDMeshTopology." << endl);
 	delete tdmt;
 
-	DBG(cerr << "releaseTDMT() - END" << endl);
+	BESDEBUG(cerr << "releaseTDMT() - END" << endl);
 
 
 }
@@ -1396,7 +1396,7 @@ static void releaseTDMT(TwoDMeshTopology *tdmt){
  array. */
 void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
-	DBG(cerr << "function_ugr3() - BEGIN" << endl);
+	BESDEBUG("function_ugr3", "BEGIN" << endl);
 
 	static string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 			+ "<function name=\"ugr3\" version=\"0.1\">\n"
@@ -1424,8 +1424,8 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	    rangeVarCount++;
 	}
 
-	DBG(cerr << "function_ugr3() - The user requested "<< rangeVarCount << " range data variables." << endl);
-	DBG(cerr << "function_ugr3() - The user's request referenced "<< meshTopologies.size() << " mesh topology variables." << endl);
+	BESDEBUG("function_ugr3", "The user requested "<< rangeVarCount << " range data variables." << endl);
+	BESDEBUG("function_ugr3", "The user's request referenced "<< meshTopologies.size() << " mesh topology variables." << endl);
 
 	// ----------------------------------
 	// OK, so up to this point we have not read any data from the data set, but we have QC'd the inputs and verified that
@@ -1441,17 +1441,17 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		tdmt->buildGridFieldsTopology();
 
 #if 0
-		DBG(cerr << "function_ugr() - Building GridFields objects for mesh_topology variable "<< tdmt->myVar->name() << endl);
+		BESDEBUG(cerr << "function_ugr() - Building GridFields objects for mesh_topology variable "<< tdmt->myVar->name() << endl);
 
 
 		// Start building the Grid for the GridField operation.
 		// This is, I think essentially a representation of the
 		// mesh_topology
-		DBG(cerr << "function_ugr() - Constructing new GF::Grid for "<< name << endl);
+		BESDEBUG(cerr << "function_ugr() - Constructing new GF::Grid for "<< name << endl);
 		tdmt->gridTopology = new GF::Grid(name);
 
 		// 1) Make the implicit nodes - same size as the range and the coordinate node arrays
-		DBG(cerr << "function_ugr() - Building and adding implicit range Nodes to the GF::Grid" << endl);
+		BESDEBUG(cerr << "function_ugr() - Building and adding implicit range Nodes to the GF::Grid" << endl);
 		GF::AbstractCellArray *nodes = new GF::Implicit0Cells(tdmt->nodeCount);
 		// Attach the implicit nodes to the grid at rank 0
 		tdmt->gridTopology->setKCells(nodes, node);
@@ -1459,17 +1459,17 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		// Attach the Mesh to the grid.
 		// Get the face node connectivity cells (i think these correspond to the GridFields K cells of Rank 2)
 		// FIXME Read this array once! It is read again below..
-		DBG(cerr << "function_ugr() - Building face node connectivity Cell array from the DAP version" << endl);
+		BESDEBUG(cerr << "function_ugr() - Building face node connectivity Cell array from the DAP version" << endl);
 		GF::CellArray *faceNodeConnectivityCells = getFaceNodeConnectivityCells(tdmt);
 
 		// Attach the Mesh to the grid at rank 2
 		// TODO Is this 2 the same as the value of the "dimension" attribute in the "mesh_topology" variable?
 		// This 2 stands for rank 2, or faces.
-		DBG(cerr << "function_ugr() - Attaching Cell array to GF::Grid" << endl);
+		BESDEBUG(cerr << "function_ugr() - Attaching Cell array to GF::Grid" << endl);
 		tdmt->gridTopology->setKCells(faceNodeConnectivityCells, face);
 
 		// The Grid is complete. Now we make a GridField from the Grid
-		DBG(cerr << "function_ugr() - Construct new GF::GridField from GF::Grid" << endl);
+		BESDEBUG(cerr << "function_ugr() - Construct new GF::GridField from GF::Grid" << endl);
 		tdmt->inputGridField = new GF::GridField(tdmt->gridTopology);
 		// TODO Question for Bill: Can we delete the GF::Grid (tdmt->gridTopology) here?
 
@@ -1481,7 +1481,7 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		vector<Array *>::iterator ncit;
 		for (ncit = nodeCoordinateArrays->begin(); ncit != nodeCoordinateArrays->end(); ++ncit) {
 			Array *nca = *ncit;
-			DBG(cerr << "function_ugr() - Adding node coordinate "<< nca->name() << " to GF::GridField at rank 0" << endl);
+			BESDEBUG(cerr << "function_ugr() - Adding node coordinate "<< nca->name() << " to GF::GridField at rank 0" << endl);
 			GF::Array *gfa = extractGridFieldArray(nca,tdmt->sharedIntArrays,tdmt->sharedFloatArrays);
 			tdmt->inputGridField->AddAttribute(node, gfa);
 		}
@@ -1490,10 +1490,10 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		// TODO Question for Bill: Can we get away with reading this only once?
 		// ANSWER: YES! Don't do this at all!
 		// We read and add faceNodeConnectivity data to the grid at rank 2 for face.
-		// DBG(cerr << "function_ugr() - Re-Reading face node connectivity array..." << endl);
+		// BESDEBUG(cerr << "function_ugr() - Re-Reading face node connectivity array..." << endl);
 		// GF::Array *gfa = extractGridFieldArray(tdmt->faceNodeConnectivityArray,tdmt->sharedIntArrays,tdmt->sharedFloatArrays);
 
-		// DBG(cerr << "function_ugr() - Adding face node connectivity Cell array to GF::GridField at rank 2" << endl);
+		// BESDEBUG(cerr << "function_ugr() - Adding face node connectivity Cell array to GF::GridField at rank 2" << endl);
 		// tdmt->inputGridField->AddAttribute(face, gfa);
 #endif
 
@@ -1503,7 +1503,7 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		for (vector<MeshDataVariable *>::iterator mdv_it = tdmt->rangeDataArrays->begin(); mdv_it != tdmt->rangeDataArrays->end(); ++mdv_it) {
 			MeshDataVariable *mdVar = *mdv_it;
 			GF::Array *gfa = extractGridFieldArray(mdVar->meshDataVar,tdmt->sharedIntArrays,tdmt->sharedFloatArrays);
-			DBG(cerr << "function_ugr() - Adding mesh data variable '"<< mdVar->meshDataVar->name() <<"' to GF::GridField at rank 0" << endl);
+			BESDEBUG(cerr << "function_ugr() - Adding mesh data variable '"<< mdVar->meshDataVar->name() <<"' to GF::GridField at rank 0" << endl);
 			tdmt->inputGridField->AddAttribute(node, gfa);
 		}
 
@@ -1528,28 +1528,28 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 #if 0
 
 		// Build the restriction operator;
-		DBG(cerr << "function_ugr() - Constructing new GF::RestrictOp using user "<<
+		BESDEBUG(cerr << "function_ugr() - Constructing new GF::RestrictOp using user "<<
 				"supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
 		GF::RestrictOp op = GF::RestrictOp(args.filterExpression, args.dimension, tdmt->inputGridField);
 
 		// Apply the operator and get the result;
-		DBG(cerr << "function_ugr() - Applying GridField operator." << endl);
+		BESDEBUG(cerr << "function_ugr() - Applying GridField operator." << endl);
 		GF::GridField *resultGF = op.getResult();
 		tdmt->resultGridField = resultGF;
 
 
 		// Get the GridField back in a DAP representation of a ugrid.
-		DBG(cerr << "function_ugr() - Converting result GF::GridField to DAP data objects.." << endl);
+		BESDEBUG(cerr << "function_ugr() - Converting result GF::GridField to DAP data objects.." << endl);
 		vector<BaseType *> *dapResults = convertResultGridFieldToDapObjects(tdmt);
 #endif
 
 		// FIXME fix the names of the variables in the mesh_topology attributes
 		// If the server side function can be made to return a DDS or a collection of BaseType's then the
 		// names won't change and the original mesh_topology variable and it's metadata will be valid
-		DBG(cerr << "function_ugr3() - Adding mesh_topology variable '"<< tdmt->name() << "' to the DAP response." << endl);
+		BESDEBUG("function_ugr3", "Adding mesh_topology variable '"<< tdmt->name() << "' to the DAP response." << endl);
 		dapResult->add_var(tdmt->getDapVariable());
 
-		DBG(cerr << "function_ugr3() - Adding GF::GridField results to DAP data structure.." << endl);
+		BESDEBUG("function_ugr3", "Adding GF::GridField results to DAP data structure.." << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults->begin(); btIt != dapResults->end(); ++btIt) {
 			BaseType *bt = *btIt;
 			dapResult->add_var_nocopy(bt);
@@ -1562,14 +1562,14 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	*btpp = dapResult;
 
 
-	DBG(cerr << "function_ugr3() - Releasing memory held by TwoDMeshTopology objects..." << endl);
+	BESDEBUG("function_ugr3", "Releasing memory held by TwoDMeshTopology objects..." << endl);
 	for (mit = meshTopologies.begin(); mit != meshTopologies.end(); ++mit) {
 		TwoDMeshTopology *tdmt = mit->second;
 		delete tdmt;
 	}
 
 
-	DBG(cerr << "function_ugr3() - END" << endl);
+	BESDEBUG("function_ugr3", "END" << endl);
 
 	return;
 }
