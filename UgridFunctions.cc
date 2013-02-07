@@ -27,8 +27,8 @@
 using std::endl;
 
 #include "UgridFunctions.h"
-#include "ce_functions.h"
 #include "ServerFunctionsList.h"
+#include "gf3.h"
 #include "BESDebug.h"
 
 //namespace ugrid {
@@ -36,7 +36,7 @@ using std::endl;
 void UgridFunctions::initialize(const string &modname) {
 	BESDEBUG( "UgridFunctions", "Initializing UgridFunctions:" << endl );
 
-	libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
+	libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction());
 
 	BESDEBUG( "UgridFunctions", "Done initializing UgridFunctions" << endl );
 }

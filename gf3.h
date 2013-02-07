@@ -34,8 +34,8 @@
 
 #include "BaseType.h"
 #include "DDS.h"
+#include "ServerFunction.h"
 
-using namespace libdap;
 
 namespace gf3 {
 
@@ -45,9 +45,9 @@ void function_ugr3(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap
  * The UGrid3Function class encapsulates the echo arguments function 'gf3::function_ugr3'
  * along with additional meta-data regarding its use and applicability.
  */
-class UGridRestrictFunction_03: public libdap::AbstractFunction {
+class UGridRestrictFunction: public libdap::ServerFunction {
 public:
-	UGridRestrictFunction_03()
+	UGridRestrictFunction()
     {
 		setName("ugr3");
 		setDescriptionString("This function can subset the node data of a two dimensional triangular mesh unstructured grid.");
@@ -57,13 +57,13 @@ public:
 		setFunction(gf3::function_ugr3);
 		setVersion("1.0");
     }
-    virtual ~UGridRestrictFunction_03()
+    virtual ~UGridRestrictFunction()
     {
     }
 
 };
 
 
+}// namespace gf3
 
-}
 #endif // _gf3_h

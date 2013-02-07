@@ -29,8 +29,6 @@
 //namespace ugrid {
 
 #include "BESAbstractModule.h"
-#include "AbstractFunction.h"
-#include "gf3.h"
 
 class UgridFunctions: public BESAbstractModule {
 public:
