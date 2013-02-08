@@ -895,7 +895,7 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
 /**
  * Process the functions arguments and return the structure containing their values.
  */
-static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType * argv[]) {
+static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType *argv[]) {
 
 	BESDEBUG( "processUgrArgs()","BEGIN" << endl);
 
