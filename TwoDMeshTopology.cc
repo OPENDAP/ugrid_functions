@@ -50,7 +50,7 @@
 #include "MeshDataVariable.h"
 #include "TwoDMeshTopology.h"
 
-#include "BesDebug.h"
+#include "BESDebug.h"
 
 using namespace std;
 using namespace libdap;

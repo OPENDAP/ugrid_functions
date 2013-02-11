@@ -30,7 +30,7 @@
 #include <gridfields/array.h>
 
 #include "Array.h"
-#include "BesDebug.h"
+#include "BESDebug.h"
 
 #include "ugrid_utils.h"
 #include "LocationType.h"
