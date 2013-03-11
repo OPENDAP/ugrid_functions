@@ -303,7 +303,6 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 	GF::CellArray *faceNodeConnectivityCells = getFaceNodeConnectivityCells();
 
 	// Attach the Mesh to the grid at rank 2
-	// TODO Is this 2 the same as the value of the "dimension" attribute in the "mesh_topology" variable?
 	// This 2 stands for rank 2, or faces.
 	BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Attaching Cell array to GF::Grid" << endl);
 	gridTopology->setKCells(faceNodeConnectivityCells, face);
