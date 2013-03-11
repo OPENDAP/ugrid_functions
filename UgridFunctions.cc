@@ -36,7 +36,7 @@ using std::endl;
 void UgridFunctions::initialize(const string &modname) {
 	BESDEBUG( "UgridFunctions", "Initializing UgridFunctions:" << endl );
 
-	libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction());
+	libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
 
 	BESDEBUG( "UgridFunctions", "Done initializing UgridFunctions" << endl );
 }

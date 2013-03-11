@@ -63,6 +63,7 @@ private:
 
 	/**
 	 * REQUIRED
+	 *
 	 * The attribute dimension indicates the highest dimensionality of the geometric
 	 * elements; for a 2-dimensional (triangular) mesh this should be 2.
 	 */
@@ -117,6 +118,7 @@ private:
 
 	/**
 	 * OPTIONAL
+	 *
 	 * The "Optionally required" attribute edge_node_connectivity is required only if you want to store data on
 	 * the edges (i.e. if you mind the numbering order of the edges).
 	 * The edge_node_connectivity attribute contains the name of the array that maps edges to nodes. Although the
@@ -130,6 +132,7 @@ private:
 
 	/**
 	 * OPTIONAL
+	 *
 	 * The face_edge_connectivity attribute points to an index variable identifying for every face
 	 * (here consistently triangle) the indices of its three edges. The edges should be specified
 	 * in anticlockwise direction as viewed from above. This connectivity array will thus be a matrix
@@ -142,6 +145,7 @@ private:
 
 	/**
 	 * OPTIONAL
+	 *
 	 * The face_face_connectivity attribute points to an index variable identifying pairs of faces
 	 * (here consistently triangle) that share an edge, i.e. are neighbors. TODO: CHECK DEFINITION
 	 * This connectivity array will thus be a matrix of size nFacePairs x 2. Again the indexing
@@ -155,6 +159,7 @@ private:
 
 	/**
 	 * OPTIONAL
+	 *
 	 * The face_coordinates attribute points to the auxiliary coordinate variables
 	 * associated with the characteristic location of the faces. These auxiliary coordinate
 	 * variables will have length nFaces, and may have in turn a bounds
@@ -167,6 +172,7 @@ private:
 
 	/**
 	 * OPTIONAL
+	 *
 	 * The edge_coordinates attribute points to the auxiliary coordinate variables
 	 * associated with the characteristic location of the  edges. These auxiliary coordinate
 	 * variables will have length nEdges, and may have in turn a bounds
@@ -213,6 +219,6 @@ public:
 
 };
 
-} // namespace gf3
+} // namespace ugrid
 
 #endif // _TwoDMeshTopology_h

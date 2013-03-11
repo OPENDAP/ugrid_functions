@@ -369,11 +369,12 @@ static T *extract_array(Array * a) {
  * *******************************************************************************************************
  * *******************************************************************************************************
  */
+
 /**
  * Function syntax
  */
 static string ugr3Syntax =
-		"ugr(dim:int32, rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
+		"ugr3(dim:int32, rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
 
 /**
  * Function Arguments
@@ -1402,7 +1403,7 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 			+ "<function name=\"ugr3\" version=\"0.1\">\n"
 			+ "Server function for Unstructured grid operations.\n" + "usage: "
 			+ ugr3Syntax + "\n"
-					"</function>";
+			+ "</function>";
 
 	if (argc == 0) {
 		Str *response = new Str("info");
@@ -1416,6 +1417,7 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
 	map<string, TwoDMeshTopology *> meshTopologies;
 
+	// For every Range variable in the arguments list, locate it and ingest it.
 	int rangeVarCount =0;
 	vector<libdap::Array *>::iterator it;
 	for (it = args.rangeVars.begin(); it != args.rangeVars.end(); ++it) {
@@ -1423,6 +1425,8 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	    addRangeVar(dds, rangeVar, meshTopologies);
 	    rangeVarCount++;
 	}
+
+
 
 	BESDEBUG("function_ugr3", "The user requested "<< rangeVarCount << " range data variables." << endl);
 	BESDEBUG("function_ugr3", "The user's request referenced "<< meshTopologies.size() << " mesh topology variables." << endl);
