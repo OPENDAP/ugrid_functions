@@ -39,19 +39,33 @@ namespace ugrid {
 class libdap::Array;
 
 /**
- *  UGrid attribute vocabulary
+ *  REQUIRED UGrid attribute vocabulary
  */
 #define CF_ROLE "cf_role"
 #define CF_STANDARD_NAME "standard_name"
 #define UGRID_MESH_TOPOLOGY "mesh_topology"
 #define UGRID_NODE_COORDINATES "node_coordinates"
 #define UGRID_FACE_NODE_CONNECTIVITY "face_node_connectivity"
+
 #define UGRID_DIMENSION "dimension"
 #define UGRID_LOCATION "location"
 #define UGRID_GRID_LOCATION "grid_location"
 #define UGRID_NODE "node"
+#define UGRID_EDGE "edge"
+#define UGRID_FACE "face"
 #define UGRID_MESH "mesh"
 #define UGRID_START_INDEX "start_index"
+
+/**
+ *  OPTIONAL UGrid attribute vocabulary
+ */
+#define UGRID_EDGE_NODE_CONNECTIVITY "edge_node_connectivity"
+
+
+#define UGRID_FACE_COORDINATES "face_coordinates"
+#define UGRID_EDGE_COORDINATES "edge_coordinates"
+#define UGRID_FACE_EDGE_CONNECTIVITY "face_edge_connectivity"
+#define UGRID_FACE_FACE_CONNECTIVITY "face_face_connectivity"
 
 GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
 

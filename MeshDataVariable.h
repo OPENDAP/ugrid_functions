@@ -61,12 +61,13 @@ private:
 	 */
 	libdap::BaseType *meshTopologyVariable;
 
-	/**
-	 * REQUIRED
-	 * The attribute location points to the (stagger) location within the mesh at which the
-	 * variable is defined. (face or node)
-	 */
-	locationType myLocation;
+    /**
+     * REQUIRED
+     * The attribute location points to the (stagger) location within the mesh at which the
+     * variable is defined. (face or node)
+     */
+    locationType myLocation;
+
 
 	/**
 	 * OPTIONAL

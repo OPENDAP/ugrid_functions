@@ -31,6 +31,7 @@
 
 #include "Array.h"
 #include "BESDebug.h"
+#include "util.h"
 
 #include "ugrid_utils.h"
 #include "LocationType.h"
@@ -40,6 +41,7 @@
 using namespace std;
 using namespace libdap;
 using namespace ugrid;
+using std::endl;
 
 namespace ugrid {
 
@@ -49,32 +51,71 @@ MeshDataVariable::MeshDataVariable(){
 	meshTopologyVariable = 0;
 }
 
+
+static locationType determineLocationType(libdap::Array *rangeVar){
+
+    string locationString = getAttributeValue(rangeVar,UGRID_LOCATION);
+    BESDEBUG("ugrid", "determineLocationType() - UGRID_LOCATION: " << locationString << endl);
+
+    if(locationString.empty()){
+        locationString = getAttributeValue(rangeVar,UGRID_GRID_LOCATION);
+        BESDEBUG("ugrid", "determineLocationType() - UGRID_GRID_LOCATION: " << locationString << endl);
+    }
+
+    if(locationString.empty()){
+        string msg = "MeshDataVariable::determineLocation() - The range variable '" +
+                rangeVar->name() + "' is missing the required attribute named '"+
+                UGRID_LOCATION + "' and its alternate attribute named '" +
+                UGRID_GRID_LOCATION + "'";
+        BESDEBUG("ugrid",msg );
+        throw Error( msg);
+    }
+
+    locationString = BESUtil::lowercase(locationString);
+
+
+    if(locationString.compare(UGRID_NODE) == 0 ){
+        BESDEBUG("ugrid", "determineLocationType() - Location is node.  locationString: " << locationString << endl);
+        return node;
+    }
+
+    if(locationString.compare(UGRID_EDGE) == 0){
+        BESDEBUG("ugrid", "determineLocationType() - Location is edge.  locationString: " << locationString << endl);
+        return edge;
+    }
+
+    if(locationString.compare(UGRID_FACE) == 0){
+        BESDEBUG("ugrid", "determineLocationType() - Location is face.  locationString: " << locationString << endl);
+        return face;
+    }
+    string msg = "determineLocation() - The range variable '" + rangeVar->name() +
+            "' has a '" + UGRID_LOCATION + "' attribute with an unrecognized value of  '" + locationString +
+            "' The acceptable values are: '" + UGRID_NODE + "', '" + UGRID_EDGE+ "', and '" + UGRID_FACE + "'";
+    BESDEBUG("ugrid",msg );
+    throw Error( msg);
+
+}
+
+
 void MeshDataVariable::init(libdap::Array *rangeVar)
 {
 	meshDataVar = rangeVar;
-	BESDEBUG("MeshDataVariable::init", "The user submitted the range data array: " << rangeVar->name() << endl);
+	BESDEBUG("ugrid", "MeshDataVariable::init() - The user submitted the range data array: " << rangeVar->name() << endl);
 
-	/**
-	 * TODO: STOP doing this check and deal with face nodes!
-	 * Confirm that submitted variable has a 'location' attribute whose value is "node".
-	 */
-	if (!checkAttributeValue(rangeVar, UGRID_LOCATION, UGRID_NODE)) {
-		// Missing the 'location' attribute? Check for a 'grid_location' attribute whose value is "node".
-		if (!checkAttributeValue(rangeVar, UGRID_GRID_LOCATION, UGRID_NODE)) {
-			throw Error(
-					"The requested range variable '" + rangeVar->name()
-							+ "' has neither a '" + UGRID_LOCATION + "' attribute "
-							+ "or a " + UGRID_GRID_LOCATION
-							+ " attribute whose value is equal to '" + UGRID_NODE
-							+ "'.");
-		}
-	}
+	locationType rank = determineLocationType(rangeVar);
 
-	setLocation(node);
+	setLocation(rank);
 
 	meshName = getAttributeValue(rangeVar, UGRID_MESH);
+    if(meshName.empty()){
+        string msg = "MeshDataVariable::init() - The range variable '" + rangeVar->name() +
+                "' is missing the required attribute named '" + UGRID_MESH + "' ";
+        BESDEBUG("ugrid",msg );
+        throw Error( msg);
+    }
 
-	BESDEBUG("MeshDataVariable::init", "Range data array refers to 'mesh' variable:: " << meshName << endl);
+	BESDEBUG("ugrid", "MeshDataVariable::init() - Range data array '" << meshDataVar->name() <<
+	        "' references the 'mesh' variable '" << meshName << "'" << endl);
 
 }
 

@@ -1397,7 +1397,7 @@ static void releaseTDMT(TwoDMeshTopology *tdmt){
  array. */
 void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
-	BESDEBUG("function_ugr3", "BEGIN" << endl);
+	BESDEBUG("function_ugr3", "function_ugr3() - BEGIN" << endl);
 
 	static string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 			+ "<function name=\"ugr3\" version=\"0.1\">\n"
@@ -1428,8 +1428,8 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
 
 
-	BESDEBUG("function_ugr3", "The user requested "<< rangeVarCount << " range data variables." << endl);
-	BESDEBUG("function_ugr3", "The user's request referenced "<< meshTopologies.size() << " mesh topology variables." << endl);
+	BESDEBUG("function_ugr3", "function_ugr3() - The user requested "<< rangeVarCount << " range data variables." << endl);
+	BESDEBUG("function_ugr3", "function_ugr3() - The user's request referenced "<< meshTopologies.size() << " mesh topology variables." << endl);
 
 	// ----------------------------------
 	// OK, so up to this point we have not read any data from the data set, but we have QC'd the inputs and verified that
@@ -1550,10 +1550,10 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		// FIXME fix the names of the variables in the mesh_topology attributes
 		// If the server side function can be made to return a DDS or a collection of BaseType's then the
 		// names won't change and the original mesh_topology variable and it's metadata will be valid
-		BESDEBUG("function_ugr3", "Adding mesh_topology variable '"<< tdmt->name() << "' to the DAP response." << endl);
+		BESDEBUG("function_ugr3", "function_ugr3() - Adding mesh_topology variable '"<< tdmt->name() << "' to the DAP response." << endl);
 		dapResult->add_var(tdmt->getDapVariable());
 
-		BESDEBUG("function_ugr3", "Adding GF::GridField results to DAP data structure.." << endl);
+		BESDEBUG("function_ugr3", "function_ugr3() - Adding GF::GridField results to DAP data structure.." << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults->begin(); btIt != dapResults->end(); ++btIt) {
 			BaseType *bt = *btIt;
 			dapResult->add_var_nocopy(bt);
@@ -1566,14 +1566,14 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	*btpp = dapResult;
 
 
-	BESDEBUG("function_ugr3", "Releasing memory held by TwoDMeshTopology objects..." << endl);
+	BESDEBUG("function_ugr3", "function_ugr3() - Releasing memory held by TwoDMeshTopology objects..." << endl);
 	for (mit = meshTopologies.begin(); mit != meshTopologies.end(); ++mit) {
 		TwoDMeshTopology *tdmt = mit->second;
 		delete tdmt;
 	}
 
 
-	BESDEBUG("function_ugr3", "END" << endl);
+	BESDEBUG("function_ugr3", "function_ugr3() - END" << endl);
 
 	return;
 }

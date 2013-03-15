@@ -167,8 +167,8 @@ private:
 	 * data in the node_coordinates variables).
 	 *
 	 */
-	//vector<string> *faceCoordinateNames;
-	//vector<Array *> *faceCoordinateArrays;
+	vector<string> *faceCoordinateNames;
+	vector<Array *> *faceCoordinateArrays;
 
 	/**
 	 * OPTIONAL
@@ -195,12 +195,13 @@ private:
 
 	libdap::Array *getFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS &dds);
 	vector<libdap::Array *> *getNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds);
+	vector<libdap::Array *> *getFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds);
 
 	GF::Node *getFncArrayAsGFNodes(libdap::Array *fncVar);
 	int getStartIndex(libdap::Array *array);
 	GF::CellArray *getFaceNodeConnectivityCells();
 
-	libdap::Array *getRankZeroAttributeNodeSetAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceArray);
+	libdap::Array *getGFAttributeAsDapArray(libdap::Array *sourceArray, locationType rank, GF::GridField *resultGridField);
 	libdap::Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray);
 	libdap::Array *getNewFcnDapArray(libdap::Array *templateArray, int N);
 
