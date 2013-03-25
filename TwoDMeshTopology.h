@@ -65,11 +65,12 @@ private:
 	 * REQUIRED
 	 *
 	 * The attribute dimension indicates the highest dimensionality of the geometric
-	 * elements; for a 2-dimensional (triangular) mesh this should be 2.
+	 * elements; for a 2-dimensional mesh this should be 2.
 	 */
 	string dimension;
 
-	int nodeCount;
+
+
 
 	/**
 	 * REQUIRED
@@ -80,6 +81,8 @@ private:
 	 * variables will have length nNodes.
 	 */
 	vector<libdap::Array *> *nodeCoordinateArrays;
+    string nodeDimensionName;
+    int nodeCount;
 
 	/**
 	 * REQUIRED
@@ -113,6 +116,9 @@ private:
 	 *
 	 */
 	libdap::Array *faceNodeConnectivityArray;
+    libdap::Array::Dim_iter fncNodesDim, fncFacesDim;
+    string faceDimensionName;
+    int    faceCount;
 
 	vector<MeshDataVariable *> *rangeDataArrays;
 
@@ -192,10 +198,12 @@ private:
 
 	GF::Node *sharedNodeArray;
 
+	bool _initialized;
 
-	libdap::Array *getFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS &dds);
-	vector<libdap::Array *> *getNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds);
-	vector<libdap::Array *> *getFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds);
+
+	void ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS &dds);
+	void ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds);
+	void ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds);
 
 	GF::Node *getFncArrayAsGFNodes(libdap::Array *fncVar);
 	int getStartIndex(libdap::Array *array);
@@ -203,10 +211,13 @@ private:
 
 	libdap::Array *getGFAttributeAsDapArray(libdap::Array *sourceArray, locationType rank, GF::GridField *resultGridField);
 	libdap::Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray);
-	libdap::Array *getNewFcnDapArray(libdap::Array *templateArray, int N);
+	libdap::Array *getNewFncDapArray(libdap::Array *templateArray, int N);
 
+	void setNodeCoordinateDimension(MeshDataVariable *mdv);
+	void setFaceCoordinateDimension(MeshDataVariable *mdv);
 
 public:
+	TwoDMeshTopology(string meshVarName, DDS &dds);
 	TwoDMeshTopology();
 	~TwoDMeshTopology();
 	void init(string meshVarName, libdap::DDS &dds);

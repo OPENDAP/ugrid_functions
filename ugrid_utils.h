@@ -153,7 +153,6 @@ template<typename T> T *extractArray(libdap::Array *a) {
 
 string getAttributeValue(libdap::BaseType *bt, string aName) ;
 bool matchesCfRoleOrStandardName(libdap::BaseType *bt, string aValue);
-bool same_dimensions(libdap::Array *arr1, libdap::Array *arr2);
 
 bool checkAttributeValue(libdap::BaseType *bt, string aName, string aValue);
 

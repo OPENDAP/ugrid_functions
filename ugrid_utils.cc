@@ -413,48 +413,6 @@ bool matchesCfRoleOrStandardName(BaseType *bt, string aValue) {
 	return true;
 }
 
-/*
- If the two arrays have the exact dimensions in the same order, with the same name, size, start, stop, and stride values,
- return true.  Otherwise return false.
- */
-bool same_dimensions(libdap::Array *arr1, libdap::Array *arr2) {
-	libdap::Array::Dim_iter ait1;
-	libdap::Array::Dim_iter ait2;
-
-
-	DBG(cerr<< "same_dimensions() - " << "comparing array " << arr1->name() << " and array " << arr2->name() << endl);
-
-	// We start walking both sets of ArrayDimensions at the beginning and increment each together.
-	// We end the loop by testing for the end of one set of dimensions because we have already tested
-	// that the two sets are the same size.
-	for (ait1 = arr1->dim_begin(), ait2 = arr2->dim_begin();   ait1 != arr1->dim_end();      ++ait1, ++ait2) {
-		libdap::Array::dimension ad1 = *ait1;
-		libdap::Array::dimension ad2 = *ait2;
-
-		// Skip dimensions of size one, cause they don't matter
-		while(ad1.c_size==1  &&  ait1!=arr1->dim_end()){
-		    ++ait1;
-		    ad1 = *ait1;
-		    DBG(cerr<< "same_dimensions() - " << "Skipped dimension of size one. array: " << arr1->name() << endl);
-		}
-
-        // Skip dimensions of size one, cause they don't matter
-		while(ad2.c_size==1 && ait2!=arr2->dim_end()){
-		    ++ait2;
-		    ad2 = *ait2;
-            DBG(cerr<< "same_dimensions() - " << "Skipped dimension of size one. array: " << arr2->name() << endl);
-		}
-
-		DBG(cerr << "same_dimensions() - " << "Comparing: "<< arr1->name() << "["<< ad1.name << "=" << ad1.size << "] AND "<< arr2->name() << "[" << ad2.name << "=" << ad2.size << "] "<< endl);
-		if (ad2.name != ad1.name or ad2.size != ad1.size
-				or ad2.stride != ad1.stride or ad2.stop != ad1.stop)
-			return false;
-	}
-	if (ait1!=arr1->dim_end()  &&  ait2!=arr2->dim_end())
-		return false;
-
-	return true;
-}
 
 
 // Returns true iff the submitted BaseType variable has an attribute called aName attribute whose value is aValue.
@@ -514,11 +472,6 @@ int getNfrom3byNArray(libdap::Array *array)
 }
 
 
-int shmoo()
-{
-	//extractArray<unsigned int>(0);
-	return 1;
-}
 
 
 

@@ -47,6 +47,11 @@ private:
 	 */
 	libdap::Array *meshDataVar;
 
+	/*
+	 * Coordinate Dimension
+	 */
+	libdap::Array::Dim_iter _coordinateDimension;
+
 	/**
 	 * REQUIRED
 	 * The attribute mesh points to the mesh_topology variable containing the meta-data attributes
@@ -101,6 +106,14 @@ public:
 	string getName(){ return meshDataVar->name();}
 
 	libdap::Array *getDapArray(){ return meshDataVar;}
+
+    libdap::Array::Dim_iter getCoordinateDimension(){
+        return _coordinateDimension;
+    }
+
+    void setCoordinateDimension(libdap::Array::Dim_iter cdim){
+        _coordinateDimension = cdim;
+    }
 
 	void init(libdap::Array *dapArray);
 
