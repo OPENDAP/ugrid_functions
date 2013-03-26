@@ -877,7 +877,7 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
 	map<string, TwoDMeshTopology *>::iterator mit = meshTopologies.find(meshVarName);
 	if(mit == meshTopologies.end()){
 		// Not there? Make a new one.
-		BESDEBUG("getMeshDataVar","MeshTopology object for '" << meshVarName <<"' does NOT exist. Getting a new one... "  << endl);
+		BESDEBUG("function_ugr3", "addRangeVar() - MeshTopology object for '" << meshVarName <<"' does NOT exist. Getting a new one... "  << endl);
 
 		meshTopology = new TwoDMeshTopology();
 		meshTopology->init(meshVarName, dds);
@@ -885,11 +885,12 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
 	}
 	else {
 		// Sweet! Found it....
-		BESDEBUG("getMeshDataVar","MeshTopology object for '" << meshVarName <<"' exists. Retrieving... "  << endl);
+		BESDEBUG("function_ugr3", "addRangeVar() - MeshTopology object for '" << meshVarName <<"' exists. Retrieving... "  << endl);
 		meshTopology = mit->second;
 	}
 
 	meshTopology->addDataVariable(mdv);
+    BESDEBUG("function_ugr3", "addRangeVar() - Variable added to MeshTopology '" << meshTopology->name() <<"'"  << endl);
 
 }
 
@@ -898,7 +899,7 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
  */
 static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType *argv[]) {
 
-	BESDEBUG( "processUgrArgs()","BEGIN" << endl);
+	BESDEBUG("function_ugr3", "processUgrArgs() - BEGIN" << endl);
 
 	Ugrid3RestrictArgs args;
 	args.rangeVars = vector<libdap::Array *>();
@@ -958,7 +959,7 @@ static Ugrid3RestrictArgs processUgr3Args(int argc, BaseType *argv[]) {
 		args.rangeVars.push_back(newRangeVar);
 	}
 
-	BESDEBUG("processUgrArgs", "END" << endl);
+	BESDEBUG("function_ugr3", "processUgrArgs() - END" << endl);
 
 	return args;
 

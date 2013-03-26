@@ -30,15 +30,40 @@ using std::endl;
 #include "ServerFunctionsList.h"
 #include "gf3.h"
 #include "BESDebug.h"
+#include "ugrid_restrict.h"
 
 //namespace ugrid {
 
+static string getFunctionNames(){
+    vector<string> names;
+    libdap::ServerFunctionsList::TheList()->getFunctionNames(&names);
+
+    string msg;
+    for(std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
+        if(!msg.empty())
+            msg += ", ";
+
+        msg += *it;
+    }
+    return msg;
+}
 void UgridFunctions::initialize(const string &modname) {
-	BESDEBUG( "UgridFunctions", "Initializing UgridFunctions:" << endl );
+	BESDEBUG( "UgridFunctions", "initialize() - BEGIN" << endl );
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
-	libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
+    BESDEBUG("UgridFunctions", "initialize() - Adding gf3::UGridRestrictFunction_03()" << endl);
 
-	BESDEBUG( "UgridFunctions", "Done initializing UgridFunctions" << endl );
+    libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
+
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
+
+
+    BESDEBUG("UgridFunctions", "initialize() - Adding ugrid_restrict::UGridRestrictFunction()" << endl);
+    libdap::ServerFunctionsList::TheList()->add_function(new ugrid_restrict::UGridRestrictFunction());
+
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
+
+    BESDEBUG( "UgridFunctions", "initialize() - END" << endl );
 }
 
 void UgridFunctions::terminate(const string &modname) {

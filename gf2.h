@@ -28,6 +28,7 @@
 // NOTE: This file is built only when the gridfields library is linked with
 // the netcdf_handler (i.e., the handler's build is configured using the
 // --with-gridfields=... option to the 'configure' script).
+#if 0 // Disabling cruft code from earlier ugrid work - ndp 03/26/2013
 
 #ifndef _gf2_h
 #define _gf2_h
@@ -41,3 +42,4 @@ void function_ugr2(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap
 
 }
 #endif // _gf2_h
+#endif // Disabling cruft code from earlier ugrid work - ndp 03/26/2013

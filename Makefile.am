@@ -27,6 +27,7 @@ SRCS = UgridFunctions.cc \
 	ugrid_utils.cc \
 	MeshDataVariable.cc \
 	TwoDMeshTopology.cc  \
+	ugrid_restrict.cc  \
 	gf3.cc
 
 #        gf2.cc 
@@ -38,6 +39,7 @@ HDRS = UgridFunctions.h\
 	ugrid_utils.h \
 	MeshDataVariable.h  \
 	TwoDMeshTopology.h \
+	ugrid_restrict.h \
 	gf3.h
 
 #       gf2.h 
