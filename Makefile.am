@@ -15,7 +15,7 @@ TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 
 
-# SUBDIRS = 
+SUBDIRS =  . unit-tests
 # DIST_SUBDIRS = 
 
 lib_besdir=$(libdir)/bes
@@ -28,6 +28,7 @@ SRCS = UgridFunctions.cc \
 	MeshDataVariable.cc \
 	TwoDMeshTopology.cc  \
 	ugrid_restrict.cc  \
+	NDimensionalArray.cc \
 	gf3.cc
 
 #        gf2.cc 
@@ -40,6 +41,7 @@ HDRS = UgridFunctions.h\
 	MeshDataVariable.h  \
 	TwoDMeshTopology.h \
 	ugrid_restrict.h \
+	NDimensionalArray.h \
 	gf3.h
 
 #       gf2.h 

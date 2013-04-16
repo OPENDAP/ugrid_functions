@@ -57,6 +57,10 @@ AC_CHECK_BES([3.9.0],
 	[ AC_MSG_ERROR([Could not find bes library and headers]) ])
 
 
+# Is there CPPUNIT?
+AM_PATH_CPPUNIT(1.12.0,
+	[AM_CONDITIONAL([CPPUNIT], [true])],
+	[AM_CONDITIONAL([CPPUNIT], [false])])
 
 
 dnl When pkgconfig support is added, use this
@@ -153,7 +157,7 @@ fi
 
 dnl OPENDAP_DEBUG_OPTION
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile unit-tests/Makefile])
 
 # Add these once you have tests: bes-testsuite/Makefile bes-testsuite/atlocal])
 
