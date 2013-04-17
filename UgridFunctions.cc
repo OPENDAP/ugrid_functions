@@ -57,7 +57,6 @@ void UgridFunctions::initialize(const string &modname) {
 
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
-
     BESDEBUG("UgridFunctions", "initialize() - Adding ugrid_restrict::UGridRestrictFunction()" << endl);
     libdap::ServerFunctionsList::TheList()->add_function(new ugrid_restrict::UGridRestrictFunction());
 

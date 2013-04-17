@@ -46,9 +46,9 @@ using std::endl;
 namespace ugrid {
 
 MeshDataVariable::MeshDataVariable(){
-	myLocation = node;
+    myGridLocation = node;
 	meshDataVar = 0;
-	meshTopologyVariable = 0;
+	_initialized = false;
 }
 
 
@@ -99,12 +99,15 @@ static locationType determineLocationType(libdap::Array *rangeVar){
 
 void MeshDataVariable::init(libdap::Array *rangeVar)
 {
+    if(_initialized)
+        return;
+
 	meshDataVar = rangeVar;
 	BESDEBUG("ugrid", "MeshDataVariable::init() - The user submitted the range data array: " << rangeVar->name() << endl);
 
 	locationType rank = determineLocationType(rangeVar);
 
-	setLocation(rank);
+	setGridLocation(rank);
 
 	meshName = getAttributeValue(rangeVar, UGRID_MESH);
     if(meshName.empty()){
@@ -117,6 +120,7 @@ void MeshDataVariable::init(libdap::Array *rangeVar)
 	BESDEBUG("ugrid", "MeshDataVariable::init() - Range data array '" << meshDataVar->name() <<
 	        "' references the 'mesh' variable '" << meshName << "'" << endl);
 
+	_initialized = true;
 }
 
 

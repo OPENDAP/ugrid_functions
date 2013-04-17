@@ -1528,7 +1528,9 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
 
 		tdmt->applyRestrictOperator(args.dimension, args.filterExpression);
-		vector<BaseType *> *dapResults = tdmt->convertResultGridFieldToDapObjects();
+		vector<BaseType *> dapResults;
+
+		tdmt->convertResultGridFieldToDapObjects(&dapResults);
 
 #if 0
 
@@ -1555,12 +1557,11 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		dapResult->add_var(tdmt->getDapVariable());
 
 		BESDEBUG("function_ugr3", "function_ugr3() - Adding GF::GridField results to DAP data structure.." << endl);
-		for (vector<BaseType *>::iterator btIt=dapResults->begin(); btIt != dapResults->end(); ++btIt) {
+		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
 			BaseType *bt = *btIt;
 			dapResult->add_var_nocopy(bt);
 		}
 
-		delete dapResults;
 	}
 
 

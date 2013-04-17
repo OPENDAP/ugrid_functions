@@ -50,7 +50,7 @@ public:
 		setUsageString("ugr3(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
 		setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
 		setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
-		setFunction(gf3::function_ugr3);
+		setFunction(ugrid_restrict::ugrid_restrict);
 		setVersion("1.0");
     }
     virtual ~UGridRestrictFunction()

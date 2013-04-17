@@ -42,6 +42,8 @@ class MeshDataVariable {
 
 private:
 
+    bool _initialized;
+
 	/**
 	 * The DAP dataset variable that the user requested.
 	 */
@@ -59,19 +61,14 @@ private:
 	 */
 	string meshName;
 
-	/**
-	 * REQUIRED
-	 * The first DAP dataset variable in the dataset that has a 'cf_role' attribute whose value is equal the value of
-	 * the string 'mesh' or an attribute named 'standard_name' whose value is the same as the value of the string 'mesh'.
-	 */
-	libdap::BaseType *meshTopologyVariable;
 
     /**
      * REQUIRED
      * The attribute location points to the (stagger) location within the mesh at which the
      * variable is defined. (face or node)
      */
-    locationType myLocation;
+    locationType myGridLocation;
+
 
 
 	/**
@@ -97,8 +94,8 @@ public:
 
 	MeshDataVariable();
 
-	void setLocation(locationType loc){myLocation = loc;}
-	locationType getLocation(){return myLocation;}
+	void setGridLocation(locationType loc){myGridLocation = loc;}
+	locationType getGridLocation(){return myGridLocation;}
 
 	void setMeshName(string mName){meshName=mName;}
 	string getMeshName(){ return meshName;}
@@ -107,11 +104,11 @@ public:
 
 	libdap::Array *getDapArray(){ return meshDataVar;}
 
-    libdap::Array::Dim_iter getCoordinateDimension(){
+    libdap::Array::Dim_iter getLocationCoordinateDimension(){
         return _coordinateDimension;
     }
 
-    void setCoordinateDimension(libdap::Array::Dim_iter cdim){
+    void setLocationCoordinateDimension(libdap::Array::Dim_iter cdim){
         _coordinateDimension = cdim;
     }
 

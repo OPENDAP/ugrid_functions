@@ -241,30 +241,29 @@ void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	// it looks like the request is consistent with the semantics of the dataset.
 	// Now it's time to read some data and pack it into the GridFields library...
 
-	//Each mesh topology gets it's own GridField
+
+    // TODO This returns a single structure but it would make better sense to the
+    // world if it could return a vector of objects and have them appear at the
+    // top level of the DDS.
+    Structure *dapResult = new Structure("ugr_result");
+
+
 	map<string, TwoDMeshTopology *>::iterator mit;
-	for (mit = meshTopologies.begin(); mit != meshTopologies.end(); ++mit) {
-		string name = mit->first;
-		TwoDMeshTopology *tdmt = mit->second;
-
-		tdmt->buildGridFieldsTopology();
-
-
-	}
-
-	// TODO This returns a single structure but it would make better sense to the
-	// world if it could return a vector of objects and have them appear at the
-	// top level of the DDS.
-	Structure *dapResult = new Structure("ugr_result");
-
 	for (mit = meshTopologies.begin(); mit != meshTopologies.end(); ++mit) {
 		string meshTopologyName = mit->first;
 		TwoDMeshTopology *tdmt = mit->second;
 
 
 
-		tdmt->applyRestrictOperator(args.dimension, args.filterExpression);
-		vector<BaseType *> *dapResults = tdmt->convertResultGridFieldToDapObjects();
+
+
+        tdmt->buildRestrictedGfTopology(args.dimension, args.filterExpression);
+
+		vector<BaseType *> dapResults;
+
+		tdmt->restrictRange(&dapResults);
+
+
 
 		// FIXME fix the names of the variables in the mesh_topology attributes
 		// If the server side function can be made to return a DDS or a collection of BaseType's then the
@@ -273,12 +272,12 @@ void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		dapResult->add_var(tdmt->getDapVariable());
 
 		BESDEBUG("ugrid_restrict", "ugrid_restrict() -Adding GF::GridField results to DAP data structure.." << endl);
-		for (vector<BaseType *>::iterator btIt=dapResults->begin(); btIt != dapResults->end(); ++btIt) {
+		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
 			BaseType *bt = *btIt;
 			dapResult->add_var_nocopy(bt);
 		}
 
-		delete dapResults;
+		//delete dapResults;
 	}
 
 

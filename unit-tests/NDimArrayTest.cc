@@ -68,11 +68,83 @@ public:
 
     CPPUNIT_TEST(getStorageIndex_test);
     CPPUNIT_TEST(getLastDimesnionHyperSlab_test);
+    CPPUNIT_TEST(setLastDimesnionHyperSlab_test);
     //CPPUNIT_TEST(duplicate_string_test);
     //CPPUNIT_TEST(duplicate_structure_test);
 
     CPPUNIT_TEST_SUITE_END();
 
+    void setLastDimesnionHyperSlab_test() {
+        DBG(cerr << " setLastDimesnionHyperSlab_test() - BEGIN." << endl);
+
+        libdap::Array test("foo",new libdap::Float64("foo"));
+        test.append_dim(5,"dim1");
+        test.append_dim(1081,"dim2");
+        test.append_dim(1000,"dim3");
+
+        unsigned int start[test.dimensions(true)], stride[test.dimensions(true)], stop[test.dimensions(true)];
+        vector<unsigned int> shape(test.dimensions(true));
+
+        start[0]  = 0;
+        stride[0] = 1;
+        stop[0]   = 4;
+
+        start[1]  = 97;
+        stride[1] = 1;
+        stop[1]   = 98;
+
+        start[2]  = 0;
+        stride[2] = 1;
+        stop[2]   = 999;
+        libdap::Array::Dim_iter dIt;
+        int i = 0;
+        for(dIt =test.dim_begin() ; dIt!=test.dim_end() ;dIt++, i++){
+            test.add_constraint(dIt,start[i],stride[i],stop[i]);
+        }
+        long constrainedSize = libdap::NDimensionalArray::computeConstrainedShape(&test,&shape);
+
+        DBG(cerr << " setLastDimesnionHyperSlab_test() - constrainedSize="<< libdap::long_to_string(constrainedSize) << endl);
+        CPPUNIT_ASSERT(constrainedSize == 10000);
+
+
+
+        NDimensionalArray nda(&test);
+        nda.setAll(0);
+
+        long lastDimSize = nda.getLastDimensionElementCount();
+        DBG(cerr << " setLastDimesnionHyperSlab_test() - lastDimSize="<< libdap::long_to_string(lastDimSize) << endl);
+        CPPUNIT_ASSERT(lastDimSize == 1000);
+
+        vector<unsigned int> location(test.dimensions(true)-1);
+        location[0] = 2;
+        location[1] = 1;
+
+        double pi = std::atan(1)*4;
+        dods_float64 stuff[lastDimSize];
+        for(long i=0; i<lastDimSize ;i++)
+            stuff[i] = pi;
+
+        DBG(cerr << " setLastDimesnionHyperSlab_test() - setting slab values to "<< libdap::double_to_string(pi) << endl);
+        nda.setLastDimensionHyperSlab(&location,stuff,nda.getLastDimensionElementCount());
+
+        dods_float64 *slab;
+        unsigned int slabElementCount=0;
+        nda.getLastDimensionHyperSlab(&location,(void**)&slab,&slabElementCount);
+        DBG(cerr << " setLastDimesnionHyperSlab_test() - Retrieved  slab. Slab element count " << slabElementCount << endl);
+
+        CPPUNIT_ASSERT(slabElementCount == lastDimSize);
+
+        DBG(cerr << " setLastDimesnionHyperSlab_test() - Checking slab values... " << endl);
+       for(i=0; i<slabElementCount ; i++)
+            CPPUNIT_ASSERT(slab[i] == pi);
+
+
+       DBG(cerr << " setLastDimesnionHyperSlab_test() - END." << endl);
+
+
+
+
+    }
 
     void getLastDimesnionHyperSlab_test() {
         DBG(cerr << " getLastDimesnionHyperSlab_test() - BEGIN." << endl);
@@ -105,8 +177,8 @@ public:
         }
 
         long constrainedSize = libdap::NDimensionalArray::computeConstrainedShape(&test,&shape);
-
         DBG(cerr << " getLastDimesnionHyperSlab_test() - constrainedSize="<< libdap::long_to_string(constrainedSize) << endl);
+        CPPUNIT_ASSERT(constrainedSize == 50000);
 
         NDimensionalArray nda(&test);
 
@@ -121,7 +193,6 @@ public:
         location[0] = 0;
         location[1] = 0;
         nda.getLastDimensionHyperSlab(&location,&firstSlab,&slabElementCount);
-
         DBG(cerr << " getLastDimesnionHyperSlab_test() - slab elementCount="<< libdap::long_to_string(slabElementCount) << endl);
         DBG(cerr << " getLastDimesnionHyperSlab_test() - first Slab address=" << firstSlab << endl);
 

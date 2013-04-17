@@ -49,7 +49,7 @@ class UGridRestrictFunction_03: public libdap::ServerFunction {
 public:
 	UGridRestrictFunction_03()
     {
-		setName("foogr3");
+		setName("ugr3");
 		setDescriptionString("This function can subset the node data of a two dimensional triangular mesh unstructured grid.");
 		setUsageString("ugr3(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
 		setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
