@@ -25,9 +25,12 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <cstdio>
+
 #define DODS_DEBUG
 
-#include <cstdio>
+#include "debug.h"
+
 
 #include "gridfields/grid.h"
 #include "gridfields/gridfield.h"
@@ -116,30 +119,35 @@ private:
 
 
 public:
+
     // Called once before everything gets tested
     BindTest() {
+    //    DBG(cerr << " BindTest - Constructor" << endl);
 
     }
 
     // Called at the end of the test
     ~BindTest() {
+    //    DBG(cerr << " BindTest - Destructor" << endl);
     }
 
 
     // Called before each test
     void setup() {
-        // do stuff;
+    //    DBG(cerr << " BindTest - setup()" << endl);
     }
 
     // Called after each test
     void tearDown() {
-        // undo stuff
+    //    DBG(cerr << " tearDown()" << endl);
     }
 
     CPPUNIT_TEST_SUITE( BindTest );
 
     CPPUNIT_TEST(bind_test);
+
     CPPUNIT_TEST_SUITE_END();
+
 
     void  bind_test() {
       bool verbose = true;
@@ -161,7 +169,7 @@ public:
         Result = RefRestrictOp::Restrict("x>-4",0,Result);
         if (verbose) Result->print(10);
 
-        FileArrayReader *ar = new FileArrayReader("dat", 0);
+        FileArrayReader *ar = new FileArrayReader("bindtest.dat", 0);
         ar->setPatternAttribute("result");
         GridField *G = BindOp::Bind("io", FLOAT, ar, 0, Result);
 
@@ -180,6 +188,8 @@ public:
     }
 
 }; // BindTest
+
+CPPUNIT_TEST_SUITE_REGISTRATION(BindTest);
 
 } // namespace ugrid
 

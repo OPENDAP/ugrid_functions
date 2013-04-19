@@ -69,8 +69,6 @@ public:
     CPPUNIT_TEST(getStorageIndex_test);
     CPPUNIT_TEST(getLastDimesnionHyperSlab_test);
     CPPUNIT_TEST(setLastDimesnionHyperSlab_test);
-    //CPPUNIT_TEST(duplicate_string_test);
-    //CPPUNIT_TEST(duplicate_structure_test);
 
     CPPUNIT_TEST_SUITE_END();
 
