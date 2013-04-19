@@ -33,7 +33,7 @@ SRCS = UgridFunctions.cc \
 
 #        gf2.cc 
 
-# NC_GOES_Dataset.cpp NC_GOES_Dataset.h
+
 
 HDRS = UgridFunctions.h\
 	LocationType.h \

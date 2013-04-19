@@ -7,7 +7,7 @@ AUTOMAKE_OPTIONS = foreign
 
 # Headers in 'tests' are used by the arrayT unit tests.
 
-AM_CPPFLAGS = -I$(top_srcdir)/GNU -I$(top_srcdir) -I$(top_srcdir)/tests $(CURL_CFLAGS) $(XML2_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir) $(GF_CFLAGS) $(XML2_CFLAGS)
 AM_LDADD =
 if CPPUNIT
 AM_CPPFLAGS += $(CPPUNIT_CFLAGS)
@@ -43,7 +43,7 @@ test_config.h: test_config.h.in Makefile
 #
 
 if CPPUNIT
-UNIT_TESTS = NDimArrayTest
+UNIT_TESTS = NDimArrayTest BindTest
 	
 else
 UNIT_TESTS =
@@ -61,3 +61,7 @@ TEST_SRC = testFile.cc testFile.h
 
 NDimArrayTest_SOURCES = NDimArrayTest.cc
 NDimArrayTest_LDADD = ../.libs/libugrid_functions_la-NDimensionalArray.o $(AM_LDADD)
+
+BindTest_SOURCES = BindTest.cc
+BindTest_LDADD = $(AM_LDADD)
+
