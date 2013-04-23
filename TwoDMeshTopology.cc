@@ -62,7 +62,7 @@ using namespace ugrid;
 namespace ugrid {
 
 
-TwoDMeshTopology::TwoDMeshTopology():myVar(0),gridTopology(0),inputGridField(0),resultGridField(0),sharedNodeArray(0)
+TwoDMeshTopology::TwoDMeshTopology():myVar(0),gridTopology(0),d_inputGridField(0),resultGridField(0),sharedNodeArray(0)
 {
     rangeDataArrays = new vector<MeshDataVariable *>();
     sharedIntArrays = new vector<int *>();
@@ -87,7 +87,7 @@ TwoDMeshTopology::~TwoDMeshTopology()
 	delete resultGridField;
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting inputGridField." << endl);
-	delete inputGridField;
+	delete d_inputGridField;
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting gridTopology." << endl);
 	delete gridTopology;
@@ -750,7 +750,7 @@ void TwoDMeshTopology::buildBasicGfTopology(){
 
     // The Grid is complete. Now we make a GridField from the Grid
     BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Construct new GF::GridField from GF::Grid" << endl);
-    inputGridField = new GF::GridField(gridTopology);
+    d_inputGridField = new GF::GridField(gridTopology);
     // TODO Question for Bill: Can we delete the GF::Grid (tdmt->gridTopology) here?
 
 
@@ -761,7 +761,7 @@ void TwoDMeshTopology::buildBasicGfTopology(){
         libdap::Array *nca = *ncit;
         BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Adding node coordinate "<< nca->name() << " to GF::GridField at rank 0" << endl);
         GF::Array *gfa = extractGridFieldArray(nca,sharedIntArrays,sharedFloatArrays);
-        inputGridField->AddAttribute(node, gfa);
+        d_inputGridField->AddAttribute(node, gfa);
     }
 
 }
@@ -791,7 +791,7 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 		MeshDataVariable *mdVar = *mdv_it;
 		GF::Array *gfa = extractGridFieldArray(mdVar->getDapArray(),sharedIntArrays,sharedFloatArrays);
 		BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Adding mesh data variable '"<< mdVar->getName() <<"' to GF::GridField at rank "<< mdVar->getGridLocation() << endl);
-		inputGridField->AddAttribute(mdVar->getGridLocation(), gfa);
+		d_inputGridField->AddAttribute(mdVar->getGridLocation(), gfa);
 	}
 
 }
@@ -919,12 +919,12 @@ GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpression)
 {
     // I think this function could be done with just the following single line:
-    // resultGridField = GF::RefRestrictOp::Restrict(filterExpression,loc,inputGridField);
+    // resultGridField = GF::RefRestrictOp::Restrict(filterExpression,loc,d_inputGridField);
 
 	// Build the restriction operator;
 	BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - Constructing new GF::RestrictOp using user "<<
 			"supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
-	GF::RestrictOp op = GF::RestrictOp(filterExpression, loc, inputGridField);
+	GF::RestrictOp op = GF::RestrictOp(filterExpression, loc, d_inputGridField);
 
 
 	// Apply the operator and get the result;

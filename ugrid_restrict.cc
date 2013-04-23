@@ -253,17 +253,11 @@ void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		string meshTopologyName = mit->first;
 		TwoDMeshTopology *tdmt = mit->second;
 
-
-
-
-
         tdmt->buildRestrictedGfTopology(args.dimension, args.filterExpression);
 
 		vector<BaseType *> dapResults;
 
 		tdmt->restrictRange(&dapResults);
-
-
 
 		// FIXME fix the names of the variables in the mesh_topology attributes
 		// If the server side function can be made to return a DDS or a collection of BaseType's then the
@@ -276,8 +270,6 @@ void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 			BaseType *bt = *btIt;
 			dapResult->add_var_nocopy(bt);
 		}
-
-		//delete dapResults;
 	}
 
 

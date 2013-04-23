@@ -190,7 +190,7 @@ private:
 	//vector<Array *> *edgeCoordinateArrays;
 
 	GF::Grid      *gridTopology;
-	GF::GridField *inputGridField;
+	GF::GridField *d_inputGridField;
 	GF::GridField *resultGridField;
 
 	vector <int *>  *sharedIntArrays;
