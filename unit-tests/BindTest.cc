@@ -165,25 +165,19 @@ public:
         GF->Bind(0, arr);
 
         GridField *aGF = AccumulateOp::Accumulate(GF, 0, "result", "result+1", "0", 0);
-        DBG(aGF->PrintTo(cerr,9);)
+        DBG(aGF->PrintTo(cerr,9));
 
-        DBG( cerr << "restricting..." << endl;)
+        DBG( cerr << "restricting..." << endl);
         Result = RefRestrictOp::Restrict("x<4",0,GF);
-        DBG(Result->PrintTo(cerr,0);)
+        DBG(Result->PrintTo(cerr,0));
 
         Result = RefRestrictOp::Restrict("x>-4",0,Result);
-        DBG(Result->PrintTo(cerr,10);)
-
-
+        DBG(Result->PrintTo(cerr,10));
 
         FileArrayReader *ar = new FileArrayReader("bindtest.dat", 0);
         ar->setPatternAttribute("result");
         GridField *G = BindOp::Bind("io", FLOAT, ar, 0, Result);
-        DBG(G->PrintTo(cerr,0);)
-
-
-
-
+        DBG(G->PrintTo(cerr,0));
 
         CPPUNIT_ASSERT(true);
       }
