@@ -100,6 +100,10 @@ private:
       }
       return arr;
     }
+
+    /**
+     *
+     */
     GridField *makeGridField(int size, string gridname,const char *datname, int k) {
 
       Grid *G;
@@ -150,7 +154,7 @@ public:
 
 
     void  bind_test() {
-      bool verbose = true;
+      DBG(cerr << " bind_test - BEGIN" << endl);
 
       try {
         GridField *GF;
@@ -161,19 +165,25 @@ public:
         GF->Bind(0, arr);
 
         GridField *aGF = AccumulateOp::Accumulate(GF, 0, "result", "result+1", "0", 0);
+        DBG(aGF->PrintTo(cerr,9);)
 
-        if (verbose) aGF->print(9);
-        printf("restricting...\n");
+        DBG( cerr << "restricting..." << endl;)
         Result = RefRestrictOp::Restrict("x<4",0,GF);
-        if (verbose) Result->print(0);
+        DBG(Result->PrintTo(cerr,0);)
+
         Result = RefRestrictOp::Restrict("x>-4",0,Result);
-        if (verbose) Result->print(10);
+        DBG(Result->PrintTo(cerr,10);)
+
+
 
         FileArrayReader *ar = new FileArrayReader("bindtest.dat", 0);
         ar->setPatternAttribute("result");
         GridField *G = BindOp::Bind("io", FLOAT, ar, 0, Result);
+        DBG(G->PrintTo(cerr,0);)
 
-        if (verbose) G->print();
+
+
+
 
         CPPUNIT_ASSERT(true);
       }
