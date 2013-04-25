@@ -30,7 +30,7 @@
 #define DODS_DEBUG
 
 #include "debug.h"
-
+#include "util.h"
 
 #include "gridfields/grid.h"
 #include "gridfields/gridfield.h"
@@ -45,168 +45,237 @@ using namespace GF;
 
 namespace ugrid {
 
-class BindTest : public CppUnit::TestFixture {
+static ArrayReader *new_makeArrayReader(double *array, int size) {
+ stringstream *ss = new stringstream();
+ stringbuf *pbuf;
+ pbuf=ss->rdbuf();
+ pbuf->sputn((char *) array, sizeof(double)*size);
+ return new ArrayReader(ss);
+}
+
+class BindTest: public CppUnit::TestFixture {
 
 private:
 
     Grid *makeGrid(int scale, string name) {
-      CellArray *twocells;
-      CellArray *onecells;
-      CellArray *zerocells;
-      Grid *grid;
-      Node triangle[3];
-      Node segment[2];
-      Node node;
+        CellArray *twocells;
+        CellArray *onecells;
+        CellArray *zerocells;
+        Grid *grid;
+        Node triangle[3];
+        Node segment[2];
+        Node node;
 
-      bool wf;
-      int i;
-      twocells = new CellArray();
-      for (i=0; i<scale/2; i++) {
-        triangle[0] = i;
-        triangle[1] = i+1;
-        triangle[2] = i+2;
-        twocells->addCellNodes(triangle, 3);
-      }
-      //twocells->print();
-      //getchar();
-      onecells = new CellArray();
-      for (i=0; i<scale-1; i++) {
-        segment[0] = i;
-        segment[1] = i+1;
-        onecells->addCellNodes(segment, 2);
-      }
-      //onecells->print();
+        bool wf;
+        int i;
+        twocells = new CellArray();
+        for (i = 0; i < scale / 2; i++) {
+            triangle[0] = i;
+            triangle[1] = i + 1;
+            triangle[2] = i + 2;
+            twocells->addCellNodes(triangle, 3);
+        }
+        //twocells->print();
+        //getchar();
+        onecells = new CellArray();
+        for (i = 0; i < scale - 1; i++) {
+            segment[0] = i;
+            segment[1] = i + 1;
+            onecells->addCellNodes(segment, 2);
+        }
+        //onecells->print();
 
-      //getchar();
-      grid = new Grid(name, 2);
-      grid->setImplicit0Cells(scale);
-      grid->setKCells(onecells, 1);
-      grid->setKCells(twocells, 2);
-      //grid->print(0);
-      //getchar();
-      return grid;
+        //getchar();
+        grid = new Grid(name, 2);
+        grid->setImplicit0Cells(scale);
+        grid->setKCells(onecells, 1);
+        grid->setKCells(twocells, 2);
+        //grid->print(0);
+        //getchar();
+        return grid;
     }
 
+    Array *makeFloatArray(int size, const char *name) {
+        Array *arr;
+        arr = new Array(name, FLOAT, size);
+        float *data;
+        arr->getData(data);
+        int i;
 
-    Array *makeFloatArray(int size,const char *name) {
-      Array *arr;
-      arr = new Array(name, FLOAT, size);
-      float *data;
-      arr->getData(data);
-      int i;
-
-      for (i=0; i<size; i++) {
-          data[i] = 2*i-10;
-      }
-      return arr;
+        for (i = 0; i < size; i++) {
+            data[i] = 2 * i - 10;
+        }
+        return arr;
     }
 
     /**
      *
      */
-    GridField *makeGridField(int size, string gridname,const char *datname, int k) {
+    GridField *makeGridField(int size, string gridname, const char *datname,
+            int k) {
 
-      Grid *G;
-      GridField *GF;
-      Array *data;
+        Grid *G;
+        GridField *GF;
+        Array *data;
 
-      G = makeGrid(12, "A");
-      k = 0;
-      data = makeFloatArray(12, "x");
+        G = makeGrid(size, "A");
+        k = 0;
+        data = makeFloatArray(size, "x");
 
-      GF = new GridField(G, k, data);
-      //printf("Valid? %i\n", !notValid(GF));
-      //GF->print();
+        GF = new GridField(G, k, data);
+        //printf("Valid? %i\n", !notValid(GF));
+        //GF->print();
 
-      return GF;
+        return GF;
     }
-
 
 public:
 
     // Called once before everything gets tested
     BindTest() {
-    //    DBG(cerr << " BindTest - Constructor" << endl);
+        //    DBG(cerr << " BindTest - Constructor" << endl);
 
     }
 
     // Called at the end of the test
     ~BindTest() {
-    //    DBG(cerr << " BindTest - Destructor" << endl);
+        //    DBG(cerr << " BindTest - Destructor" << endl);
     }
-
 
     // Called before each test
     void setup() {
-    //    DBG(cerr << " BindTest - setup()" << endl);
+        //    DBG(cerr << " BindTest - setup()" << endl);
     }
 
     // Called after each test
     void tearDown() {
-    //    DBG(cerr << " tearDown()" << endl);
+        //    DBG(cerr << " tearDown()" << endl);
     }
 
-    CPPUNIT_TEST_SUITE( BindTest );
+CPPUNIT_TEST_SUITE( BindTest );
 
     CPPUNIT_TEST(bind_test);
 
-    CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST_SUITE_END()
+    ;
 
+    void bind_test() {
+        DBG(cerr << " bind_test - BEGIN" << endl);
 
-    void  bind_test() {
-      DBG(cerr << " bind_test - BEGIN" << endl);
+        try {
+            GridField *gfResult;
+            GridField *GF;
+            GridField *Result;
+            GF::Array* gfa;
+            string msg;
+            int size = 12;
+            double dbls[size];
+            int ints[size];
+            ArrayReader arf;
+            ArrayReader *memArrayReader;
 
-      try {
-        GridField *GF;
-        GridField *Result;
+            GF = makeGridField(size, "A", "x", 0);
+            Array *arr_floats = new Array("io_floats", FLOAT, size);
+            GF->Bind(0, arr_floats);
 
-        GF = makeGridField(12, "A", "x", 0);
-        Array *arr = new Array("io", FLOAT, 12);
-        GF->Bind(0, arr);
+            Array *arr_ints = new Array("io_ints", INT, size);
+            GF->Bind(0, arr_ints);
 
-        GridField *aGF = AccumulateOp::Accumulate(GF, 0, "result", "result+1", "0", 0);
-        DBG(aGF->PrintTo(cerr,9));
+            GridField *aGF = AccumulateOp::Accumulate(GF, 0, "result", "result+1", "0", 0);
+            DBG(GF->PrintTo(cerr,9));
 
-        DBG( cerr << "restricting..." << endl);
-        Result = RefRestrictOp::Restrict("x<4",0,GF);
-        DBG(Result->PrintTo(cerr,0));
+            DBG( cerr << "restricting..." << endl;)
+            Result = RefRestrictOp::Restrict("x<4", 0, GF);
+            DBG(Result->PrintTo(cerr,0));
 
-        Result = RefRestrictOp::Restrict("x>-4",0,Result);
-        DBG(Result->PrintTo(cerr,10));
+            Result = RefRestrictOp::Restrict("x>-4", 0, Result);
+            DBG(Result->PrintTo(cerr,10));
 
-        FileArrayReader *ar = new FileArrayReader("bindtest.dat", 0);
-        ar->setPatternAttribute("result");
-        GridField *G = BindOp::Bind("io", FLOAT, ar, 0, Result);
-        DBG(G->PrintTo(cerr,0));
+#if 0
+            FileArrayReader *far = new FileArrayReader("bindtest.dat", 0);
 
-        CPPUNIT_ASSERT(true);
-      }
-      catch (std::string &e) {
-        cerr << "Error: " << e << endl;
-        CPPUNIT_ASSERT(false);
-      }
-      catch (...) {
-        cerr << "Unknown Error." << endl;
-        CPPUNIT_ASSERT(false);
-      }
+            far->setPatternAttribute("result");
+            gfResult = BindOp::Bind("io_floats", FLOAT, far, 0, Result);
+            DBG(gfResult->PrintTo(cerr,0);)
+
+            gfa = gfResult->GetAttribute(0, "result");
+            vector<double> file_dbls = gfa->makeArrayf();
+            msg.clear();
+            for(int i=0; i<file_dbls.size(); i++)
+            msg += libdap::double_to_string(file_dbls[i]) + "   ";
+
+            DBG(cerr << endl << "File array reader result: "<< msg << endl << endl << endl);
+
+#endif
+#if 0
+
+            for (int i = 0; i < size; i++) {
+                ints[i] = i - size/2.0;
+                msg += libdap::long_to_string(ints[i]) + "   ";
+            } DBG(cerr << endl << "Int array input: "<< msg << endl);
+
+            DBG(cerr << endl <<"Memory Backed ArrayReader - integers"<< endl);
+            memArrayReader = arf.makeArrayReader(ints, size);
+            memArrayReader->setPatternAttribute("result");
+            gfResult = BindOp::Bind("io_ints", INT, memArrayReader, 0, Result);
+            DBG(cerr << endl << "Result "; gfResult->PrintTo(cerr,0));
+
+            gfa = gfResult->GetAttribute(0, "result");
+            DBG(cerr << endl << "Retrieving Int Result Values... " << endl);
+            vector<int> gf_ints = gfa->makeArray();
+            msg.clear();
+            for (int i = 0; i < gf_ints.size(); i++)
+                msg += libdap::long_to_string(gf_ints[i]) + "   ";
+
+            DBG(cerr << endl << "Int array result: "<< msg << endl << endl << endl);
+#endif
+
+#if 1
+            for(int i=0; i<size;i++) {
+                dbls[i] = (i - size/2.0) * 11.01;
+                msg += libdap::double_to_string(dbls[i]) + "   ";
+            }
+            DBG(cerr << endl << "Doubles array input: "<< msg << endl);
+
+            DBG(cerr << endl << "Memory Backed ArrayReader - doubles" << endl);
+            memArrayReader = new_makeArrayReader(dbls,size);
+            memArrayReader->setPatternAttribute("result");
+            gfResult = BindOp::Bind("io_floats", FLOAT, memArrayReader, 0, Result);
+            DBG(cerr << endl << "Array of doubles 'Bound' to restricted Grid result: "<< endl; gfResult->PrintTo(cerr,8));
+
+            gfa = gfResult->GetAttribute(0, "result");
+            vector<double> gf_dbls = gfa->makeArrayf();
+            msg.clear();
+            for(int i=0; i<gf_dbls.size(); i++)
+            msg += libdap::double_to_string(gf_dbls[i]) + "   ";
+
+            DBG(cerr << endl << "Doubles array result: "<< msg << endl);
+
+#endif
+
+            CPPUNIT_ASSERT(true);
+        } catch (std::string &e) {
+            cerr << "Error: " << e << endl;
+            CPPUNIT_ASSERT(false);
+        } catch (...) {
+            cerr << "Unknown Error." << endl;
+            CPPUNIT_ASSERT(false);
+        }
     }
 
-}; // BindTest
+};
+// BindTest
 
 CPPUNIT_TEST_SUITE_REGISTRATION(BindTest);
 
 } // namespace ugrid
 
-
-int
-main( int, char** )
-{
+int main(int, char**) {
     CppUnit::TextTestRunner runner;
-    runner.addTest( CppUnit::TestFactoryRegistry::getRegistry().makeTest() );
+    runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
 
-    bool wasSuccessful = runner.run( "", false ) ;
+    bool wasSuccessful = runner.run("", false);
 
     return wasSuccessful ? 0 : 1;
 }
-
 
