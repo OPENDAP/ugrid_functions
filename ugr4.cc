@@ -97,7 +97,7 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, vector<Me
         string msg = "The range variable '"+mdv->getName()+"' references the mesh variable '"+meshVarName+
                 "' which cannot be located in this dataset.";
         BESDEBUG("ugrid", "addRangeVar() - " << msg  << endl);
-        throw new Error(msg);
+        throw new Error(no_such_variable,msg);
     }
 
 
@@ -258,6 +258,9 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	Structure *dapResult = new Structure("ugr_result");
 
 
+	// Since we only want each ugrid structure to appear in the results one time  (cause otherwise we might be trying to add
+	// the same variables with the same names to the result multiple times.) we grind on this by iterating over the
+	// names of the mesh topology names.
     map<string, vector<MeshDataVariable *> *>::iterator mit;
 	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
 
@@ -271,10 +274,17 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         vector<BaseType *> dapResults;
 
 
+        // now that we have the mesh topology variable we are going to look at each of the requested
+        // range variables (aka MeshDataVariable instances) and we're going to subset that using the
+        // gridfields library and add its subset version to the results.
 	    vector<MeshDataVariable *>::iterator rvit;
 	    for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
 	        MeshDataVariable *mdv = *rvit;
 
+	        /**
+	         * Here is where we will do the range variable sub-setting including decomposing the requested variable
+	         * into 1-dimensional hyper-slabs that can be fed in the the gridfields library
+	         */
 
 
 
