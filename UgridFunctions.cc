@@ -31,6 +31,7 @@ using std::endl;
 #include "gf3.h"
 #include "BESDebug.h"
 #include "ugrid_restrict.h"
+#include "ugr4.h"
 
 //namespace ugrid {
 
@@ -52,14 +53,15 @@ void UgridFunctions::initialize(const string &modname) {
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
     BESDEBUG("UgridFunctions", "initialize() - Adding gf3::UGridRestrictFunction_03()" << endl);
-
     libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
-
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
     BESDEBUG("UgridFunctions", "initialize() - Adding ugrid_restrict::UGridRestrictFunction()" << endl);
     libdap::ServerFunctionsList::TheList()->add_function(new ugrid_restrict::UGridRestrictFunction());
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
+    BESDEBUG("UgridFunctions", "initialize() - Adding ugrid_restrict::UGridRestrictFunction()" << endl);
+    libdap::ServerFunctionsList::TheList()->add_function(new ugrid_restrict::UGR4());
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
     BESDEBUG( "UgridFunctions", "initialize() - END" << endl );

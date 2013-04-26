@@ -210,7 +210,7 @@ void TwoDMeshTopology::setFaceCoordinateDimension(MeshDataVariable *mdv)
         if(dimName.compare(faceDimensionName) == 0){ // are the names the same?
             int size = dapArray->dimension_size(ait1,true);
             if(size == faceCount){ // are they the same size?
-                // Yay! We found the node coordinate dimension
+                // Yay! We found the coordinate dimension
                 mdv->setLocationCoordinateDimension(ait1);
                 return;
             }
@@ -779,7 +779,7 @@ void TwoDMeshTopology::buildRestrictedGfTopology(locationType loc, string filter
 
 /**
  * @brief Builds the GridField Topology object and loads all all of the requested variables - OLDWAY
-] */
+ */
 void TwoDMeshTopology::buildGridFieldsTopology()
 {
 
@@ -1072,9 +1072,6 @@ void TwoDMeshTopology::restrictRange( vector<BaseType *> *results){
 
 
 
-
-
-
     BESDEBUG("ugrid", "TwoDMeshTopology::restrictRange() - END" << endl);
 
 }
@@ -1082,8 +1079,69 @@ void TwoDMeshTopology::restrictRange( vector<BaseType *> *results){
 
 
 
+void TwoDMeshTopology::convertResultGridFieldStructureToDapObjects(vector<BaseType *> *results)
+{
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - BEGIN" << endl);
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - Normalizing Grid." << endl);
+    resultGridField->GetGrid()->normalize();
+
+    // Add the node coordinate arrays to the results.
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - Converting the node coordinate arrays to DAP arrays." << endl);
+    vector<libdap::Array *>::iterator it;
+    for (it = nodeCoordinateArrays->begin(); it != nodeCoordinateArrays->end(); ++it) {
+        libdap::Array *sourceCoordinateArray = *it;
+        libdap::Array *resultCoordinateArray = getGFAttributeAsDapArray(sourceCoordinateArray, node, resultGridField );
+        results->push_back(resultCoordinateArray);
+    }
+
+#if 0
+    // Add the face coordinate arrays to the results.
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - Converting the face coordinate arrays to DAP arrays." << endl);
+    for (it = faceCoordinateArrays->begin(); it != faceCoordinateArrays->end(); ++it) {
+        libdap::Array *sourceCoordinateArray = *it;
+        libdap::Array *resultCoordinateArray = getGFAttributeAsDapArray(sourceCoordinateArray, face, resultGridField );
+        results->push_back(resultCoordinateArray);
+    }
+#endif
 
 
+    // Add the new face node connectivity array - make sure it has the same attributes as the original.
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - Adding the new face node connectivity array to the response." << endl);
+    libdap::Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField, faceNodeConnectivityArray);
+    results->push_back(resultFaceNodeConnectivityDapArray);
+
+    results->push_back(getMeshVariable());
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - END" << endl);
+}
+
+
+
+/**
+ * Builds the DAP response content from the GF::GridField result object.
+ */
+void TwoDMeshTopology::convertResultRangeVarsToDapObjects(vector<BaseType *> *results)
+{
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultRangeVarsToDapObjects() - BEGIN" << endl);
+
+
+    // Add the range variable data arrays to the response.
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultRangeVarsToDapObjects() - Adding the range variable data arrays to the response." << endl);
+    vector<MeshDataVariable *>::iterator mdvIt;
+    for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
+        MeshDataVariable *mdv = *mdvIt;
+        BESDEBUG("ugrid", "TwoDMeshTopology::convertResultRangeVarsToDapObjects() - Processing MeshDataVariable '"<< mdv->getName() << "' array type is "<< mdv->getDapArray()->type_name() << endl);
+        libdap::Array *resultRangeVar = getGFAttributeAsDapArray( mdv->getDapArray(), mdv->getGridLocation(), resultGridField);
+        BESDEBUG("ugrid", "TwoDMeshTopology::convertResultRangeVarsToDapObjects() - Retrieved restricted DAP Array for MeshDataVariable '"<< mdv->getName() << "'" << endl);
+        results->push_back(resultRangeVar);
+        BESDEBUG("ugrid", "TwoDMeshTopology::convertResultRangeVarsToDapObjects() - DAP Array  added to result" << endl);
+    }
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultRangeVarsToDapObjects() - END" << endl);
+
+}
 
 
 /**
@@ -1092,38 +1150,12 @@ void TwoDMeshTopology::restrictRange( vector<BaseType *> *results){
 void TwoDMeshTopology::convertResultGridFieldToDapObjects(vector<BaseType *> *results)
 {
 
-	BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - BEGIN" << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - BEGIN" << endl);
 
-	BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - Normalizing Grid." << endl);
-	resultGridField->GetGrid()->normalize();
+    convertResultGridFieldStructureToDapObjects(results);
+    convertResultRangeVarsToDapObjects(results);
 
-	// Add the coordinate node arrays to the response.
-	BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - Adding the coordinate node arrays to the response." << endl);
-	vector<libdap::Array *>::iterator it;
-	for (it = nodeCoordinateArrays->begin(); it != nodeCoordinateArrays->end(); ++it) {
-		libdap::Array *sourceCoordinateArray = *it;
-		libdap::Array *resultCoordinateArray = getGFAttributeAsDapArray(sourceCoordinateArray, node, resultGridField );
-		results->push_back(resultCoordinateArray);
-	}
-
-	// Add the range variable data arrays to the response.
-	BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - Adding the range variable data arrays to the response." << endl);
-	vector<MeshDataVariable *>::iterator mdvIt;
-	for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
-		MeshDataVariable *mdv = *mdvIt;
-	    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - Processing MeshDataVariable '"<< mdv->getName() << "' array type is "<< mdv->getDapArray()->type_name() << endl);
-		libdap::Array *resultRangeVar = getGFAttributeAsDapArray( mdv->getDapArray(), mdv->getGridLocation(), resultGridField);
-        BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - Retrieved restricted DAP Array for MeshDataVariable '"<< mdv->getName() << "'" << endl);
-		results->push_back(resultRangeVar);
-        BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - DAP Array  added to result" << endl);
-	}
-
-	// Add the new face node connectivity array - make sure it has the same attributes as the original.
-	BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - Adding the new face node connectivity array to the response." << endl);
-	libdap::Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField, faceNodeConnectivityArray);
-	results->push_back(resultFaceNodeConnectivityDapArray);
-
-	BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - END" << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - END" << endl);
 
 }
 
@@ -1170,6 +1202,7 @@ libdap::Array *TwoDMeshTopology::getNewFncDapArray(libdap::Array *templateArray,
 	di++;
 	newArray->append_dim(N, di->name);
 
+	// Copy the attributes of the template array to our new array.
 	newArray->set_attr_table(templateArray->get_attr_table());
 
 	// make the new array big enough to hold all the values.
@@ -1208,11 +1241,19 @@ libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *
 	// Make a vector to hold the re-packed cell nodes.
 	vector<dods_int32> rowMajorNodes;
 
+
+    // adjust for the start_index (cardinal or ordinal array access)
+    int startIndex = getStartIndex(sourceFcnArray);
+    if (startIndex != 0) {
+        BESDEBUG("ugrid", "TwoDMeshTopology::getGridFieldCellArrayAsDapArray() - Updating locations to match source FaceNodeConnectivity array." << endl);
+    }
+
+
 	// Re-pack the mesh nodes.
 	for (unsigned int firstDim = 0; firstDim < 3; firstDim++) {
 		for (unsigned int secondDim = 0; secondDim < nodes2.size();
 				secondDim++) {
-			dods_int32 val = nodes2.at(secondDim).at(firstDim);
+			dods_int32 val = nodes2.at(secondDim).at(firstDim) + startIndex;
 			rowMajorNodes.push_back(val);
 		}
 	}
@@ -1271,7 +1312,7 @@ static libdap::Array::Dim_iter copySizeOneDimensions(libdap::Array *sourceArray,
  * Retrieves a single dimensional rank 0 GF attribute array from a GF::GridField and places the data into
  * DAP array of the appropriate type.
  */
-libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *sourceArray, locationType rank, GF::GridField *resultGridField)
+libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templateArray, locationType rank, GF::GridField *resultGridField)
 {
 
 	BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - BEGIN" << endl);
@@ -1279,11 +1320,11 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *sourceA
 	// The result variable is assumed to be bound to the GridField at 'rank'
 	// Try to get the Attribute from 'rank' with the same name as the source array
 	BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Retrieving GF::GridField Attribute '" <<
-			sourceArray->name() << "'" << endl);
-	GF::Array* gfa = resultGridField->GetAttribute(rank, sourceArray->name());
+			templateArray->name() << "'" << endl);
+	GF::Array* gfa = resultGridField->GetAttribute(rank, templateArray->name());
 
 	libdap::Array *dapArray;
-	BaseType *templateVar = sourceArray->var();
+	BaseType *templateVar = templateArray->var();
 	string dimName;
 
 	switch (templateVar->type()) {
@@ -1296,13 +1337,13 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *sourceA
 		BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - GF::Array was made from some type of int, retrieve it as such." << endl);
 		vector<dods_int32> GF_ints = gfa->makeArray();
 		// Make a DAP array to put the data into.
-		dapArray = new libdap::Array(sourceArray->name(), new Int32(sourceArray->name()));
+		dapArray = new libdap::Array(templateArray->name(), new Int32(templateArray->name()));
 
 		// copy the dimensions whose size is "1" from the source array to the result.
-		libdap::Array::Dim_iter dataDimension = copySizeOneDimensions(sourceArray, dapArray);
+		libdap::Array::Dim_iter dataDimension = copySizeOneDimensions(templateArray, dapArray);
 
 		// Add the result dimension
-		dimName = sourceArray->dimension_name(dataDimension);
+		dimName = templateArray->dimension_name(dataDimension);
 	    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Adding data dimension: '"<< dimName << "'" << endl);
 
 		dapArray->append_dim(GF_ints.size(), dimName);
@@ -1317,13 +1358,13 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *sourceA
 		BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - GF::Array was made from some type of float, retrieve it as such." << endl);
 		vector<dods_float64> GF_floats = gfa->makeArrayf();
 		// Make a DAP array to put the data into.
-		dapArray = new libdap::Array(sourceArray->name(), new Float64(sourceArray->name()));
+		dapArray = new libdap::Array(templateArray->name(), new Float64(templateArray->name()));
 
         // copy the dimensions whose size is "1" from the source array to the result.
-        libdap::Array::Dim_iter dataDimension = copySizeOneDimensions(sourceArray, dapArray);
+        libdap::Array::Dim_iter dataDimension = copySizeOneDimensions(templateArray, dapArray);
 
         // Add the result dimension
-        dimName = sourceArray->dimension_name(dataDimension);
+        dimName = templateArray->dimension_name(dataDimension);
         dapArray->append_dim(GF_floats.size(), dimName);
 
 		// Add the data
@@ -1336,7 +1377,7 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *sourceA
 	}
 
 	// Copy the source objects attributes.
-	dapArray->set_attr_table(sourceArray->get_attr_table());
+	dapArray->set_attr_table(templateArray->get_attr_table());
 
 	BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - DONE" << endl);
 

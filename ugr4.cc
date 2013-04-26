@@ -56,6 +56,7 @@
 #include "MeshDataVariable.h"
 #include "TwoDMeshTopology.h"
 
+#include "ugr4.h"
 
 
 using namespace std;
@@ -67,7 +68,7 @@ namespace ugrid_restrict {
  * Function syntax
  */
 static string ugrSyntax =
-		"ugr(dim:int32, rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
+		"ugr4(dim:int32, rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
 
 /**
  * Function Arguments
@@ -84,31 +85,39 @@ struct UgridRestrictArgs {
  * a new mesh topology is created. Once the associated mesh topology had been found (or created), the rangeVar
  * is added to the vector of rangeVars held by the mesh topology for later evaluation.
  */
-static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshTopology *> &meshTopologies) {
+static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, vector<MeshDataVariable *> *> *rangeVariables) {
 
 	MeshDataVariable *mdv = new MeshDataVariable();
-
 	mdv->init(rangeVar);
 	string meshVarName = mdv->getMeshName();
 
-	// Get the MeshTopology from the map.
-	TwoDMeshTopology *meshTopology;
-	map<string, TwoDMeshTopology *>::iterator mit = meshTopologies.find(meshVarName);
-	if(mit == meshTopologies.end()){
+    BaseType *meshVar = dds.var(meshVarName);
+
+    if(meshVar == 0){
+        string msg = "The range variable '"+mdv->getName()+"' references the mesh variable '"+meshVarName+
+                "' which cannot be located in this dataset.";
+        BESDEBUG("ugrid", "addRangeVar() - " << msg  << endl);
+        throw new Error(msg);
+    }
+
+
+	// Get the rangeVariable vector for this mesh name from the map.
+	vector<MeshDataVariable *> *requestedRangeVarsForMesh;
+	map<string, vector<MeshDataVariable *> *>::iterator mit = rangeVariables->find(meshVarName);
+	if(mit == rangeVariables->end()){
 		// Not there? Make a new one.
 		BESDEBUG("ugrid", "addRangeVar() - MeshTopology object for '" << meshVarName <<"' does NOT exist. Getting a 'new' one... "  << endl);
 
-		meshTopology = new TwoDMeshTopology();
-		meshTopology->init(meshVarName, dds);
-		meshTopologies[meshVarName] =  meshTopology;
+		requestedRangeVarsForMesh =  new vector<MeshDataVariable *>();
+		(*rangeVariables)[meshVarName] = requestedRangeVarsForMesh;
 	}
 	else {
 		// Sweet! Found it....
 		BESDEBUG("ugrid", "addRangeVar() - MeshTopology object for '" << meshVarName <<"' exists. Retrieving... "  << endl);
-		meshTopology = mit->second;
+		requestedRangeVarsForMesh = mit->second;
 	}
 
-	meshTopology->addDataVariable(mdv);
+	requestedRangeVarsForMesh->push_back(mdv);
 
 }
 
@@ -200,12 +209,12 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[]) {
 
  @exception Error Thrown If the Array is not a one dimensional
  array. */
-void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
+void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
-	BESDEBUG("ugrid", "ugrid_restrict() - BEGIN" << endl);
+	BESDEBUG("ugrid", "ugr4() - BEGIN" << endl);
 
 	static string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-			+ "<function name=\"ugr\" version=\"0.1\">\n"
+			+ "<function name=\"ugr4\" version=\"0.1\">\n"
 			+ "Server function for Unstructured grid operations.\n" + "usage: "
 			+ ugrSyntax + "\n"
 					"</function>";
@@ -220,21 +229,19 @@ void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	// Process and QC the arguments
 	UgridRestrictArgs args = processUgrArgs(argc, argv);
 
-	map<string, TwoDMeshTopology *> meshTopologies;
+	// Each range variable is associated with a "mesh" i.e. a mesh topology variable. Since there may be more than one mesh in a
+	// dataset, and the user may request more than range variable for each mesh we need to sift through the list of requested
+	// range variables and organize them by mesh topology variable name.
+	map<string, vector<MeshDataVariable *> *> *meshToRangeVarsMap = new map<string, vector<MeshDataVariable *> *>();
 
 	// For every Range variable in the arguments list, locate it and ingest it.
-	int rangeVarCount =0;
 	vector<libdap::Array *>::iterator it;
 	for (it = args.rangeVars.begin(); it != args.rangeVars.end(); ++it) {
 		libdap::Array *rangeVar = *it;
-	    addRangeVar(dds, rangeVar, meshTopologies);
-	    rangeVarCount++;
+	    addRangeVar(dds, rangeVar, meshToRangeVarsMap);
 	}
-
-
-
-	BESDEBUG("ugrid", "ugrid_restrict() - The user requested "<< rangeVarCount << " range data variables." << endl);
-	BESDEBUG("ugrid", "ugrid_restrict() - The user's request referenced "<< meshTopologies.size() << " mesh topology variables." << endl);
+	BESDEBUG("ugrid", "ugr4() - The user requested "<< args.rangeVars.size() << " range data variables." << endl);
+	BESDEBUG("ugrid", "ugr4() - The user's request referenced "<< meshToRangeVarsMap->size() << " mesh topology variables." << endl);
 
 	// ----------------------------------
 	// OK, so up to this point we have not read any data from the data set, but we have QC'd the inputs and verified that
@@ -251,18 +258,44 @@ void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	Structure *dapResult = new Structure("ugr_result");
 
 
-	map<string, TwoDMeshTopology *>::iterator mit;
-	for (mit = meshTopologies.begin(); mit != meshTopologies.end(); ++mit) {
-		string meshTopologyName = mit->first;
-		TwoDMeshTopology *tdmt = mit->second;
+    map<string, vector<MeshDataVariable *> *>::iterator mit;
+	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
 
+		string meshVariableName = mit->first;
+		vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
+
+		// When we built the meshToRangeVarsMap we QC'd this so we already know that
+		// the meshVar exists - no need to re-check.
+        BaseType *meshVar = dds.var(meshVariableName);
+
+        vector<BaseType *> dapResults;
+
+
+	    vector<MeshDataVariable *>::iterator rvit;
+	    for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
+	        MeshDataVariable *mdv = *rvit;
+
+
+
+
+
+
+
+	    }
+
+	    // Building the restricted TwoDMeshTopology without adding any range variables and then converting the result
+	    // Grid field to Dap Objects should return all of the Ugrid structural stuff - mesh variable, node coordinate variables,
+	    // face and edge coordinate variables if present.
+        BESDEBUG("ugrid", "ugr4() - Adding mesh_topology structure for mesh '" << meshVariableName << "' to DAP response." << endl);
+
+	    TwoDMeshTopology *tdmt = new TwoDMeshTopology();
+	    tdmt->init(meshVariableName, dds);
         tdmt->buildRestrictedGfTopology(args.dimension, args.filterExpression);
+		tdmt->convertResultGridFieldToDapObjects(&dapResults);
+		delete tdmt;
 
-		vector<BaseType *> dapResults;
 
-		tdmt->restrictRange(&dapResults);
-
-		BESDEBUG("ugrid", "ugrid_restrict() -Adding GF::GridField results to DAP data structure.." << endl);
+		BESDEBUG("ugrid", "ugr4() - Adding GF::GridField results to DAP data structure.." << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
 			BaseType *bt = *btIt;
 			dapResult->add_var_nocopy(bt);
@@ -275,14 +308,15 @@ void ugrid_restrict(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	*btpp = dapResult;
 
 
-	BESDEBUG("ugrid", "ugrid_restrict() - Releasing memory held by TwoDMeshTopology objects..." << endl);
-	for (mit = meshTopologies.begin(); mit != meshTopologies.end(); ++mit) {
-		TwoDMeshTopology *tdmt = mit->second;
-		delete tdmt;
+	BESDEBUG("ugrid", "ugr4() - Releasing memory held by TwoDMeshTopology objects..." << endl);
+	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
+	    vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
+		delete requestedRangeVarsForMesh;
 	}
+    delete meshToRangeVarsMap;
 
 
-	BESDEBUG("ugrid", "ugrid_restrict() - END" << endl);
+	BESDEBUG("ugrid", "ugr4() - END" << endl);
 
 	return;
 }

@@ -225,12 +225,14 @@ public:
 	void init(string meshVarName, libdap::DDS &dds);
 	void addDataVariable(MeshDataVariable *mdt);
 	string name(){ return myVar->name();}
-	libdap::BaseType *getDapVariable(){ return myVar; }
+	libdap::BaseType *getMeshVariable(){ return myVar; }
 
     void buildRestrictedGfTopology(locationType loc, string filterExpression);
     void buildGridFieldsTopology();
 	void applyRestrictOperator(locationType loc, string filterExpression);
     void convertResultGridFieldToDapObjects(vector<libdap::BaseType *> *results);
+    void convertResultGridFieldStructureToDapObjects(vector<libdap::BaseType *> *results);
+    void convertResultRangeVarsToDapObjects(vector<BaseType *> *results);
     void restrictRange(vector<libdap::BaseType *> *results);
     libdap::Array *restrictDapArray(libdap::Array*, libdap::Array::Dim_iter locationCoordinateDim, locationType gridLocation);
 

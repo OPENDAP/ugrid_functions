@@ -1519,6 +1519,9 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	// TODO This returns a single structure but it would make better sense to the
 	// world if it could return a vector of objects and have them appear at the
 	// top level of the DDS.
+    // FIXME fix the names of the variables in the mesh_topology attributes
+    // If the server side function can be made to return a DDS or a collection of BaseType's then the
+    // names won't change and the original mesh_topology variable and it's metadata will be valid
 	Structure *dapResult = new Structure("ugr_result");
 
 	for (mit = meshTopologies.begin(); mit != meshTopologies.end(); ++mit) {
@@ -1550,11 +1553,8 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		vector<BaseType *> *dapResults = convertResultGridFieldToDapObjects(tdmt);
 #endif
 
-		// FIXME fix the names of the variables in the mesh_topology attributes
-		// If the server side function can be made to return a DDS or a collection of BaseType's then the
-		// names won't change and the original mesh_topology variable and it's metadata will be valid
-		BESDEBUG("function_ugr3", "function_ugr3() - Adding mesh_topology variable '"<< tdmt->name() << "' to the DAP response." << endl);
-		dapResult->add_var(tdmt->getDapVariable());
+		//BESDEBUG("function_ugr3", "function_ugr3() - Adding mesh_topology variable '"<< tdmt->name() << "' to the DAP response." << endl);
+		//dapResult->add_var(tdmt->getMeshVariable());
 
 		BESDEBUG("function_ugr3", "function_ugr3() - Adding GF::GridField results to DAP data structure.." << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
