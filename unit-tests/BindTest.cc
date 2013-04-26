@@ -3,7 +3,7 @@
 // This file is part of libdap, A C++ implementation of the OPeNDAP Data
 // Access Protocol.
 
-// Copyright (c) 2005 OPeNDAP, Inc.
+// Copyright (c) 2013 OPeNDAP, Inc.
 // Author: Nathan David Potter <ndp@opendap.org>
 //
 // This library is free software; you can redistribute it and/or
@@ -21,11 +21,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
+
+//#include <cstdio>
+
 #include <cppunit/TextTestRunner.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
-
-#include <cstdio>
 
 #define DODS_DEBUG
 
@@ -46,11 +47,11 @@ using namespace GF;
 namespace ugrid {
 
 static ArrayReader *new_makeArrayReader(double *array, int size) {
- stringstream *ss = new stringstream();
- stringbuf *pbuf;
- pbuf=ss->rdbuf();
- pbuf->sputn((char *) array, sizeof(double)*size);
- return new ArrayReader(ss);
+    stringstream *ss = new stringstream();
+    stringbuf *pbuf;
+    pbuf=ss->rdbuf();
+    pbuf->sputn((char *) array, sizeof(double)*size);
+    return new ArrayReader(ss);
 }
 
 class BindTest: public CppUnit::TestFixture {
@@ -152,12 +153,11 @@ public:
         //    DBG(cerr << " tearDown()" << endl);
     }
 
-CPPUNIT_TEST_SUITE( BindTest );
+    CPPUNIT_TEST_SUITE( BindTest );
 
     CPPUNIT_TEST(bind_test);
 
-    CPPUNIT_TEST_SUITE_END()
-    ;
+    CPPUNIT_TEST_SUITE_END();
 
     void bind_test() {
         DBG(cerr << " bind_test - BEGIN" << endl);
