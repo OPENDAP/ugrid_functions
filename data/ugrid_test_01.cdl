@@ -20,16 +20,20 @@ variables:
 		fnca:start_index = 1 ;
 		fnca:standard_name = "face_node_connectivity" ;
 	float oneDnodedata(nodes) ;
-		oneDnodedata:coordinates = "lat lon" ;
+		oneDnodedata:coordinates = "Y X" ;
 		oneDnodedata:mesh = "fvcom_mesh" ;
 		oneDnodedata:location = "node" ;
 	float twoDnodedata(time, nodes) ;
-		oneDnodedata:coordinates = "lat lon" ;
+		oneDnodedata:coordinates = "Y X" ;
 		oneDnodedata:mesh = "fvcom_mesh" ;
 		oneDnodedata:location = "node" ;
 	float celldata(faces) ;
 		celldata:mesh = "fvcom_mesh" ;
 		celldata:location = "face" ;
+	float bogusMeshRef(nodes) ;
+		bogusMeshRef:coordinates = "Y X" ;
+		bogusMeshRef:mesh = "bogus" ;
+		bogusMeshRef:location = "node" ;
 data:
 
  fvcom_mesh = 666;
@@ -51,4 +55,7 @@ data:
   2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9;
 
  celldata = 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ;
+ 
+ bogusMeshRef = 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9;
+
 }
