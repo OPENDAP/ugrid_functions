@@ -763,7 +763,6 @@ void TwoDMeshTopology::buildBasicGfTopology(){
         GF::Array *gfa = extractGridFieldArray(nca,sharedIntArrays,sharedFloatArrays);
         d_inputGridField->AddAttribute(node, gfa);
     }
-
 }
 
 
