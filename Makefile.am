@@ -15,8 +15,8 @@ TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 
 
-SUBDIRS =  . unit-tests
-# DIST_SUBDIRS = 
+SUBDIRS =  . unit-tests bes-testsuite
+DIST_SUBDIRS = unit-tests bes-testsuite
 
 lib_besdir=$(libdir)/bes
 lib_bes_LTLIBRARIES = libugrid_functions.la
