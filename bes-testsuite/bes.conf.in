@@ -5,10 +5,14 @@ BES.Group=group_name
 BES.LogName=./bes.log
 BES.LogVerbose=no
 
-BES.modules=dap,cmd,nc,ugrid
+BES.modules=dap,cmd,usage,ascii,www,nc,dapserver,ugrid
 BES.module.dap=@modulesdir@/libdap_module.so
 BES.module.cmd=@modulesdir@/libdap_xml_module.so
+BES.module.usage=@modulesdir@/libusage_module.so
+BES.module.ascii=@modulesdir@/libascii_module.so
+BES.module.www=@modulesdir@/libwww_module.so
 BES.module.nc=@modulesdir@/libnc_module.so
+BES.module.dapserver=@modulesdir@/libnc_module.so
 BES.module.ugrid=@abs_top_builddir@/.libs/libugrid_functions.so
 
 BES.Catalog.catalog.RootDirectory=@abs_top_srcdir@
