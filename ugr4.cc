@@ -213,7 +213,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
 	BESDEBUG("ugrid", "ugr4() - BEGIN" << endl);
 
-	static string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+	string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 			+ "<function name=\"ugr4\" version=\"0.1\">\n"
 			+ "Server function for Unstructured grid operations.\n" + "usage: "
 			+ ugrSyntax + "\n"
@@ -261,6 +261,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	// Since we only want each ugrid structure to appear in the results one time  (cause otherwise we might be trying to add
 	// the same variables with the same names to the result multiple times.) we grind on this by iterating over the
 	// names of the mesh topology names.
+    vector<MeshDataVariable *>::iterator rvit;
     map<string, vector<MeshDataVariable *> *>::iterator mit;
 	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
 
@@ -277,7 +278,6 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         // now that we have the mesh topology variable we are going to look at each of the requested
         // range variables (aka MeshDataVariable instances) and we're going to subset that using the
         // gridfields library and add its subset version to the results.
-	    vector<MeshDataVariable *>::iterator rvit;
 	    for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
 	        MeshDataVariable *mdv = *rvit;
 
@@ -321,6 +321,10 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	BESDEBUG("ugrid", "ugr4() - Releasing memory held by TwoDMeshTopology objects..." << endl);
 	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
 	    vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
+        for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
+            MeshDataVariable *mdv = *rvit;
+            delete mdv;
+        }
 		delete requestedRangeVarsForMesh;
 	}
     delete meshToRangeVarsMap;
