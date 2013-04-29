@@ -14,8 +14,6 @@ BES.module.ugrid=@abs_top_builddir@/.libs/libugrid_functions.so
 BES.Catalog.catalog.RootDirectory=@abs_top_srcdir@
 BES.Data.RootDirectory=/dev/null
 
-# BES.Catalog.catalog.TypeMatch=nc:.*\.(nc|NC)(\.gz|\.bz2|\.Z)?$;h4.*\.(hdf|HDF|eos)(\.gz|\.bz2|\.Z)?$;
-
 BES.Catalog.catalog.TypeMatch=nc:.*.nc(.bz2|.gz|.Z)?$;
 
 BES.Catalog.catalog.Include=;
