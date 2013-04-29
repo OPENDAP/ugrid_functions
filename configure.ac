@@ -142,7 +142,7 @@ fi
 
 dnl OPENDAP_DEBUG_OPTION
 
-AC_CONFIG_FILES([Makefile unit-tests/Makefile bes-testsuite/Makefile bes-testsuite/package.m4])
+AC_CONFIG_FILES([Makefile unit-tests/Makefile bes-testsuite/Makefile bes-testsuite/package.m4 bes-testsuite/atlocal])
 
 AC_CONFIG_FILES([bes-testsuite/generate_data_baseline.sh], [chmod 755 bes-testsuite/generate_data_baseline.sh])
 AC_CONFIG_FILES([bes-testsuite/generate_metadata_baseline.sh], [chmod 755 bes-testsuite/generate_metadata_baseline.sh])
