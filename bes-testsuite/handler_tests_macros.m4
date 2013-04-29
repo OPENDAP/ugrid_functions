@@ -42,9 +42,9 @@ AT_CHECK([diff -b -B $2 stdout || diff -b -B $2 stderr], [], [ignore],[],[])
 AT_CLEANUP])
 
 m4_define([AT_BESCMD_RESPONSE_TEST],
-[_AT_BESCMD_TEST([$abs_srcdir/test/$1], [$abs_srcdir/test/$1.baseline])
+[_AT_BESCMD_TEST([$abs_srcdir/tests/$1], [$abs_srcdir/tests/$1.baseline])
 ])
 
 m4_define([AT_BESCMD_BINARYDATA_RESPONSE_TEST],
-[_AT_BESCMD_BINARYDATA_TEST([$abs_srcdir/test/$1], [$abs_srcdir/test/$1.baseline])
+[_AT_BESCMD_BINARYDATA_TEST([$abs_srcdir/tests/$1], [$abs_srcdir/tests/$1.baseline])
 ])

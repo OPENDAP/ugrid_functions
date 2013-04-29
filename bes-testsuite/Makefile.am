@@ -35,7 +35,9 @@ bes.conf: bes.conf.in ../config.status
 
 AUTOM4TE = autom4te
 
-TESTSUITE = $(srcdir)/ugrid_functionTest
+TESTSUITE = $(srcdir)/ugrid_functionsTest
+
+$(TESTSUITE): handler_tests_macros.m4 package.m4 ugrid_functionsTest.at
 
 check-local: atconfig atlocal $(TESTSUITE)
 	$(SHELL) '$(TESTSUITE)' $(TESTSUITEFLAGS)
@@ -48,5 +50,5 @@ distclean-local:
 
 AUTOTEST = $(AUTOM4TE) --language=autotest
 
-% : %.at
+% : %.at 
 	$(AUTOTEST) -I '$(srcdir)' -o $@ $@.at
