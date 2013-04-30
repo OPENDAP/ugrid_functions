@@ -1333,17 +1333,19 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
 	case dods_uint32_c:
 	case dods_int32_c: {
 		// Get the data
-		BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - GF::Array was made from some type of int, retrieve it as such." << endl);
+		BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Retrieving GF::Array as libdap::Array of libdap::Int32." << endl);
 		vector<dods_int32> GF_ints = gfa->makeArray();
 		// Make a DAP array to put the data into.
-		dapArray = new libdap::Array(templateArray->name(), new Int32(templateArray->name()));
+		libdap::Int32 tmpltVar(templateVar->name());
+        BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - libdap::Int32 template variable name: " << tmpltVar.name() << endl);
+        dapArray = new libdap::Array(templateArray->name(), &tmpltVar);
 
 		// copy the dimensions whose size is "1" from the source array to the result.
 		libdap::Array::Dim_iter dataDimension = copySizeOneDimensions(templateArray, dapArray);
 
 		// Add the result dimension
 		dimName = templateArray->dimension_name(dataDimension);
-	    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Adding data dimension: '"<< dimName << "'" << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Adding dimension " << dimName << endl);
 
 		dapArray->append_dim(GF_ints.size(), dimName);
 
@@ -1354,16 +1356,19 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
 	case dods_float32_c:
 	case dods_float64_c: {
 		// Get the data
-		BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - GF::Array was made from some type of float, retrieve it as such." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Retrieving GF::Array as libdap::Array of libdap::Float64." << endl);
 		vector<dods_float64> GF_floats = gfa->makeArrayf();
 		// Make a DAP array to put the data into.
-		dapArray = new libdap::Array(templateArray->name(), new Float64(templateArray->name()));
+		libdap::Float64 tmpltVar(templateVar->name());
+        BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - libdap::Float64 template variable name: " << tmpltVar.name() << endl);
+        dapArray = new libdap::Array(templateArray->name(), &tmpltVar);
 
         // copy the dimensions whose size is "1" from the source array to the result.
         libdap::Array::Dim_iter dataDimension = copySizeOneDimensions(templateArray, dapArray);
 
         // Add the result dimension
         dimName = templateArray->dimension_name(dataDimension);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Adding dimension " << dimName << endl);
         dapArray->append_dim(GF_floats.size(), dimName);
 
 		// Add the data
@@ -1376,6 +1381,7 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
 	}
 
 	// Copy the source objects attributes.
+    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
 	dapArray->set_attr_table(templateArray->get_attr_table());
 
 	BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - DONE" << endl);

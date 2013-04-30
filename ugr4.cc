@@ -289,6 +289,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
 
 
+	        // tdmt->convertResultRangeVarsToDapObjects(&dapResults);
 
 
 	    }
@@ -301,30 +302,32 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	    TwoDMeshTopology *tdmt = new TwoDMeshTopology();
 	    tdmt->init(meshVariableName, dds);
         tdmt->buildRestrictedGfTopology(args.dimension, args.filterExpression);
-		tdmt->convertResultGridFieldToDapObjects(&dapResults);
-		delete tdmt;
+		tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
+        delete tdmt;
 
 
-		BESDEBUG("ugrid", "ugr4() - Adding GF::GridField results to DAP data structure.." << endl);
+		BESDEBUG("ugrid", "ugr4() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
 			BaseType *bt = *btIt;
 			dapResult->add_var_nocopy(bt);
 		}
 
-		//delete dapResults;
+
+
 	}
 
 
 	*btpp = dapResult;
 
 
-	BESDEBUG("ugrid", "ugr4() - Releasing memory held by TwoDMeshTopology objects..." << endl);
+
+	BESDEBUG("ugrid", "ugr4() - Releasing maps and vectors..." << endl);
 	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
 	    vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
-        for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
-            MeshDataVariable *mdv = *rvit;
-            delete mdv;
-        }
+        //for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
+        //    MeshDataVariable *mdv = *rvit;
+        //    delete mdv;
+        //}
 		delete requestedRangeVarsForMesh;
 	}
     delete meshToRangeVarsMap;
