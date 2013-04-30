@@ -36,6 +36,16 @@
 #include "Float64.h"
 #include "NDimensionalArray.h"
 
+#include "GetOpt.h"
+
+static bool debug = false;
+
+#undef DBG
+#define DBG(x) do { if (debug) (x); } while(false);
+
+
+
+
 namespace libdap {
 
 class NDimArrayTest : public CppUnit::TestFixture {
@@ -75,7 +85,8 @@ public:
     void setLastDimesnionHyperSlab_test() {
         DBG(cerr << " setLastDimesnionHyperSlab_test() - BEGIN." << endl);
 
-        libdap::Array test("foo",new libdap::Float64("foo"));
+        Float64 tmplt("foo");
+        libdap::Array test("foo",&tmplt);
         test.append_dim(5,"dim1");
         test.append_dim(1081,"dim2");
         test.append_dim(1000,"dim3");
@@ -147,7 +158,8 @@ public:
     void getLastDimesnionHyperSlab_test() {
         DBG(cerr << " getLastDimesnionHyperSlab_test() - BEGIN." << endl);
 
-        libdap::Array test("foo",new libdap::Float64("foo"));
+        Float64 tmplt("foo");
+        libdap::Array test("foo",&tmplt);
         test.append_dim(5,"dim1");
         test.append_dim(1081,"dim2");
         test.append_dim(1000,"dim3");
@@ -221,7 +233,9 @@ public:
     void getStorageIndex_test() {
         DBG(cerr << " getStorageIndex_test() - BEGIN." << endl);
 
-        libdap::Array test("foo",new libdap::Int32("foo"));
+        Int32 tmplt("foo");
+        libdap::Array test("foo",&tmplt);
+
         test.append_dim(5,"dim1");
         test.append_dim(5,"dim2");
         test.append_dim(5,"dim3");
@@ -300,7 +314,44 @@ CPPUNIT_TEST_SUITE_REGISTRATION(NDimArrayTest);
 
 } /* namespace libdap */
 
+int main(int argc, char*argv[]) {
+    CppUnit::TextTestRunner runner;
+    runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
 
+    GetOpt getopt(argc, argv, "d");
+    char option_char;
+    while ((option_char = getopt()) != EOF)
+        switch (option_char) {
+        case 'd':
+            debug = 1;  // debug is a static global
+            break;
+        default:
+            break;
+        }
+
+    bool wasSuccessful = true;
+    string test = "";
+    int i = getopt.optind;
+    if (i == argc) {
+        // run them all
+        wasSuccessful = runner.run("");
+    }
+    else {
+        while (i < argc) {
+            test = string("libdap::NDimArrayTest::") + argv[i++];
+
+            DBG(cerr << endl <<"Running test "<< test << endl << endl);
+
+            wasSuccessful = wasSuccessful && runner.run(test);
+        }
+    }
+
+    return wasSuccessful ? 0 : 1;
+}
+
+
+
+#if 0
 int
 main( int, char** )
 {
@@ -311,5 +362,5 @@ main( int, char** )
 
     return wasSuccessful ? 0 : 1;
 }
-
+#endif
 

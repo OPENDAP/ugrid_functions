@@ -64,6 +64,7 @@ NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *shape, libdap::T
 
 NDimensionalArray::~NDimensionalArray() {
     delete (char *) _storage;
+    delete _shape;
 }
 
 /**

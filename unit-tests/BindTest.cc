@@ -28,7 +28,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#define DODS_DEBUG
+#include "GetOpt.h"
 
 #include "debug.h"
 #include "util.h"
@@ -41,6 +41,15 @@
 #include "gridfields/refrestrict.h"
 #include "gridfields/arrayreader.h"
 #include "gridfields/accumulate.h"
+
+
+static bool debug = false;
+
+#undef DBG
+#define DBG(x) do { if (debug) (x); } while(false);
+
+
+
 
 using namespace GF;
 
@@ -163,6 +172,7 @@ public:
         DBG(cerr << " bind_test - BEGIN" << endl);
 
         try {
+#if 0
             GridField *gfResult;
             GridField *GF;
             GridField *Result;
@@ -184,19 +194,20 @@ public:
             GridField *aGF = AccumulateOp::Accumulate(GF, 0, "result", "result+1", "0", 0);
             DBG(GF->PrintTo(cerr,9));
 
-            DBG( cerr << "restricting..." << endl;)
+            DBG( cerr << "restricting..." << endl);
             Result = RefRestrictOp::Restrict("x<4", 0, GF);
             DBG(Result->PrintTo(cerr,0));
 
             Result = RefRestrictOp::Restrict("x>-4", 0, Result);
             DBG(Result->PrintTo(cerr,10));
+#endif
 
 #if 0
             FileArrayReader *far = new FileArrayReader("bindtest.dat", 0);
 
             far->setPatternAttribute("result");
             gfResult = BindOp::Bind("io_floats", FLOAT, far, 0, Result);
-            DBG(gfResult->PrintTo(cerr,0);)
+            DBG(gfResult->PrintTo(cerr,0))
 
             gfa = gfResult->GetAttribute(0, "result");
             vector<double> file_dbls = gfa->makeArrayf();
@@ -230,7 +241,7 @@ public:
             DBG(cerr << endl << "Int array result: "<< msg << endl << endl << endl);
 #endif
 
-#if 1
+#if 0
             for(int i=0; i<size;i++) {
                 dbls[i] = (i - size/2.0) * 11.01;
                 msg += libdap::double_to_string(dbls[i]) + "   ";
@@ -241,7 +252,8 @@ public:
             memArrayReader = new_makeArrayReader(dbls,size);
             memArrayReader->setPatternAttribute("result");
             gfResult = BindOp::Bind("io_floats", FLOAT, memArrayReader, 0, Result);
-            DBG(cerr << endl << "Array of doubles 'Bound' to restricted Grid result: "<< endl; gfResult->PrintTo(cerr,8));
+            DBG(cerr << endl << "Array of doubles 'Bound' to restricted Grid result: "<< endl);
+            DBG(gfResult->PrintTo(cerr,8));
 
             gfa = gfResult->GetAttribute(0, "result");
             vector<double> gf_dbls = gfa->makeArrayf();
@@ -251,6 +263,14 @@ public:
 
             DBG(cerr << endl << "Doubles array result: "<< msg << endl);
 
+#endif
+
+#if 0
+            delete GF;
+            delete gfResult;
+            delete aGF;
+            delete arr_floats;
+            delete arr_ints;
 #endif
 
             CPPUNIT_ASSERT(true);
@@ -270,6 +290,40 @@ CPPUNIT_TEST_SUITE_REGISTRATION(BindTest);
 
 } // namespace ugrid
 
+int main(int argc, char*argv[]) {
+    CppUnit::TextTestRunner runner;
+    runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
+
+    GetOpt getopt(argc, argv, "d");
+    char option_char;
+    while ((option_char = getopt()) != EOF)
+        switch (option_char) {
+        case 'd':
+            debug = 1;  // debug is a static global
+            break;
+        default:
+            break;
+        }
+
+    bool wasSuccessful = true;
+    string test = "";
+    int i = getopt.optind;
+    if (i == argc) {
+        // run them all
+        wasSuccessful = runner.run("");
+    }
+    else {
+        while (i < argc) {
+            test = string("ugrid::BindTest::") + argv[i++];
+
+            wasSuccessful = wasSuccessful && runner.run(test);
+        }
+    }
+
+    return wasSuccessful ? 0 : 1;
+}
+
+#if 0
 int main(int, char**) {
     CppUnit::TextTestRunner runner;
     runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
@@ -278,4 +332,4 @@ int main(int, char**) {
 
     return wasSuccessful ? 0 : 1;
 }
-
+#endif

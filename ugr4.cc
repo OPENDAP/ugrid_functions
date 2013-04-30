@@ -230,7 +230,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	UgridRestrictArgs args = processUgrArgs(argc, argv);
 
 	// Each range variable is associated with a "mesh" i.e. a mesh topology variable. Since there may be more than one mesh in a
-	// dataset, and the user may request more than range variable for each mesh we need to sift through the list of requested
+	// dataset, and the user may request more than one range variable for each mesh we need to sift through the list of requested
 	// range variables and organize them by mesh topology variable name.
 	map<string, vector<MeshDataVariable *> *> *meshToRangeVarsMap = new map<string, vector<MeshDataVariable *> *>();
 

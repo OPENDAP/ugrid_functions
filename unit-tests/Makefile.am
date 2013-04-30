@@ -14,6 +14,10 @@ AM_CPPFLAGS += $(CPPUNIT_CFLAGS)
 AM_LDADD += $(CPPUNIT_LIBS)
 endif
 
+if USE_VALGRIND
+TESTS_ENVIRONMENT=valgrind --quiet --trace-children=yes --error-exitcode=1  --dsymutil=yes --leak-check=yes
+endif
+
 # These are not used by automake but are often useful for certain types of
 # debugging. Set CXXFLAGS to this in the nightly build using export ...
 CXXFLAGS_DEBUG = -g3 -O0 -fno-defer-pop -Wall -W -Wcast-align -Werror
@@ -43,7 +47,7 @@ test_config.h: test_config.h.in Makefile
 #
 
 if CPPUNIT
-UNIT_TESTS = NDimArrayTest BindTest
+UNIT_TESTS = NDimArrayTest BindTest GFTests
 	
 else
 UNIT_TESTS =
@@ -64,4 +68,7 @@ NDimArrayTest_LDADD = ../.libs/libugrid_functions_la-NDimensionalArray.o $(AM_LD
 
 BindTest_SOURCES = BindTest.cc
 BindTest_LDADD = $(AM_LDADD)
+
+GFTests_SOURCES = GFTests.cc
+GFTests_LDADD = $(AM_LDADD)
 
