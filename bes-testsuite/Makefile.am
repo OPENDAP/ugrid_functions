@@ -1,6 +1,11 @@
 
 AUTOMAKE_OPTIONS = foreign 
 
+if USE_VALGRIND
+TESTS_ENVIRONMENT=valgrind --quiet --trace-children=yes --error-exitcode=1 \
+--dsymutil=yes --leak-check=yes --log-file="valgrind-%p.log"
+endif
+
 AM_CPPFLAGS = -I$(top_srcdir)
 AM_CXXFLAGS =
 
