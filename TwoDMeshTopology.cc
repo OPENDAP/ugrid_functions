@@ -89,13 +89,24 @@ TwoDMeshTopology::~TwoDMeshTopology()
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::GridField 'inputGridField'." << endl);
 	delete d_inputGridField;
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::Grid 'gridTopology'." << endl);
-	delete gridTopology;
+    BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::Grid 'gridTopology'." << endl);
+    delete gridTopology;
+
+
+    BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::Arrays..." << endl);
+    for (vector<GF::Array *>::iterator it = gfArrays.begin(); it != gfArrays.end(); ++it) {
+        GF::Array *gfa = *it;
+        BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF:Array  '" << gfa->getName() << "'" << endl);
+        delete  gfa;
+    }
+    BESDEBUG("ugrid", "~TwoDMeshTopology() - GF::Arrays deleted." << endl);
+
+
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting sharedIntArrays..." << endl);
 	for (vector<int *>::iterator it = sharedIntArrays->begin(); it != sharedIntArrays->end(); ++it) {
 		int *i = *it;
-		BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting int array '" << i << "'" << endl);
+		BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting integer array '" << i << "'" << endl);
 		delete [] i;
 	}
 	delete sharedIntArrays;
@@ -119,8 +130,11 @@ TwoDMeshTopology::~TwoDMeshTopology()
     BESDEBUG("ugrid", "~TwoDMeshTopology() - Range data deleted." << endl);
 
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting face node connectivity cell array (GF::Node's)." << endl);
-	delete fncCellArray;
+    BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting vector of node coordinate arrays." << endl);
+    delete nodeCoordinateArrays;
+
+    BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting face node connectivity cell array (GF::Node's)." << endl);
+    delete fncCellArray;
 
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - END" << endl);
@@ -781,6 +795,7 @@ void TwoDMeshTopology::buildBasicGfTopology(){
         libdap::Array *nca = *ncit;
         BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Adding node coordinate "<< nca->name() << " to GF::GridField at rank 0" << endl);
         GF::Array *gfa = extractGridFieldArray(nca,sharedIntArrays,sharedFloatArrays);
+        gfArrays.push_back(gfa);
         d_inputGridField->AddAttribute(node, gfa);
     }
 }

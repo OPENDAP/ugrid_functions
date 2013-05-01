@@ -33,12 +33,12 @@
 #include "DDS.h"
 #include "ServerFunction.h"
 
-namespace ugrid_restrict {
+namespace ugrid {
 
 void ugr4(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp) ;
 
 /**
- * The UGrid3Function class encapsulates the echo arguments function 'gf3::function_ugr3'
+ * The UGR4 class encapsulates the function 'ugr4::ugr4'
  * along with additional meta-data regarding its use and applicability.
  */
 class UGR4: public libdap::ServerFunction {
@@ -50,7 +50,7 @@ public:
 		setUsageString("ugr4(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
 		setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
 		setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
-		setFunction(ugrid_restrict::ugr4);
+		setFunction(ugrid::ugr4);
 		setVersion("1.0");
     }
     virtual ~UGR4()

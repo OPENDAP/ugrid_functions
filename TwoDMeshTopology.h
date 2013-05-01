@@ -72,6 +72,7 @@ private:
 
 
 
+
 	/**
 	 * REQUIRED
 	 *
@@ -195,6 +196,8 @@ private:
 
 	vector <int *>  *sharedIntArrays;
 	vector<float *> *sharedFloatArrays;
+
+    vector<GF::Array *> gfArrays;
 
 	GF::Node *fncCellArray;
 
