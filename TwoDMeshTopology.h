@@ -196,7 +196,7 @@ private:
 	vector <int *>  *sharedIntArrays;
 	vector<float *> *sharedFloatArrays;
 
-	GF::Node *sharedNodeArray;
+	GF::Node *fncCellArray;
 
 	bool _initialized;
 

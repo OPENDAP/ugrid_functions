@@ -62,7 +62,7 @@ using namespace ugrid;
 namespace ugrid {
 
 
-TwoDMeshTopology::TwoDMeshTopology():myVar(0),gridTopology(0),d_inputGridField(0),resultGridField(0),sharedNodeArray(0)
+TwoDMeshTopology::TwoDMeshTopology():myVar(0),gridTopology(0),d_inputGridField(0),resultGridField(0),fncCellArray(0)
 {
     rangeDataArrays = new vector<MeshDataVariable *>();
     sharedIntArrays = new vector<int *>();
@@ -83,13 +83,13 @@ TwoDMeshTopology::~TwoDMeshTopology()
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - BEGIN" << endl);
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - (" << this << ")" << endl);
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting resultGridField." << endl);
+	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::GridField 'resultGridField'." << endl);
 	delete resultGridField;
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting inputGridField." << endl);
+	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::GridField 'inputGridField'." << endl);
 	delete d_inputGridField;
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting gridTopology." << endl);
+	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::Grid 'gridTopology'." << endl);
 	delete gridTopology;
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting sharedIntArrays..." << endl);
@@ -108,7 +108,7 @@ TwoDMeshTopology::~TwoDMeshTopology()
 	}
 	delete sharedFloatArrays;
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting MeshDataVariables..." << endl);
+	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting range data..." << endl);
 	vector<MeshDataVariable *>::iterator mdvIt;
 	for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
 		MeshDataVariable *mdv = *mdvIt;
@@ -116,9 +116,11 @@ TwoDMeshTopology::~TwoDMeshTopology()
 		delete mdv;
 	}
 	delete rangeDataArrays;
+    BESDEBUG("ugrid", "~TwoDMeshTopology() - Range data deleted." << endl);
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::Node array." << endl);
-	delete sharedNodeArray;
+
+	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting face node connectivity cell array (GF::Node's)." << endl);
+	delete fncCellArray;
 
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - END" << endl);
@@ -893,7 +895,7 @@ GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 	int total_size = nodesPerFace * faceCount;
 
 	BESDEBUG("ugrid", "TwoDMeshTopology::getFaceNodeConnectivityCells() - Converting FNCArray to GF::Node array." << endl);
-	sharedNodeArray = getFncArrayAsGFCells(faceNodeConnectivityArray);
+	fncCellArray = getFncArrayAsGFCells(faceNodeConnectivityArray);
 
 
 	// adjust for the start_index (cardinal or ordinal array access)
@@ -901,11 +903,11 @@ GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 	if (startIndex != 0) {
 		BESDEBUG("ugrid", "TwoDMeshTopology::getFaceNodeConnectivityCells() - Applying startIndex to GF::Node array." << endl);
 		for (int j = 0; j < total_size; j++) {
-			sharedNodeArray[j] -= startIndex;
+			fncCellArray[j] -= startIndex;
 		}
 	}
 	// Create the cell array
-	GF::CellArray *rankTwoCells = new GF::CellArray(sharedNodeArray, faceCount, nodesPerFace);
+	GF::CellArray *rankTwoCells = new GF::CellArray(fncCellArray, faceCount, nodesPerFace);
 
 
 	BESDEBUG("ugrid", "TwoDMeshTopology::getFaceNodeConnectivityCells() - DONE" << endl);
@@ -1190,8 +1192,8 @@ libdap::Array *TwoDMeshTopology::getNewFncDapArray(libdap::Array *templateArray,
 
 	// Get a new template variable for our new array (should be just like the template for the source array)
 	//BaseType *arrayTemplate = getDapVariableInstance(templateArray->var(0)->name(),templateArray->var(0)->type());
-	libdap::Array *newArray = new libdap::Array(templateArray->name(),
-			new Int32(templateArray->name()));
+	Int32 tmplt(templateArray->name());
+	libdap::Array *newArray = new libdap::Array(templateArray->name(),&tmplt);
 
 	//Add the first dimension (size 3 same same as template array's first dimension)
 	newArray->append_dim(3, di->name);

@@ -309,6 +309,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		BESDEBUG("ugrid", "ugr4() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
 			BaseType *bt = *btIt;
+	        BESDEBUG("ugrid", "ugr4() - Adding variable "<< bt->name() << " to DAP structure " << dapResult->name() << endl);
 			dapResult->add_var_nocopy(bt);
 		}
 
