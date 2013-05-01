@@ -62,7 +62,7 @@ using namespace ugrid;
 namespace ugrid {
 
 
-TwoDMeshTopology::TwoDMeshTopology():myVar(0),gridTopology(0),d_inputGridField(0),resultGridField(0),fncCellArray(0)
+TwoDMeshTopology::TwoDMeshTopology():d_myMeshVar(0),gridTopology(0),d_inputGridField(0),resultGridField(0),fncCellArray(0)
 {
     rangeDataArrays = new vector<MeshDataVariable *>();
     sharedIntArrays = new vector<int *>();
@@ -136,34 +136,52 @@ void TwoDMeshTopology::init(string meshVarName, DDS &dds)
     if(_initialized)
         return;
 
-	myVar = dds.var(meshVarName);
+    BaseType *bt = dds.var(meshVarName);
 
-	dimension = getAttributeValue(myVar,UGRID_DIMENSION);
+    if(bt)
+        setMeshVariable(bt);
+    else
+        throw new Error("Unable to locate variable: "+meshVarName);
+
+
+
+    BaseType *meshVar = getMeshVariable();
+
+	dimension = getAttributeValue(meshVar,UGRID_DIMENSION);
 
     if (dimension.empty()) {
-        string msg = "TwoDMeshTopology::init() - The mesh topology variable  '" + myVar->name() + "' is missing the required attribute named '" + UGRID_DIMENSION + "'";
+        string msg = "TwoDMeshTopology::init() - The mesh topology variable  '" + meshVar->name() + "' is missing the required attribute named '" + UGRID_DIMENSION + "'";
         BESDEBUG("ugrid",msg );
         throw Error( msg);
     }
 
 	// Retrieve the node coordinate arrays for the mesh
-	ingestNodeCoordinateArrays(myVar, dds);
+	ingestNodeCoordinateArrays(meshVar, dds);
 
 
     // Why would we retrieve this? I think Bill said that this needs to be recomputed after a restrict operation.
     //  @TODO Verify that Bill actually said that this needs to be recomputed.
     // Retrieve the face coordinate arrays (if any)  for the mesh
-    ingestFaceCoordinateArrays(myVar,dds);
+    ingestFaceCoordinateArrays(meshVar,dds);
 
 
     // Inspect and QC the face node connectivity array for the mesh
-    ingestFaceNodeConnectivityArray(myVar,dds);
+    ingestFaceNodeConnectivityArray(meshVar,dds);
 
 
 
 	_initialized = true;
 
 }
+
+
+void TwoDMeshTopology::setMeshVariable(libdap::BaseType *bt){
+    if(bt)
+        d_myMeshVar = bt->ptr_duplicate();
+    else
+        throw new Error("BaseType pointer to ugrid Mesh Variable is null!");
+}
+
 
 void TwoDMeshTopology::setNodeCoordinateDimension(MeshDataVariable *mdv)
 {
@@ -723,7 +741,7 @@ void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology
 
 void TwoDMeshTopology::buildBasicGfTopology(){
 
-    BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Building GridFields objects for mesh_topology variable "<< myVar->name() << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Building GridFields objects for mesh_topology variable "<< getMeshVariable()->name() << endl);
     // Start building the Grid for the GridField operation.
     BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Constructing new GF::Grid for "<< name() << endl);
     gridTopology = new GF::Grid(name());

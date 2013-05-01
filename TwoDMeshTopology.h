@@ -59,7 +59,7 @@ private:
 	 *
 	 * The DAP dataset variable that defined the mesh_topology.
 	 */
-	BaseType *myVar;
+	BaseType *d_myMeshVar;
 
 	/**
 	 * REQUIRED
@@ -224,8 +224,9 @@ public:
 	~TwoDMeshTopology();
 	void init(string meshVarName, libdap::DDS &dds);
 	void addDataVariable(MeshDataVariable *mdt);
-	string name(){ return myVar->name();}
-	libdap::BaseType *getMeshVariable(){ return myVar; }
+	string name(){ return getMeshVariable()->name();}
+    libdap::BaseType *getMeshVariable(){ return d_myMeshVar; }
+    void setMeshVariable(libdap::BaseType *bt);
 
     void buildRestrictedGfTopology(locationType loc, string filterExpression);
     void buildGridFieldsTopology();
