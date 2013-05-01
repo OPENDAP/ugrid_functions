@@ -274,7 +274,6 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
         vector<BaseType *> dapResults;
 
-
         // now that we have the mesh topology variable we are going to look at each of the requested
         // range variables (aka MeshDataVariable instances) and we're going to subset that using the
         // gridfields library and add its subset version to the results.
@@ -285,13 +284,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	         * Here is where we will do the range variable sub-setting including decomposing the requested variable
 	         * into 1-dimensional hyper-slabs that can be fed in the the gridfields library
 	         */
-
-
-
-
 	        // tdmt->convertResultRangeVarsToDapObjects(&dapResults);
-
-
 	    }
 
 	    // Building the restricted TwoDMeshTopology without adding any range variables and then converting the result
@@ -302,25 +295,24 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	    TwoDMeshTopology *tdmt = new TwoDMeshTopology();
 	    tdmt->init(meshVariableName, dds);
         tdmt->buildRestrictedGfTopology(args.dimension, args.filterExpression);
+
+        // TODO Change this method so that it takes a DAP Structure; we can
+        // eliminate the loop below.
 		tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
         delete tdmt;
 
-
 		BESDEBUG("ugrid", "ugr4() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
-			BaseType *bt = *btIt;
+		    dapResult->add_var(*btIt);
+#if 0
+		    BaseType *bt = *btIt;
 	        BESDEBUG("ugrid", "ugr4() - Adding variable "<< bt->name() << " to DAP structure " << dapResult->name() << endl);
 			dapResult->add_var_nocopy(bt);
+#endif
 		}
-
-
-
 	}
 
-
 	*btpp = dapResult;
-
-
 
 	BESDEBUG("ugrid", "ugr4() - Releasing maps and vectors..." << endl);
 	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
@@ -332,7 +324,6 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		delete requestedRangeVarsForMesh;
 	}
     delete meshToRangeVarsMap;
-
 
 	BESDEBUG("ugrid", "ugr4() - END" << endl);
 
