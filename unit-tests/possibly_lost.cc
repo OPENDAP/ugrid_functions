@@ -67,8 +67,10 @@ public:
     }
 
     static void delete_instance() {
-        delete d_instance;
-        d_instance = 0;
+        if (d_instance) {
+            delete d_instance;
+            d_instance = 0;
+        }
     }
 
     virtual ~SingletonList() {
