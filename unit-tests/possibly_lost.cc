@@ -61,29 +61,29 @@ public:
     static SingletonList * TheList(){
         if (d_instance == 0) {
             d_instance = new SingletonList;
+            atexit(delete_instance);
         }
         return d_instance;
     }
 
-    virtual ~SingletonList(){
+    static void delete_instance() {
+        delete d_instance;
+        d_instance = 0;
+    }
+
+    virtual ~SingletonList() {
         std::multimap<string,libdap::ServerFunction *>::iterator fit;
         for(fit=d_func_list.begin(); fit!=d_func_list.end() ; fit++){
             libdap::ServerFunction *func = fit->second;
             DBG(cerr << "SingletonList::~SingletonList() - Deleting ServerFunction " << func->getName() << " from SingletonList." << endl);
             delete func;
-            // d_func_list.erase(fit);
-
         }
         d_func_list.clear();
-        //delete d_instance;
-        //d_instance = 0;
     }
 
     virtual void add_function(libdap::ServerFunction *func){
         d_func_list.insert(std::make_pair(func->getName(),func));
     }
-
-
 
     void getFunctionNames(vector<string> *names){
         if(d_func_list.empty()){
@@ -211,7 +211,8 @@ public:
         printFunctionNames();
 
         DBG(cerr << "PossiblyLost::possibly_lost_solution() - Deleting the List." << endl);
-        delete SingletonList::TheList();
+        //delete SingletonList::TheList();
+        SingletonList::delete_instance();
 
         printFunctionNames();
 
