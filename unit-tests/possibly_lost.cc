@@ -24,10 +24,11 @@
 
 //#include <cstdio>
 
+#include <pthread.h>
+
 #include <cppunit/TextTestRunner.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
-
 
 #include "debug.h"
 #include "util.h"
@@ -39,13 +40,11 @@
 #include "ServerFunction.h"
 #include "ServerFunctionsList.h"
 
-
-
+static pthread_once_t instance_control = PTHREAD_ONCE_INIT;
 static bool debug = false;
 
 #undef DBG
 #define DBG(x) do { if (debug) (x); } while(false);
-
 
 class SingletonList {
 private:
@@ -53,24 +52,29 @@ private:
 
     std::multimap<std::string, libdap::ServerFunction *> d_func_list;
 
-protected:
-    SingletonList(){}
-
-
-public:
-    static SingletonList * TheList(){
+    static void initialize_instance() {
         if (d_instance == 0) {
             d_instance = new SingletonList;
             atexit(delete_instance);
         }
-        return d_instance;
     }
 
     static void delete_instance() {
-        if (d_instance) {
-            delete d_instance;
-            d_instance = 0;
-        }
+        delete d_instance;
+        d_instance = 0;
+    }
+
+    friend class PossiblyLost;
+
+protected:
+    SingletonList() {}
+
+
+public:
+    static SingletonList * TheList() {
+        pthread_once(&instance_control, initialize_instance);
+
+        return d_instance;
     }
 
     virtual ~SingletonList() {
@@ -102,8 +106,7 @@ public:
 
 };
 
-SingletonList *SingletonList::d_instance = 0 ;
-
+SingletonList *SingletonList::d_instance = 0;
 
 void possibly_lost_function(int argc, libdap::BaseType *argv[], libdap::DDS &dds, libdap::BaseType **btpp)
 {
@@ -136,10 +139,6 @@ public :
 
 
 class PossiblyLost: public CppUnit::TestFixture {
-
-private:
-
-
 
 public:
 
@@ -216,8 +215,13 @@ public:
         //delete SingletonList::TheList();
         SingletonList::delete_instance();
 
-        printFunctionNames();
+        // This is needed because we used pthread_once to ensure that
+        // initialize_instance() is called at most once. We manually call
+        // the delete method, so the object must be remade. This would never
+        // be done by non-test code. jhrg 5/2/13
+        SingletonList::initialize_instance();
 
+        printFunctionNames();
     }
 
 };
