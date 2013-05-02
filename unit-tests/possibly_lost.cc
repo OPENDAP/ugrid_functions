@@ -1,0 +1,258 @@
+// -*- mode: c++; c-basic-offset:4 -*-
+
+// This file is part of libdap, A C++ implementation of the OPeNDAP Data
+// Access Protocol.
+
+// Copyright (c) 2013 OPeNDAP, Inc.
+// Author: Nathan David Potter <ndp@opendap.org>
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
+
+//#include <cstdio>
+
+#include <cppunit/TextTestRunner.h>
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/extensions/HelperMacros.h>
+
+
+#include "debug.h"
+#include "util.h"
+
+#include "GetOpt.h"
+#include "BaseType.h"
+#include "Str.h"
+#include "DDS.h"
+#include "ServerFunction.h"
+#include "ServerFunctionsList.h"
+
+
+
+static bool debug = false;
+
+#undef DBG
+#define DBG(x) do { if (debug) (x); } while(false);
+
+
+class SingletonList {
+private:
+    static SingletonList * d_instance;
+
+    std::multimap<std::string, libdap::ServerFunction *> d_func_list;
+
+protected:
+    SingletonList(){}
+
+
+public:
+    static SingletonList * TheList(){
+        if (d_instance == 0) {
+            d_instance = new SingletonList;
+        }
+        return d_instance;
+    }
+
+    virtual ~SingletonList(){
+        std::multimap<string,libdap::ServerFunction *>::iterator fit;
+        for(fit=d_func_list.begin(); fit!=d_func_list.end() ; fit++){
+            libdap::ServerFunction *func = fit->second;
+            DBG(cerr << "SingletonList::~SingletonList() - Deleting ServerFunction " << func->getName() << " from SingletonList." << endl);
+            delete func;
+            // d_func_list.erase(fit);
+
+        }
+        d_func_list.clear();
+        //delete d_instance;
+        //d_instance = 0;
+    }
+
+    virtual void add_function(libdap::ServerFunction *func){
+        d_func_list.insert(std::make_pair(func->getName(),func));
+    }
+
+
+
+    void getFunctionNames(vector<string> *names){
+        if(d_func_list.empty()){
+            DBG(cerr << "SingletonList::getFunctionNames() - Function list is empty." << endl);
+            return;
+        }
+        std::multimap<string,libdap::ServerFunction *>::iterator fit;
+        for(fit=d_func_list.begin(); fit!=d_func_list.end() ; fit++){
+            libdap::ServerFunction *func = fit->second;
+            DBG(cerr << "SingletonList::getFunctionNames() - Adding function '"<< func->getName() << "' to names list." << endl);
+            names->push_back(func->getName());
+        }
+    }
+
+};
+
+SingletonList *SingletonList::d_instance = 0 ;
+
+
+void possibly_lost_function(int argc, libdap::BaseType *argv[], libdap::DDS &dds, libdap::BaseType **btpp)
+{
+    string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+            + "<function name=\"ugr4\" version=\"0.1\">\n"
+            + "Valgrind Possibly Lost Error Test.\n" + "usage: possibly_lost_test()"
+            + "\n"+"</function>";
+
+    libdap::Str *response = new libdap::Str("info");
+    response->set_value(info);
+    *btpp = response;
+    return;
+
+}
+
+class PLTF : public libdap::ServerFunction {
+public :
+    PLTF() {
+        setName("pltf");
+        setDescriptionString("This is a unit test to determine why valgrind is returning possibly lost errors on this code pattern.");
+        setUsageString("pltf()");
+        setRole("http://services.opendap.org/dap4/unit-tests/possibly_lost_test");
+        setDocUrl("http://docs.opendap.org/index.php/unit-tests");
+        setFunction(possibly_lost_function);
+        setVersion("1.0");
+
+    }
+};
+
+
+
+class PossiblyLost: public CppUnit::TestFixture {
+
+private:
+
+
+
+public:
+
+    // Called once before everything gets tested
+    PossiblyLost() {
+        //    DBG(cerr << " BindTest - Constructor" << endl);
+
+    }
+
+    // Called at the end of the test
+    ~PossiblyLost() {
+       //    DBG(cerr << " BindTest - Destructor" << endl);
+    }
+
+    // Called before each test
+    void setup() {
+        //    DBG(cerr << " BindTest - setup()" << endl);
+    }
+
+    // Called after each test
+    void tearDown() {
+        //    DBG(cerr << " tearDown()" << endl);
+    }
+
+    CPPUNIT_TEST_SUITE( PossiblyLost );
+
+    CPPUNIT_TEST(possibly_lost_fail);
+    CPPUNIT_TEST(possibly_lost_solution);
+
+    CPPUNIT_TEST_SUITE_END();
+
+
+    void possibly_lost_fail(){
+        DBG(cerr << endl);
+
+
+        PLTF *ssf = new PLTF();
+        ssf->setName("Possibly_Lost_FAIL");
+
+        //printFunctionNames();
+
+        DBG(cerr << "PossiblyLost::possibly_lost_solution() - Adding function(): " << ssf->getDescriptionString() << endl);
+        SingletonList::TheList()->add_function(ssf);
+
+        printFunctionNames();
+
+    }
+
+    void printFunctionNames(){
+        vector<string> *names = new vector<string>();
+        SingletonList::TheList()->getFunctionNames(names);
+        DBG(cerr << "PossiblyLost::possibly_lost_solution() - SingletonList::getFunctionNames(): " << endl);
+        for(int i=0; i<names->size() ;i++){
+            DBG(cerr <<  "   name["<< i << "]: "<< (*names)[i] << endl);
+        }
+        delete names;
+
+    }
+
+    void possibly_lost_solution(){
+        DBG(cerr << endl);
+
+        PLTF *ssf = new PLTF();
+        ssf->setName("Possibly_Lost_Solution");
+
+        printFunctionNames();
+
+        DBG(cerr << "PossiblyLost::possibly_lost_solution() - Adding function(): " << ssf->getDescriptionString() << endl);
+        SingletonList::TheList()->add_function(ssf);
+
+        printFunctionNames();
+
+        DBG(cerr << "PossiblyLost::possibly_lost_solution() - Deleting the List." << endl);
+        delete SingletonList::TheList();
+
+        printFunctionNames();
+
+    }
+
+};
+// BindTest
+
+CPPUNIT_TEST_SUITE_REGISTRATION(PossiblyLost);
+
+
+int main(int argc, char*argv[]) {
+    CppUnit::TextTestRunner runner;
+    runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
+
+    GetOpt getopt(argc, argv, "d");
+    char option_char;
+    while ((option_char = getopt()) != EOF)
+        switch (option_char) {
+        case 'd':
+            debug = 1;  // debug is a static global
+            break;
+        default:
+            break;
+        }
+
+    bool wasSuccessful = true;
+    string test = "";
+    int i = getopt.optind;
+    if (i == argc) {
+        // run them all
+        wasSuccessful = runner.run("");
+    }
+    else {
+        while (i < argc) {
+            test = string("ugrid::BindTest::") + argv[i++];
+
+            wasSuccessful = wasSuccessful && runner.run(test);
+        }
+    }
+
+    return wasSuccessful ? 0 : 1;
+}
+
