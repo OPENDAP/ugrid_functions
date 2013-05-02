@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS = foreign
 
 if USE_VALGRIND
 TESTS_ENVIRONMENT=valgrind --quiet --trace-children=yes --error-exitcode=1 \
---dsymutil=yes --leak-check=yes --log-file="valgrind-%p.log"
+--dsymutil=yes --leak-check=yes
 endif
 
 AM_CPPFLAGS = -I$(top_srcdir)
@@ -13,7 +13,7 @@ AM_CXXFLAGS =
 # debugging. The best way to use these is to run configure as:
 #     export CXXFLAGS='...'; ./configure --disable-shared
 # the --disable-shared is not required, but it seems to help with debuggers.
-CXXFLAGS_DEBUG = -g3 -O0 -fno-defer-pop -Wall -W -Wcast-align -Werror
+CXXFLAGS_DEBUG = -g3 -O0 -fno-defer-pop -Wall -W -Wcast-align
 TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 noinst_DATA = bes.conf
@@ -21,7 +21,7 @@ noinst_DATA = bes.conf
 CLEANFILES = *.log *.sum gmon.out
 
 EXTRA_DIST = tests ugrid_functionsTest.at $(TESTSUITE) \
-        atlocal.in $(srcdir)/package.m4 bes.conf.in handler_tests_macros.m4
+        atlocal.in package.m4 bes.conf.in handler_tests_macros.m4
 
 DISTCLEANFILES = bes.conf
 
@@ -42,7 +42,8 @@ AUTOM4TE = autom4te
 
 TESTSUITE = $(srcdir)/ugrid_functionsTest
 
-$(TESTSUITE): handler_tests_macros.m4 package.m4 ugrid_functionsTest.at
+$(TESTSUITE): $(srcdir)/handler_tests_macros.m4 $(srcdir)/package.m4 \
+$(srcdir)/ugrid_functionsTest.at
 
 check-local: atconfig atlocal $(TESTSUITE)
 	$(SHELL) '$(TESTSUITE)' $(TESTSUITEFLAGS)

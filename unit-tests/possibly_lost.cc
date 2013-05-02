@@ -69,7 +69,6 @@ private:
 protected:
     SingletonList() {}
 
-
 public:
     static SingletonList * TheList() {
         pthread_once(&instance_control, initialize_instance);
