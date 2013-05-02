@@ -47,7 +47,7 @@ test_config.h: test_config.h.in Makefile
 #
 
 if CPPUNIT
-UNIT_TESTS = NDimArrayTest BindTest GFTests
+UNIT_TESTS = NDimArrayTest BindTest GFTests possibly_lost
 	
 else
 UNIT_TESTS =
@@ -71,4 +71,7 @@ BindTest_LDADD = $(AM_LDADD)
 
 GFTests_SOURCES = GFTests.cc
 GFTests_LDADD = $(AM_LDADD)
+
+possibly_lost_SOURCES = possibly_lost.cc
+possibly_lost_LDADD = $(AM_LDADD)
 

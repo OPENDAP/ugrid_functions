@@ -58,7 +58,7 @@ static bool debug = false;
 //using namespace GF;
 
 namespace ugrid {
-
+#if 0
 struct coordinate {
     string name;
     locationType location;
@@ -86,6 +86,8 @@ public:
         }
     }
 };
+#endif
+
 
 
 
@@ -93,9 +95,6 @@ class GFTests: public CppUnit::TestFixture {
 
 private:
 
-    void ugridSubset(){
-
-    }
 
 
     void buildNewOcotoPieGridField(GF::GridField **gf, GF::Grid **g, GF::Node **fncaMeshNodes, vector<GF::Array *> *gfAttributes){
@@ -252,13 +251,13 @@ public:
 
 
             // Build the restriction operator;
-            DBG(cerr << "TwoDMeshTopology::applyRestrictOperator() - Constructing new GF::RestrictOp using user "<<
+            DBG(cerr << "GFTests::gf_test() - Constructing new GF::RestrictOp using user "<<
                     "supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
             GF::RestrictOp op = GF::RestrictOp("X>=0", node, opieGridField);
 
 
             // Apply the operator and get the result;
-            DBG(cerr << "TwoDMeshTopology::applyRestrictOperator() - Applying GridField operator." << endl);
+            DBG(cerr << "GFTests::gf_test() - Applying GridField operator." << endl);
             GF::GridField *resultGF = op.getResult();
 
             GF::Array *indexResult = resultGF->GetAttribute(node, "index");
@@ -289,6 +288,7 @@ public:
             CPPUNIT_ASSERT(false);
         }
     }
+
 
 };
 // BindTest
