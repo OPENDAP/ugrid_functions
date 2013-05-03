@@ -233,7 +233,6 @@ static void rDAWorker(
 
             }
 
-
             rDAWorker(dapArray, nextDim, locationCoordinateDim, gridLocation, results);
         }
         else {
@@ -266,7 +265,7 @@ static void rDAWorker(
  *  Each of these slabs is then added to the GridField, subset and the result must be packed back
  *  into the result array so that things work out.
 **/
-static libdap::Array *restrictDapArrayByHyperSlab(MeshDataVariable *mdv, long restrictedSlabSize){
+static libdap::Array *restrictDapArrayByOneDHyperSlab(MeshDataVariable *mdv, long restrictedSlabSize){
 
     libdap:Array *dapArray = mdv->getDapArray();
     libdap::Array::Dim_iter locationCoordinateDim = mdv->getLocationCoordinateDimension();
@@ -322,8 +321,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 			+ "<function name=\"ugr4\" version=\"0.1\">\n"
 			+ "Server function for Unstructured grid operations.\n" + "usage: "
-			+ ugrSyntax + "\n"
-					"</function>";
+			+ ugrSyntax + "\n"+ "</function>";
 
 	if (argc == 0) {
 		Str *response = new Str("info");

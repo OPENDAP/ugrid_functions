@@ -42,9 +42,40 @@ void ugr4(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseTyp
  * along with additional meta-data regarding its use and applicability.
  */
 class UGR4: public libdap::ServerFunction {
+
+private:
+#if 0
+    string name;;
+    string description;
+    string usage;
+    string role;
+    string doumentationUrl;
+    string version;
+#endif
+
 public:
     UGR4()
-    {
+#if 0
+:
+        ServerFunction(),
+        name("ugr4"),
+        description("This function can subset the range variables of a two dimensional triangular mesh unstructured grid."),
+        usage("ugr4(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')"),
+        role("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict"),
+        doumentationUrl("http://docs.opendap.org/index.php/UGrid_Functions"),
+        version("1.0")
+#endif
+{
+#if 0
+        setName(name);
+        setDescriptionString(description);
+        setUsageString(usage);
+        setRole(role);
+        setDocUrl(doumentationUrl);
+        setFunction(ugrid::ugr4);
+        setVersion(version);
+#endif
+#if 1
 		setName("ugr4");
 		setDescriptionString("This function can subset the range variables of a two dimensional triangular mesh unstructured grid.");
 		setUsageString("ugr4(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
@@ -52,6 +83,7 @@ public:
 		setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
 		setFunction(ugrid::ugr4);
 		setVersion("1.0");
+#endif
     }
     virtual ~UGR4()
     {

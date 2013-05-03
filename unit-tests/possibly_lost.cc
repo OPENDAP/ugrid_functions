@@ -38,7 +38,7 @@
 #include "Str.h"
 #include "DDS.h"
 #include "ServerFunction.h"
-#include "ServerFunctionsList.h"
+//#include "ServerFunctionsList.h"
 
 static pthread_once_t instance_control = PTHREAD_ONCE_INIT;
 static bool debug = false;
@@ -64,17 +64,6 @@ private:
         d_instance = 0;
     }
 
-    friend class PossiblyLost;
-
-protected:
-    SingletonList() {}
-
-public:
-    static SingletonList * TheList() {
-        pthread_once(&instance_control, initialize_instance);
-
-        return d_instance;
-    }
 
     virtual ~SingletonList() {
         std::multimap<string,libdap::ServerFunction *>::iterator fit;
@@ -85,6 +74,21 @@ public:
         }
         d_func_list.clear();
     }
+
+    friend class PossiblyLost;
+
+protected:
+    SingletonList() {}
+
+public:
+
+
+    static SingletonList * TheList() {
+        pthread_once(&instance_control, initialize_instance);
+
+        return d_instance;
+    }
+
 
     virtual void add_function(libdap::ServerFunction *func){
         d_func_list.insert(std::make_pair(func->getName(),func));
@@ -211,7 +215,6 @@ public:
         printFunctionNames();
 
         DBG(cerr << "PossiblyLost::possibly_lost_solution() - Deleting the List." << endl);
-        //delete SingletonList::TheList();
         SingletonList::delete_instance();
 
         // This is needed because we used pthread_once to ensure that
