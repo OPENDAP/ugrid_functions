@@ -587,7 +587,7 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
     unsigned int slabElementCount;
 
     getLastDimensionHyperSlab(location,&slab,&slabElementCount);
-    std::memcpy ( slab, values, byteCount );
+    memcpy ( slab, values, byteCount );
 
 }
 
@@ -596,7 +596,7 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  */
 void NDimensionalArray::setAll(char val){
     confirmStorage();
-    std::memset(_storage,val,_totalValueCount*_sizeOfValue);
+    memset(_storage,val,_totalValueCount*_sizeOfValue);
 
 }
 
