@@ -62,19 +62,25 @@ using namespace ugrid;
 namespace ugrid {
 
 
-TwoDMeshTopology::TwoDMeshTopology():d_myMeshVar(0),gridTopology(0),d_inputGridField(0),resultGridField(0),fncCellArray(0)
+TwoDMeshTopology::TwoDMeshTopology():
+        d_myMeshVar(0),
+        gridTopology(0),
+        d_inputGridField(0),
+        resultGridField(0),
+        fncCellArray(0),
+        nodeCount(0),
+        nodeCoordinateArrays(0),
+        faceNodeConnectivityArray(0),
+        faceCount(0),
+        faceCoordinateNames(0),
+        faceCoordinateArrays(0),
+        _initialized(false)
+
 {
     rangeDataArrays = new vector<MeshDataVariable *>();
     sharedIntArrays = new vector<int *>();
     sharedFloatArrays = new vector<float *>();
 
-    nodeCount = 0;
-    nodeCoordinateArrays = 0;
-    faceNodeConnectivityArray = 0;
-    faceCount = 0;
-    faceCoordinateNames = 0;
-    faceCoordinateArrays = 0;
-    _initialized = false;
 }
 
 
@@ -85,6 +91,8 @@ TwoDMeshTopology::~TwoDMeshTopology()
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::GridField 'resultGridField'." << endl);
 	delete resultGridField;
+
+
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting GF::GridField 'inputGridField'." << endl);
 	delete d_inputGridField;
@@ -120,12 +128,14 @@ TwoDMeshTopology::~TwoDMeshTopology()
 	delete sharedFloatArrays;
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting range data..." << endl);
+#if 0
 	vector<MeshDataVariable *>::iterator mdvIt;
 	for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
 		MeshDataVariable *mdv = *mdvIt;
 		BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting MeshDataVariable '"<< mdv->getName() << "'" << endl);
 		delete mdv;
 	}
+#endif
 	delete rangeDataArrays;
     BESDEBUG("ugrid", "~TwoDMeshTopology() - Range data deleted." << endl);
 
@@ -144,19 +154,18 @@ TwoDMeshTopology::~TwoDMeshTopology()
 /**
  * @TODO only call this from the constructor?? Seems like the thing to do, but then the constructor will be possibly throwing an Error - Is that OK?
  */
-void TwoDMeshTopology::init(string meshVarName, DDS &dds)
+void TwoDMeshTopology::init(string meshVarName, DDS *dds)
 {
 
     if(_initialized)
         return;
 
-    BaseType *bt = dds.var(meshVarName);
+    BaseType *bt = dds->var(meshVarName);
 
     if(bt)
-        setMeshVariable(bt);
+        d_myMeshVar = bt;
     else
         throw new Error("Unable to locate variable: "+meshVarName);
-
 
 
     BaseType *meshVar = getMeshVariable();
@@ -189,12 +198,6 @@ void TwoDMeshTopology::init(string meshVarName, DDS &dds)
 }
 
 
-void TwoDMeshTopology::setMeshVariable(libdap::BaseType *bt){
-    if(bt)
-        d_myMeshVar = bt->ptr_duplicate();
-    else
-        throw new Error("BaseType pointer to ugrid Mesh Variable is null!");
-}
 
 
 void TwoDMeshTopology::setNodeCoordinateDimension(MeshDataVariable *mdv)
@@ -262,57 +265,112 @@ void TwoDMeshTopology::setFaceCoordinateDimension(MeshDataVariable *mdv)
 }
 
 
+void TwoDMeshTopology::setLocationCoordinateDimension(MeshDataVariable *mdv){
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - BEGIN" << endl);
+
+    libdap::Array *dapArray = mdv->getDapArray();
+
+    string locstr;
+    switch(mdv->getGridLocation()){
+
+        case node:
+        {
+            BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - Checking Node variable  '"<< mdv->getName() << "'" << endl);
+            // Locate and set the MDV's node coordinate dimension.
+            setNodeCoordinateDimension(mdv);
+            locstr = "node";
+        }
+        break;
+
+        case face:
+        {
+            BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - Checking Face variable  '"<< mdv->getName() << "'" << endl);
+            // Locate and set the MDV's face coordinate dimension.
+            setFaceCoordinateDimension(mdv);
+            locstr = "face";
+        }
+        break;
+
+        case edge:
+        default:
+        {
+            string msg = "TwoDMeshTopology::setLocationCoordinateDimension() - Unknown/Unsupported location value '"  +
+                    libdap::long_to_string(mdv->getGridLocation()) + "'";
+            BESDEBUG("ugrid",  msg << endl);
+            throw Error( msg );
+        }
+        break;
+    }
+    BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - MeshDataVariable '"<< mdv->getName() <<
+            "' is a "<< locstr <<" variable," << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - MeshDataVariable '"<< mdv->getName() <<
+            "' location coordinate dimension is '" << dapArray->dimension_name(mdv->getLocationCoordinateDimension()) << "'" << endl);
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - DONE" << endl);
+
+}
+
+
+
 void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
 {
 
     BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - BEGIN" << endl);
+    setLocationCoordinateDimension(mdv);
+    BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Adding MeshDataVariable '"<< mdv->getName() << "' " << endl);
+    rangeDataArrays->push_back(mdv);
+    BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - DONE" << endl);
+
+#if 0
+
 
     libdap::Array *dapArray = mdv->getDapArray();
 
     switch(mdv->getGridLocation()){
 
-    case node:
-    {
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Node variable  '"<< mdv->getName() << "'" << endl);
+        case node:
+        {
+            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Node variable  '"<< mdv->getName() << "'" << endl);
 
-        // Locate and set the MDV's node coordinate dimension.
-        setNodeCoordinateDimension(mdv);
-        rangeDataArrays->push_back(mdv);
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-    }
-    break;
+            // Locate and set the MDV's node coordinate dimension.
+            setNodeCoordinateDimension(mdv);
+            rangeDataArrays->push_back(mdv);
+            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
+        }
+        break;
 
-    case edge:
-    {
-        //@TODO Implement sanity checks... some kind of input QC.
-        rangeDataArrays->push_back(mdv);
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-    }
-    break;
+        case edge:
+        {
+            //@TODO Implement sanity checks... some kind of input QC.
+            rangeDataArrays->push_back(mdv);
+            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
+        }
+        break;
 
-    case face:
-    {
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Face variable  '"<< mdv->getName() << "'" << endl);
+        case face:
+        {
+            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Face variable  '"<< mdv->getName() << "'" << endl);
 
-        // Locate and set the MDV's face coordinate dimension.
-        setFaceCoordinateDimension(mdv);
-        rangeDataArrays->push_back(mdv);
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
+            // Locate and set the MDV's face coordinate dimension.
+            setFaceCoordinateDimension(mdv);
+            rangeDataArrays->push_back(mdv);
+            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
 
-    }
-    break;
+        }
+        break;
 
-    default:
-    {
-        string msg = "TwoDMeshTopology::addDataVariable() - Unknown location value '"  + libdap::long_to_string(mdv->getGridLocation()) + "'";
-        BESDEBUG("ugrid",  msg << endl);
-        throw Error( msg );
-    }
-    break;
+        default:
+        {
+            string msg = "TwoDMeshTopology::addDataVariable() - Unknown location value '"  + libdap::long_to_string(mdv->getGridLocation()) + "'";
+            BESDEBUG("ugrid",  msg << endl);
+            throw Error( msg );
+        }
+        break;
     }
 
     BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - DONE" << endl);
-
+#endif
 #if 0
     BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - BEGIN" << endl);
 
@@ -395,7 +453,7 @@ void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
  * Locates the the DAP variable identified by the face_node_connectivity attribute of the
  * meshTopology variable.
  */
-void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS &dds)
+void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS *dds)
 {
 
 	BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Locating FNCA" << endl);
@@ -415,7 +473,7 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
 
 	// Find the variable using the name
 
-    BaseType *btp = dds.var(face_node_connectivity_var_name);
+    BaseType *btp = dds->var(face_node_connectivity_var_name);
 
     if(btp==0)
     	throw Error("Could not locate the " UGRID_FACE_NODE_CONNECTIVITY " variable named '" + face_node_connectivity_var_name + "'! "+
@@ -525,7 +583,7 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
  * throws an error if the node_coordinates attribute is missing, if the coordinates are not arrays, and
  * if the arrays are not all the same shape.
  */
-void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds)
+void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds)
 {
     BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - BEGIN Gathering face coordinate arrays..." << endl);
 
@@ -556,7 +614,7 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
             BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - Processing face coordinate '"<< faceCoordinateName << "'." << endl);
 
             //Now that we have the name of the coordinate variable get it from the DDS!!
-            BaseType *btp = dds.var(faceCoordinateName);
+            BaseType *btp = dds->var(faceCoordinateName);
             if (btp == 0)
                 throw Error(
                         "Could not locate the "  UGRID_FACE_COORDINATES  " variable named '"
@@ -642,7 +700,7 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
  * throws an error if the node_coordinates attribute is missing, if the coordinates are not arrays, and
  * if the arrays are not all the same shape.
  */
-void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS &dds)
+void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds)
 {
 	BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - BEGIN Gathering node coordinate arrays..." << endl);
 
@@ -677,7 +735,7 @@ void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology
 	    BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Processing node coordinate '"<< nodeCoordinateName << "'." << endl);
 
 		//Now that we have the name of the coordinate variable get it from the DDS!!
-		BaseType *btp = dds.var(nodeCoordinateName);
+		BaseType *btp = dds->var(nodeCoordinateName);
 		if (btp == 0)
 			throw Error(
 					"Could not locate the "  UGRID_NODE_COORDINATES  " variable named '"
@@ -810,6 +868,12 @@ void TwoDMeshTopology::buildRestrictedGfTopology(locationType loc, string filter
     applyRestrictOperator(loc, filterExpression);
 }
 
+int TwoDMeshTopology::getResultGridSize(locationType dim){
+    return resultGridField->Size(dim);
+}
+
+
+
 
 /**
  * @brief Builds the GridField Topology object and loads all all of the requested variables - OLDWAY
@@ -826,6 +890,7 @@ void TwoDMeshTopology::buildGridFieldsTopology()
 		GF::Array *gfa = extractGridFieldArray(mdVar->getDapArray(),sharedIntArrays,sharedFloatArrays);
 		BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Adding mesh data variable '"<< mdVar->getName() <<"' to GF::GridField at rank "<< mdVar->getGridLocation() << endl);
 		d_inputGridField->AddAttribute(mdVar->getGridLocation(), gfa);
+        gfArrays.push_back(gfa);
 	}
 
 }
@@ -1145,7 +1210,7 @@ void TwoDMeshTopology::convertResultGridFieldStructureToDapObjects(vector<BaseTy
     libdap::Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField, faceNodeConnectivityArray);
     results->push_back(resultFaceNodeConnectivityDapArray);
 
-    results->push_back(getMeshVariable());
+    results->push_back(getMeshVariable()->ptr_duplicate());
 
     BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - END" << endl);
 }
@@ -1425,6 +1490,74 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
 }
 
 
+
+/**
+ * Retrieves a single dimensional rank 0 GF attribute array from a GF::GridField and places the data into
+ * DAP array of the appropriate type.
+ */
+void TwoDMeshTopology::getResultGFAttributeValues(libdap::Array *templateArray, locationType rank, void *target){
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - BEGIN" << endl);
+
+    // The result variable is assumed to be bound to the GridField at 'rank'
+    // Try to get the Attribute from 'rank' with the same name as the source array
+    BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::GridField Attribute '" <<
+            templateArray->name() << "'" << endl);
+    GF::Array* gfa = resultGridField->GetAttribute(rank, templateArray->name());
+
+
+    libdap::Array *dapArray;
+    BaseType *templateVar = templateArray->var();
+    string dimName;
+
+    switch (templateVar->type()) {
+    case dods_byte_c:
+    case dods_uint16_c:
+    case dods_int16_c:
+    case dods_uint32_c:
+    case dods_int32_c: {
+        // Get the data
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::Array as libdap::Array of libdap::Int32." << endl);
+        vector<dods_int32> GF_ints = gfa->makeArray();
+        stringstream s;
+        for(int i=0; i<GF_ints.size() ; i++){
+            s << "GF_ints[" << i << "]: " << GF_ints[i] << endl;
+        }
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieved GF_ints: "<< endl << s.str());
+
+
+
+
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
+        memcpy(target,GF_ints.data(), GF_ints.size()*sizeof(dods_int32));
+        break;
+    }
+    case dods_float32_c:
+    case dods_float64_c: {
+        // Get the data
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::Array as libdap::Array of libdap::Float64." << endl);
+        vector<dods_float64> GF_floats = gfa->makeArrayf();
+
+        stringstream s;
+        for(int i=0; i<GF_floats.size() ; i++){
+            s << "GF_ints[" << i << "]: " << GF_floats[i] << endl;
+        }
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieved GF_floats: "<< endl << s.str());
+
+
+
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
+        memcpy(target,GF_floats.data(), GF_floats.size()*sizeof(dods_float64));
+        break;
+
+    }
+    default:
+        throw InternalErr(__FILE__, __LINE__,
+                "Unknown DAP type encountered when converting to gridfields result values");
+    }
+
+    // Copy the source objects attributes.
+}
 
 
 

@@ -24,9 +24,9 @@ variables:
 		oneDnodedata:mesh = "fvcom_mesh" ;
 		oneDnodedata:location = "node" ;
 	float twoDnodedata(time, nodes) ;
-		oneDnodedata:coordinates = "Y X" ;
-		oneDnodedata:mesh = "fvcom_mesh" ;
-		oneDnodedata:location = "node" ;
+		twoDnodedata:coordinates = "Y X" ;
+		twoDnodedata:mesh = "fvcom_mesh" ;
+		twoDnodedata:location = "node" ;
 	float celldata(faces) ;
 		celldata:mesh = "fvcom_mesh" ;
 		celldata:location = "face" ;

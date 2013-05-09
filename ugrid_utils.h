@@ -163,6 +163,7 @@ vector<string> &split(const string &s, char delim, vector<string> &elems);
 
 int getNfrom3byNArray(libdap::Array *array);
 
+libdap::Type getGridfieldsReturnType(libdap::Type type);
 
 
 

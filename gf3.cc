@@ -865,7 +865,7 @@ static TwoDMeshTopology *getNewMeshTopology(DDS &dds, string meshVarName) {
  * a new mesh topology is created. Once the associated mesh topology had been found (or created), the rangeVar
  * is added to the vector of rangeVars held by the mesh topology for later evaluation.
  */
-static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshTopology *> &meshTopologies) {
+static MeshDataVariable *addRangeVar(DDS *dds, libdap::Array *rangeVar, map<string, TwoDMeshTopology *> &meshTopologies) {
 
 	MeshDataVariable *mdv = new MeshDataVariable();
 
@@ -891,6 +891,8 @@ static void addRangeVar(DDS &dds, libdap::Array *rangeVar, map<string, TwoDMeshT
 
 	meshTopology->addDataVariable(mdv);
     BESDEBUG("function_ugr3", "addRangeVar() - Variable added to MeshTopology '" << meshTopology->name() <<"'"  << endl);
+
+    return mdv;
 
 }
 
@@ -1417,13 +1419,14 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	Ugrid3RestrictArgs args = processUgr3Args(argc, argv);
 
 	map<string, TwoDMeshTopology *> meshTopologies;
+    vector<MeshDataVariable *> meshDataVars;
 
 	// For every Range variable in the arguments list, locate it and ingest it.
 	int rangeVarCount =0;
 	vector<libdap::Array *>::iterator it;
 	for (it = args.rangeVars.begin(); it != args.rangeVars.end(); ++it) {
 		libdap::Array *rangeVar = *it;
-	    addRangeVar(dds, rangeVar, meshTopologies);
+        meshDataVars.push_back(addRangeVar(&dds, rangeVar, meshTopologies));
 	    rangeVarCount++;
 	}
 
@@ -1573,6 +1576,10 @@ void function_ugr3(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		TwoDMeshTopology *tdmt = mit->second;
 		delete tdmt;
 	}
+
+    for(int i=0; i<meshDataVars.size() ;i++){
+        delete meshDataVars[i];
+    }
 
 
 	BESDEBUG("function_ugr3", "function_ugr3() - END" << endl);

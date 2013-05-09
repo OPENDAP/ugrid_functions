@@ -58,6 +58,8 @@ private:
     void confirmLastDimSize(unsigned int n);
     void setLastDimensionHyperSlab(std::vector<unsigned int> *location, void *values, unsigned int byteCount);
 
+    string toString_worker(vector<unsigned int> *index);
+
 public:
 
     NDimensionalArray(libdap::Array *arrayTemplate);
@@ -73,6 +75,7 @@ public:
     dods_float32 setValue(std::vector<unsigned int> *location, dods_float32 value);
     dods_float64 setValue(std::vector<unsigned int> *location, dods_float64 value);
 
+    static void retrieveLastDimHyperSlabLocationFromConstrainedArrray(libdap::Array *a, vector<unsigned int> *location );
     static long computeConstrainedShape(libdap::Array *a, vector<unsigned int> *shape );
     static long computeArraySizeFromShapeVector(vector<unsigned int> *shape );
     static long getStorageIndex(vector<unsigned int> *shape, vector<unsigned int> *location);
@@ -100,6 +103,10 @@ public:
     void setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_float32 *values, unsigned int numVal);
     void setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_float64 *values, unsigned int numVal);
 
+    libdap::Array *getArray(libdap::Array *templateArray);
+
+    string toString();
+    static string vectorToIndices(vector<unsigned int> *v);
 
 }; //NdimensionalArray
 

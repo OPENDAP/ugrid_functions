@@ -22,13 +22,32 @@
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 
+#include <sstream>      // std::stringstream
+
 
 
 #include "NDimensionalArray.h"
 #include "util.h"
 
+#include "Byte.h"
+#include "Int16.h"
+#include "UInt16.h"
+#include "Int32.h"
+#include "UInt32.h"
+#include "Float32.h"
+#include "Float64.h"
+
+
 namespace libdap {
 
+
+string NDimensionalArray::vectorToIndices(vector<unsigned int> *v){
+    stringstream s;
+    for(int i=0; i<v->size() ;i++){
+        s << "[" <<  (*v)[i] << "]";
+   }
+    return s.str();
+}
 
 
 NDimensionalArray::NDimensionalArray()
@@ -45,7 +64,9 @@ NDimensionalArray::NDimensionalArray(libdap::Array *a)
 
     _shape = new vector<unsigned int>(a->dimensions(true), (unsigned int)1);
     _totalValueCount = computeConstrainedShape(a, _shape);
+    BESDEBUG("ugrid", "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
     _dapType = a->var()->type();
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
 
     allocateStorage(_totalValueCount, _dapType);
 }
@@ -56,7 +77,9 @@ NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *shape, libdap::T
 
     _shape = new vector<unsigned int>(*shape);
     _totalValueCount = computeArraySizeFromShapeVector(_shape);
-
+    _dapType = dapType;
+    BESDEBUG("ugrid", "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
     allocateStorage(_totalValueCount, _dapType);
 
 }
@@ -87,6 +110,7 @@ void *NDimensionalArray::relinquishStorage(){
  * Returns the total number of elements in constrained shape.
  */
 long NDimensionalArray::computeConstrainedShape(libdap::Array *a, vector<unsigned int> *shape ){
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - BEGIN." << endl);
 
     libdap::Array::Dim_iter dIt;
     unsigned int start;
@@ -97,17 +121,93 @@ long NDimensionalArray::computeConstrainedShape(libdap::Array *a, vector<unsigne
     int dimNum = 0;
     long totalSize = 1;
 
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - Array has " << a->dimensions(true) << " dimensions."<< endl);
+
+    stringstream msg;
+
     for(dIt =a->dim_begin() ; dIt!=a->dim_end() ;dIt++){
+        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
         start  = a->dimension_start(dIt, true);
         stride = a->dimension_stride(dIt, true);
         stop   = a->dimension_stop(dIt, true);
+        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - start: " << start << "  stride: " << stride << "  stop: "<<stop<< endl);
+
         dimSize = 1 + ( (stop - start) / stride);
+        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - dimSize: " << dimSize << endl);
+
         (*shape)[dimNum++] = dimSize;
         totalSize *= dimSize;
     }
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - totalSize: " << totalSize << endl);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - END." << endl);
 
     return totalSize;
 }
+
+void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(libdap::Array *a, vector<unsigned int> *location ){
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - BEGIN." << endl);
+
+
+    libdap::Array::Dim_iter dIt;
+    libdap::Array::Dim_iter next_dIt;
+    unsigned int start;
+    unsigned int stride;
+    unsigned int stop;
+
+    unsigned int dimSize = 1;
+    int dimNum = 0;
+    long totalSize = 1;
+
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Array has " << a->dimensions(true) << " dimensions."<< endl);
+
+    stringstream msg;
+
+    for(dIt =a->dim_begin() ; dIt!=a->dim_end() ;dIt++){
+        next_dIt = dIt;
+        next_dIt++;
+
+        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
+        start  = a->dimension_start(dIt, true);
+        stride = a->dimension_stride(dIt, true);
+        stop   = a->dimension_stop(dIt, true);
+        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - start: " << start << "  stride: " << stride << "  stop: "<<stop<< endl);
+
+        if(next_dIt!=a->dim_end() && start!=stop && stride!=1){
+            msg << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - The array '" << a->name() <<"' has not been constrained to a last dimension hyperslab.";
+            BESDEBUG(NDimensionalArray_debug_key, msg.str() << endl);
+            throw Error(msg.str());
+
+        }
+        if(next_dIt==a->dim_end()){
+            if( start!=0 || stride!=1 || stop!=(a->dimension_size(dIt)-1)){
+                msg << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - The array '" << a->name() <<"' has not been constrained to a last dimension hyperslab.";
+                BESDEBUG(NDimensionalArray_debug_key, msg.str() << endl);
+                throw Error(msg.str());
+
+            }
+
+            BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - location"<< vectorToIndices(location) << endl);
+            BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - END." << endl);
+            return;
+        }
+
+        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Adding location "<< start << " to dimension " << location->size() << endl);
+
+
+        location->push_back(start);
+    }
+
+
+    msg << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Method Failure - this line should never be reached.";
+    BESDEBUG(NDimensionalArray_debug_key, msg.str() << endl);
+    throw Error(msg.str());
+
+
+}
+
+
+
+
 
 /**
  * Computes the total number of elements of the n-dimensional array described by the shape vector.
@@ -115,7 +215,7 @@ long NDimensionalArray::computeConstrainedShape(libdap::Array *a, vector<unsigne
 long NDimensionalArray::computeArraySizeFromShapeVector(vector<unsigned int> *shape ){
     long totalSize = 1;
 
-    for(int i; i<shape->size(); i++){
+    for(int i=0; i<shape->size(); i++){
         totalSize *= (*shape)[i];
     }
 
@@ -166,6 +266,8 @@ long NDimensionalArray::getStorageIndex(vector<unsigned int> *shape, vector<unsi
  * Allocates internal storage for the NDimensionalArray
  */
 void NDimensionalArray::allocateStorage(long numValues, Type dapType){
+
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::allocateStorage() - Allocating memory for " << numValues << " element(s) of type '"<< libdap::type_name(dapType) << "'" << endl);
 
     switch (dapType) {
     case dods_byte_c:
@@ -221,6 +323,7 @@ void NDimensionalArray::confirmType(Type dapType){
         throw InternalErr(__FILE__, __LINE__, msg);
     }
 }
+
 
 /**
  * Verifies that the passed value n is the same as the size of the last dimension. If not, and Error is thrown.
@@ -361,19 +464,29 @@ dods_float64 NDimensionalArray::setValue(std::vector<unsigned int> *location, do
  * have N-1 elements where N is the number of dimensions in the NDimensionalArray.
  */
 void NDimensionalArray::getLastDimensionHyperSlab(std::vector<unsigned int> *location, void **slab, unsigned int *elementCount){
+    BESDEBUG("ugrid", endl<< endl <<"NDimensionalArray::getLastDimensionHyperSlab() - BEGIN"<<endl);
     confirmStorage();
     if(location->size()!=_shape->size()-1){
         string msg = "NDimensionalArray::getLastDimensionHyperSlab() - Passed location vector doesn't match array shape.";
         BESDEBUG(NDimensionalArray_debug_key, msg << endl);
         throw InternalErr(__FILE__, __LINE__, msg);
     }
+
+
+    BESDEBUG("ugrid", "NDimensionalArray::getLastDimensionHyperSlab() - location" <<vectorToIndices(location) << endl);
+
+
     vector<unsigned int> slabLocation(*location);
 
+
     slabLocation.push_back(0);
+    BESDEBUG("ugrid", "NDimensionalArray::getLastDimensionHyperSlab() - slabLocation" <<vectorToIndices(&slabLocation) << endl);
+
     unsigned int storageIndex = getStorageIndex(_shape, &slabLocation);
 
     *slab = &((char *)_storage)[storageIndex*_sizeOfValue];
     *elementCount = *(_shape->rbegin());
+    BESDEBUG("ugrid", "NDimensionalArray::getLastDimensionHyperSlab() - END"<<endl<<endl);
 
 }
 
@@ -493,8 +606,244 @@ long NDimensionalArray::getLastDimensionElementCount(){
     return *(_shape->rbegin());
 }
 
+libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray){
+
+    if(_shape->size() != templateArray->dimensions(true))
+        throw new Error("Template Array has different number of dimensions than NDimensional Array!!");
+
+    libdap::Array  *resultDapArray;
+
+    switch (_dapType) {
+        case dods_byte_c:
+        {
+            libdap::Byte tt(templateArray->name());
+            resultDapArray = new libdap::Array(templateArray->name(), &tt);
+            break;
+        }
+        case dods_uint16_c:
+        {
+            libdap::Int16 tt(templateArray->name());
+            resultDapArray = new libdap::Array(templateArray->name(), &tt);
+            break;
+        }
+        case dods_int16_c:
+        {
+            libdap::UInt16 tt(templateArray->name());
+            resultDapArray = new libdap::Array(templateArray->name(), &tt);
+            break;
+        }
+        case dods_int32_c:
+        {
+            libdap::Int32 tt(templateArray->name());
+            resultDapArray = new libdap::Array(templateArray->name(), &tt);
+            break;
+        }
+        case dods_uint32_c:
+        {
+            libdap::UInt32 tt(templateArray->name());
+            resultDapArray = new libdap::Array(templateArray->name(), &tt);
+            break;
+        }
+        case dods_float32_c:
+        {
+            libdap::Float32 tt(templateArray->name());
+            resultDapArray = new libdap::Array(templateArray->name(), &tt);
+            break;
+        }
+        case dods_float64_c:
+        {
+            libdap::Float64 tt(templateArray->name());
+            resultDapArray = new libdap::Array(templateArray->name(), &tt);
+            break;
+        }
+        default:
+            throw InternalErr(__FILE__, __LINE__,
+                    "Unknown DAP type encountered when converting to gridfields internal type.");
+    }
 
 
+
+#if 0
+    libdap::Array  *resultDapArray;
+
+    switch (_dapType) {
+        case dods_byte_c:
+        {
+            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Byte(templateArray->name()));
+            break;
+        }
+        case dods_uint16_c:
+        {
+            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Int16(templateArray->name()));
+            break;
+        }
+        case dods_int16_c:
+        {
+            resultDapArray = new libdap::Array(templateArray->name(), new libdap::UInt16(templateArray->name()));
+            break;
+        }
+        case dods_int32_c:
+        {
+            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Int32(templateArray->name()));
+            break;
+        }
+        case dods_uint32_c:
+        {
+            resultDapArray = new libdap::Array(templateArray->name(), new libdap::UInt32(templateArray->name()));
+            break;
+        }
+        case dods_float32_c:
+        {
+            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Float32(templateArray->name()));
+            break;
+        }
+        case dods_float64_c:
+        {
+            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Float64(templateArray->name()));
+            break;
+        }
+        default:
+            throw InternalErr(__FILE__, __LINE__,
+                    "Unknown DAP type encountered when converting to gridfields internal type.");
+    }
+#endif
+
+    libdap::Array::Dim_iter dimIt;
+    int s = 0;
+    for(dimIt=templateArray->dim_begin(); dimIt!=templateArray->dim_end() ; dimIt++, s++){
+        resultDapArray->append_dim((*_shape)[s], (*dimIt).name);
+    }
+
+    // Copy the source objects attributes.
+    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
+    resultDapArray->set_attr_table(templateArray->get_attr_table());
+
+
+    switch (_dapType) {
+        case dods_byte_c:
+        {
+            resultDapArray->set_value((dods_byte *)_storage,_totalValueCount);
+            break;
+        }
+        case dods_uint16_c:
+        {
+            resultDapArray->set_value((dods_uint16 *)_storage,_totalValueCount);
+            break;
+        }
+        case dods_int16_c:
+        {
+            resultDapArray->set_value((dods_int16 *)_storage,_totalValueCount);
+            break;
+        }
+        case dods_uint32_c:
+        {
+            resultDapArray->set_value((dods_uint32 *)_storage,_totalValueCount);
+            break;
+        }
+        case dods_int32_c:
+        {
+            resultDapArray->set_value((dods_int32 *)_storage,_totalValueCount);
+            break;
+        }
+        case dods_float32_c:
+        {
+            resultDapArray->set_value((dods_float32 *)_storage,_totalValueCount);
+            break;
+        }
+        case dods_float64_c:
+        {
+            resultDapArray->set_value((dods_float64 *)_storage,_totalValueCount);
+            break;
+        }
+        default:
+            throw InternalErr(__FILE__, __LINE__,
+                    "Unknown DAP type encountered when converting to gridfields internal type.");
+    }
+
+
+    return resultDapArray;
+}
+
+
+string NDimensionalArray::toString_worker(vector<unsigned int> *location) {
+
+    stringstream s;
+    if(location->size() ==  _shape->size()){
+        s << "  storage" ;
+        s << vectorToIndices(location);
+
+        s << ": ";
+        long storageIndex = getStorageIndex(_shape,location);
+        switch (_dapType) {
+            case dods_byte_c:
+            {
+                s << ((dods_byte *)_storage)[storageIndex];
+                break;
+            }
+            case dods_uint16_c:
+            {
+                s << ((dods_uint16 *)_storage)[storageIndex];
+                break;
+            }
+            case dods_int16_c:
+            {
+                s << ((dods_int16 *)_storage)[storageIndex];
+                break;
+            }
+            case dods_uint32_c:
+            {
+                s << ((dods_uint32 *)_storage)[storageIndex];
+                break;
+            }
+            case dods_int32_c:
+            {
+                s << ((dods_int32 *)_storage)[storageIndex];
+                break;
+            }
+            case dods_float32_c:
+            {
+                s << ((dods_float32 *)_storage)[storageIndex];
+                break;
+            }
+            case dods_float64_c:
+            {
+                s << ((dods_float64 *)_storage)[storageIndex];
+                break;
+            }
+            default:
+                throw InternalErr(__FILE__, __LINE__,
+                        "Unknown DAP type encountered when converting to gridfields internal type.");
+        }
+        s << endl;
+
+
+    }
+    else {
+        int nextDimSize = (*_shape)[location->size()];
+        for(int i=0; i<nextDimSize ;i++){
+            location->push_back(i);
+            s << toString_worker(location);
+            location->pop_back();
+       }
+
+    }
+    return s.str();
+
+}
+
+
+string NDimensionalArray::toString() {
+
+    stringstream s;
+    vector<unsigned int> location;
+
+    s << endl << "NDimensionalArray: " << endl;
+    s  << toString_worker(&location);
+
+
+    return s.str();
+
+}
 
 
 

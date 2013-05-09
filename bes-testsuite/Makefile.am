@@ -2,8 +2,7 @@
 AUTOMAKE_OPTIONS = foreign 
 
 if USE_VALGRIND
-TESTS_ENVIRONMENT=valgrind --quiet --trace-children=yes --error-exitcode=1 \
---dsymutil=yes --leak-check=yes
+TESTS_ENVIRONMENT=valgrind --trace-children=yes --error-exitcode=1 --dsymutil=yes --leak-check=yes  --max-stackframe=3000000  --quiet
 endif
 
 AM_CPPFLAGS = -I$(top_srcdir)

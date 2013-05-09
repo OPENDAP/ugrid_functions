@@ -37,7 +37,6 @@
 #include <sstream>
 #include <cxxabi.h>
 
-#define DODS_DEBUG
 
 #include "BaseType.h"
 #include "Byte.h"
@@ -63,6 +62,7 @@
 
 #include "BaseType.h"
 #include "Array.h"
+#define DODS_DEBUG
 
 #include "debug.h"
 #include "util.h"
@@ -201,6 +201,64 @@ static GF::Array *extract_gridfield_array(Array *a) {
 }
 
 #endif
+
+
+GF::e_Type getGridfieldsInternalTypeMap(Type type){
+
+    switch (type) {
+        case dods_byte_c:
+        case dods_uint16_c:
+        case dods_int16_c:
+        case dods_uint32_c:
+        case dods_int32_c:
+        {
+            return GF::INT;
+            break;
+        }
+        case dods_float32_c:
+        case dods_float64_c:
+        {
+            return GF::FLOAT;
+            break;
+        }
+        default:
+            throw InternalErr(__FILE__, __LINE__,
+                    "Unknown DAP type encountered when converting to gridfields internal type.");
+    }
+}
+
+
+Type getGridfieldsReturnType(Type type){
+    GF::e_Type gfInternalType = getGridfieldsInternalTypeMap(type);
+
+    Type retType;
+    switch (gfInternalType) {
+        case GF::INT:
+        {
+            retType =  dods_int32_c;
+            break;
+        }
+        case GF::FLOAT:
+        {
+            retType =  dods_float64_c;
+            break;
+        }
+        default:
+            throw InternalErr(__FILE__, __LINE__,
+                    "Unknown GF::e_Type type encountered when resolving gridfields result type mapping for dap type " +
+                    libdap::type_name(type));
+    }
+    DBG(cerr << " getGridfieldsReturnType() - Return type for " << libdap::type_name(type) <<
+            " is " << libdap::type_name(retType) << endl);
+
+    return retType;
+}
+
+
+Type getGridfieldsReturnType(libdap::Array *a){
+    return getGridfieldsReturnType(a->var()->type());
+}
+
 
 /**
  * Extract data from a DAP array and return those values in a gridfields

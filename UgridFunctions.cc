@@ -51,7 +51,7 @@ static string getFunctionNames(){
 void UgridFunctions::initialize(const string &modname) {
 	BESDEBUG( "UgridFunctions", "initialize() - BEGIN" << endl );
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
-#if 0
+#if 1
 
     BESDEBUG("UgridFunctions", "initialize() - Adding gf3::UGridRestrictFunction_03()" << endl);
     libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
