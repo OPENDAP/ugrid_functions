@@ -326,7 +326,7 @@ static void rDAWorker(
  *  Each of these slabs is then added to the GridField, subset and the result must be packed back
  *  into the result array so that things work out.
 **/
-static libdap::Array *restrictDapArrayByOneDHyperSlab(
+static libdap::Array *restrictRangeVariableByOneDHyperSlab(
         MeshDataVariable *mdv,
         long restrictedSlabSize,
         string meshVariableName,
@@ -499,12 +499,10 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
 	        /**
 	         * Here is where we will do the range variable sub-setting including decomposing the requested variable
-	         * into 1-dimensional hyper-slabs that can be fed in the the gridfields library
+	         * into 1-dimensional hyper-slabs that can be fed into the gridfields library
 	         */
-	        // tdmt->convertResultRangeVarsToDapObjects(&dapResults);
-
             libdap:Array *restrictedRangeVarArray =
-                    restrictDapArrayByOneDHyperSlab(mdv, tdmt->getResultGridSize(node), meshVariableName, &dds, args.dimension, args.filterExpression);
+                    restrictRangeVariableByOneDHyperSlab(mdv, tdmt->getResultGridSize(node), meshVariableName, &dds, args.dimension, args.filterExpression);
 
             BESDEBUG("ugrid", "ugr4() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
 
