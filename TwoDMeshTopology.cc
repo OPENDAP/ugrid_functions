@@ -127,17 +127,9 @@ TwoDMeshTopology::~TwoDMeshTopology()
 	}
 	delete sharedFloatArrays;
 
-	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting range data..." << endl);
-#if 0
-	vector<MeshDataVariable *>::iterator mdvIt;
-	for (mdvIt = rangeDataArrays->begin(); mdvIt != rangeDataArrays->end(); ++mdvIt) {
-		MeshDataVariable *mdv = *mdvIt;
-		BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting MeshDataVariable '"<< mdv->getName() << "'" << endl);
-		delete mdv;
-	}
-#endif
+	BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting range data vector" << endl);
 	delete rangeDataArrays;
-    BESDEBUG("ugrid", "~TwoDMeshTopology() - Range data deleted." << endl);
+    BESDEBUG("ugrid", "~TwoDMeshTopology() - Range data vector deleted." << endl);
 
 
     BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting vector of node coordinate arrays." << endl);
@@ -321,127 +313,6 @@ void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
     BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Adding MeshDataVariable '"<< mdv->getName() << "' " << endl);
     rangeDataArrays->push_back(mdv);
     BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - DONE" << endl);
-
-#if 0
-
-
-    libdap::Array *dapArray = mdv->getDapArray();
-
-    switch(mdv->getGridLocation()){
-
-        case node:
-        {
-            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Node variable  '"<< mdv->getName() << "'" << endl);
-
-            // Locate and set the MDV's node coordinate dimension.
-            setNodeCoordinateDimension(mdv);
-            rangeDataArrays->push_back(mdv);
-            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-        }
-        break;
-
-        case edge:
-        {
-            //@TODO Implement sanity checks... some kind of input QC.
-            rangeDataArrays->push_back(mdv);
-            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-        }
-        break;
-
-        case face:
-        {
-            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Face variable  '"<< mdv->getName() << "'" << endl);
-
-            // Locate and set the MDV's face coordinate dimension.
-            setFaceCoordinateDimension(mdv);
-            rangeDataArrays->push_back(mdv);
-            BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-
-        }
-        break;
-
-        default:
-        {
-            string msg = "TwoDMeshTopology::addDataVariable() - Unknown location value '"  + libdap::long_to_string(mdv->getGridLocation()) + "'";
-            BESDEBUG("ugrid",  msg << endl);
-            throw Error( msg );
-        }
-        break;
-    }
-
-    BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - DONE" << endl);
-#endif
-#if 0
-    BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - BEGIN" << endl);
-
-	libdap::Array *dapArray = mdv->getDapArray();
-
-	switch(mdv->getGridLocation()){
-
-	case node:
-	{
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Node variable  '"<< mdv->getName() << "'" << endl);
-	    // Make sure that the requested range variable is the same shape as the node coordinate arrays
-	    // We only need to test the first nodeCoordinate array against the first rangeVar array
-	    // because we have already made sure all of the node coordinate arrays are the same size and
-	    // that all the rangeVar arrays are the same size. This is just to compare the two collections.
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Comparing dimensionality of '"<< mdv->getName() << "' to node coordinate arrays." << endl);
-	    libdap::Array *firstCoordinate = (*(nodeCoordinateArrays))[0];
-	     if (!same_dimensions(dapArray, firstCoordinate)){
-	         throw Error(
-	                 "The dimensions of the requested range variable "
-	                         + mdv->getName() + " has a location of 'node' (aka rank 0) but it does not match the shape "
-	                         + " of the node coordinate array "
-	                         + firstCoordinate->name());
-	     }
-	     rangeDataArrays->push_back(mdv);
-         BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-	}
-	break;
-
-	case edge:
-	{
-	    //@TODO Implement sanity checks... some kind of input QC.
-        rangeDataArrays->push_back(mdv);
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-	}
-	break;
-
-	case face:
-	{
-        BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Checking Face variable  '"<< mdv->getName() << "'" << endl);
-
-
-	    // Check face coordinate arrays, if present, to be sure the sizes match.
-	    if(faceCoordinateArrays!=0 && !faceCoordinateArrays->empty()){
-	         BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Comparing dimensionality of '"<< mdv->getName() << "' to face coordinate arrays." << endl);
-            libdap::Array *firstCoordinate = (*(faceCoordinateArrays))[0];
-             if (!same_dimensions(dapArray, firstCoordinate)){
-                 throw Error(
-                         "The dimensions of the requested range variable "
-                                 + mdv->getName() + " has a location of 'face' (aka rank of 2) but it does not match the shape "
-                                 + " of the face coordinate array "
-                                 + firstCoordinate->name());
-             }
-	     }
-
-         rangeDataArrays->push_back(mdv);
-         BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - Added MeshDataVariable '"<< mdv->getName() << "' " << endl);
-
-	}
-	break;
-
-	default:
-	{
-	    string msg = "TwoDMeshTopology::addDataVariable() - Unknown location value '"  + libdap::long_to_string(mdv->getGridLocation()) + "'";
-	    BESDEBUG("ugrid",  msg << endl);
-        throw Error( msg );
-	}
-    break;
-	}
-
-    BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - DONE" << endl);
-#endif
 
 
 }
@@ -934,13 +805,6 @@ GF::Node *TwoDMeshTopology::getFncArrayAsGFCells(libdap::Array *fncVar)
 	        cells[nodesPerFace * fIndex + nIndex] = temp_nodes[fIndex + (faceCount * nIndex)];
 
 	    }
-#if 0
-		cellids[3 * fIndex] = cellids2[fIndex];
-		cellids[3 * fIndex + 1] = cellids2[fIndex + faceCount];
-		cellids[3 * fIndex + 2] = cellids2[fIndex + 2 * faceCount];
-	}
-#endif
-
     }
 
 	BESDEBUG("ugrid", "TwoDMeshTopology::getFncArrayAsGFNodes() - Deleting intermediate GF::Node array." << endl);
