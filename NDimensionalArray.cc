@@ -662,52 +662,6 @@ libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray){
     }
 
 
-
-#if 0
-    libdap::Array  *resultDapArray;
-
-    switch (_dapType) {
-        case dods_byte_c:
-        {
-            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Byte(templateArray->name()));
-            break;
-        }
-        case dods_uint16_c:
-        {
-            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Int16(templateArray->name()));
-            break;
-        }
-        case dods_int16_c:
-        {
-            resultDapArray = new libdap::Array(templateArray->name(), new libdap::UInt16(templateArray->name()));
-            break;
-        }
-        case dods_int32_c:
-        {
-            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Int32(templateArray->name()));
-            break;
-        }
-        case dods_uint32_c:
-        {
-            resultDapArray = new libdap::Array(templateArray->name(), new libdap::UInt32(templateArray->name()));
-            break;
-        }
-        case dods_float32_c:
-        {
-            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Float32(templateArray->name()));
-            break;
-        }
-        case dods_float64_c:
-        {
-            resultDapArray = new libdap::Array(templateArray->name(), new libdap::Float64(templateArray->name()));
-            break;
-        }
-        default:
-            throw InternalErr(__FILE__, __LINE__,
-                    "Unknown DAP type encountered when converting to gridfields internal type.");
-    }
-#endif
-
     libdap::Array::Dim_iter dimIt;
     int s = 0;
     for(dimIt=templateArray->dim_begin(); dimIt!=templateArray->dim_end() ; dimIt++, s++){
