@@ -5,11 +5,12 @@ BES.Group=group_name
 BES.LogName=./bes.log
 BES.LogVerbose=no
 
-BES.modules=dap,cmd,usage,ascii,www,nc,ugrid
+BES.modules=dap,cmd,usage,functions,ascii,www,nc,ugrid
 BES.module.dap=@modulesdir@/libdap_module.so
 BES.module.cmd=@modulesdir@/libdap_xml_module.so
 
 BES.module.usage=@modulesdir@/libusage_module.so
+BES.module.functions=@modulesdir@/libfunctions_module.so
 BES.module.ascii=@modulesdir@/libascii_module.so
 BES.module.www=@modulesdir@/libwww_module.so
 
