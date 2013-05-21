@@ -24,6 +24,12 @@
 
 //#include <cstdio>
 
+#include "config.h"
+
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
 #include <pthread.h>
 
 #include <cppunit/TextTestRunner.h>
@@ -55,7 +61,9 @@ private:
     static void initialize_instance() {
         if (d_instance == 0) {
             d_instance = new SingletonList;
-            atexit(delete_instance);
+            #if HAVE_ATEXIT
+             atexit(delete_instance);
+            #endif
         }
     }
 

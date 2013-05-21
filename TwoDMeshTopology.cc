@@ -136,7 +136,7 @@ TwoDMeshTopology::~TwoDMeshTopology()
     delete nodeCoordinateArrays;
 
     BESDEBUG("ugrid", "~TwoDMeshTopology() - Deleting face node connectivity cell array (GF::Node's)." << endl);
-    delete fncCellArray;
+    delete[] fncCellArray;
 
 
 	BESDEBUG("ugrid", "~TwoDMeshTopology() - END" << endl);
