@@ -216,7 +216,6 @@ private:
 	libdap::Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray);
 	libdap::Array *getNewFncDapArray(libdap::Array *templateArray, int N);
 
-    void buildBasicGfTopology();
 
 	void setNodeCoordinateDimension(MeshDataVariable *mdv);
 	void setFaceCoordinateDimension(MeshDataVariable *mdv);
@@ -230,10 +229,12 @@ public:
 	string name(){ return getMeshVariable()->name();}
     libdap::BaseType *getMeshVariable(){ return d_myMeshVar; }
 
+    void buildBasicGfTopology();
+    void applyRestrictOperator(locationType loc, string filterExpression);
     void buildRestrictedGfTopology(locationType loc, string filterExpression);
     void buildGridFieldsTopology();
+
     int getResultGridSize(locationType dim);
-	void applyRestrictOperator(locationType loc, string filterExpression);
     void convertResultGridFieldToDapObjects(vector<libdap::BaseType *> *results);
     void convertResultGridFieldStructureToDapObjects(vector<libdap::BaseType *> *results);
     void convertResultRangeVarsToDapObjects(vector<BaseType *> *results);
@@ -241,7 +242,11 @@ public:
     libdap::Array *restrictDapArray(libdap::Array*, libdap::Array::Dim_iter locationCoordinateDim, locationType gridLocation);
     void setLocationCoordinateDimension(MeshDataVariable *mdv);
 
+    void addIndexVariable(locationType location);
+    void getResultIndex(locationType location, void *target);
+
     void getResultGFAttributeValues(libdap::Array *templateArray, locationType rank, void *target);
+    void getResultGFAttributeValues(string attrName, libdap::Type type, locationType rank, void *target);
 };
 
 } // namespace ugrid

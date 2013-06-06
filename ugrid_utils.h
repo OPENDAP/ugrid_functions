@@ -68,6 +68,7 @@ class libdap::Array;
 #define UGRID_FACE_FACE_CONNECTIVITY "face_face_connectivity"
 
 GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
+GF::Array *newGFIndexArray(string name, long size, vector<int*> *sharedIntArrays);
 
 /**
  * DAP Array data extraction helper method.

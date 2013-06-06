@@ -57,7 +57,7 @@
 #include "TwoDMeshTopology.h"
 #include "NDimensionalArray.h"
 
-#include "ugr4.h"
+#include "ugr5.h"
 
 
 using namespace std;
@@ -69,7 +69,7 @@ namespace ugrid {
  * Function syntax
  */
 static string ugrSyntax =
-		"ugr4(dim:int32, rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
+		"ugr5(dim:int32, rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
 
 /**
  * Function Arguments
@@ -218,6 +218,63 @@ static string arrayState(libdap::Array *dapArray, string indent){
 }
 
 
+static void copyUsingSubsetIndex(Array *sourceArray, vector<unsigned int> *subsetIndex, void *result){
+    BESDEBUG("ugrid", "ugrid::copyUsingIndex() - BEGIN" << endl);
+
+    switch (sourceArray->var()->type()) {
+    case dods_byte_c:
+        sourceArray->value(subsetIndex, (dods_byte *)result);
+        break;
+    case dods_uint16_c:
+        sourceArray->value(subsetIndex, (dods_uint16 *)result);
+        break;
+    case dods_int16_c:
+        sourceArray->value(subsetIndex, (dods_int16 *)result);
+        break;
+    case dods_uint32_c:
+        sourceArray->value(subsetIndex, (dods_uint32 *)result);
+        break;
+    case dods_int32_c:
+        sourceArray->value(subsetIndex, (dods_int32 *)result);
+        break;
+
+    case dods_float32_c:
+        sourceArray->value(subsetIndex, (dods_float32 *)result);
+        break;
+    case dods_float64_c:
+        sourceArray->value(subsetIndex, (dods_float64 *)result);
+        break;
+
+    default:
+        throw InternalErr(__FILE__, __LINE__,
+                "ugrid::hgr5::copyUsingSubsetIndex() - Unknown DAP type encountered.");
+    }
+    BESDEBUG("ugrid", "ugrid::copyUsingIndex() - END" << endl);
+
+
+
+}
+
+
+
+static string vectorToString(vector<unsigned int> *index){
+    BESDEBUG("ugrid", "indexToString() - BEGIN"<< endl);
+    BESDEBUG("ugrid", "indexToString() - index.size(): " << libdap::long_to_string(index->size()) << endl);
+    stringstream s;
+    s << "[";
+
+    for(unsigned int i=0; i<index->size() ; ++i){
+        s  << ((i>0)?", ":" ");
+        s  << (*index)[i];
+    }
+    s << "]";
+    BESDEBUG("ugrid", "indexToString() - END"<< endl);
+
+    return s.str();
+}
+
+
+
 
 /**
  *
@@ -225,12 +282,15 @@ static string arrayState(libdap::Array *dapArray, string indent){
 static void rDAWorker(
         MeshDataVariable *mdv,
         libdap::Array::Dim_iter thisDim,
-        DDS *dds,
-        locationType restrictLocation,
-        string filterExpression,
+        vector<unsigned int> *slab_subset_index,
         NDimensionalArray *results) {
 
     libdap::Array *dapArray = mdv->getDapArray();
+
+    BESDEBUG("ugrid", "rDAWorker() - slab_subset_index"<< vectorToString(slab_subset_index) <<
+            " size: " <<  libdap::long_to_string(slab_subset_index->size()) << endl);
+
+
 
     if(thisDim==dapArray->dim_end()){
 
@@ -242,11 +302,6 @@ static void rDAWorker(
 
         BESDEBUG("ugrid", "rdaWorker() - dap array: "<< arrayState(dapArray, "    "));
 
-        TwoDMeshTopology *tdmt = new TwoDMeshTopology();
-        tdmt->init(mdv->getMeshName(), dds);
-        tdmt->addDataVariable(mdv);
-        tdmt->buildGridFieldsTopology();
-        tdmt->applyRestrictOperator(restrictLocation, filterExpression);
 
         vector<unsigned int> lastDimHyperSlabLocation;
         NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(dapArray,&lastDimHyperSlabLocation);
@@ -258,24 +313,24 @@ static void rDAWorker(
         void *slab;
         results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation,&slab,&elementCount);
 
+        dapArray->read();
 
-        tdmt->getResultGFAttributeValues(dapArray,mdv->getGridLocation(),slab);
-
-        //tdmt->getResultGFAttributeValues(dapArray->name(),dapArray->var()->type(),mdv->getGridLocation(),slab);
-
+        copyUsingSubsetIndex(dapArray, slab_subset_index, slab);
 
 
+
+#if 0
         stringstream s;
-        for(int i=0; i<elementCount ; i++){
-            double f = ((double *) slab)[i];
+        for(unsigned int i=0; i<elementCount ; i++){
+            float f = ((float *) slab)[i];
             s << "slab[" << i << "]: " << f << endl;
         }
         BESDEBUG("ugrid", "rdaWorker() - Retrieved slab: "<< endl << s.str());
 
-        BESDEBUG("ugrid", "rdaWorker() - results: " << results->toString());
+        // BESDEBUG("ugrid", "rdaWorker() - results: " << results->toString());
+#endif
 
 
-        delete tdmt;
 
     }
     else {
@@ -296,7 +351,7 @@ static void rDAWorker(
 
             }
 
-            rDAWorker(mdv, nextDim, dds,restrictLocation, filterExpression, results);
+            rDAWorker(mdv, nextDim, slab_subset_index, results);
         }
         else {
 
@@ -309,7 +364,7 @@ static void rDAWorker(
 
             for(unsigned int dimIndex=start; dimIndex<=stop ; dimIndex+=stride){
                 dapArray->add_constraint(thisDim,dimIndex,1,dimIndex);
-                rDAWorker(mdv, nextDim, dds,restrictLocation, filterExpression, results);
+                rDAWorker(mdv, nextDim, slab_subset_index, results);
             }
 
             // Reset the constraint for this dimension.
@@ -332,20 +387,18 @@ static void rDAWorker(
 **/
 static libdap::Array *restrictRangeVariableByOneDHyperSlab(
         MeshDataVariable *mdv,
-        long restrictedSlabSize,
-        string meshVariableName,
-        DDS *dds,
-        locationType restrictLocation,
-        string filterExpression
-){
+        vector<unsigned int> *slab_subset_index
+        ){
 
-    libdap:Array *sourceDapArray = mdv->getDapArray();
+    long restrictedSlabSize = slab_subset_index->size();
+
+    BESDEBUG("ugrid", "restrictRangeVariableByOneDHyperSlab() - slab_subset_index"<< vectorToString(slab_subset_index) <<
+            " size: " <<  libdap::long_to_string(restrictedSlabSize) << endl);
+
+    libdap::Array *sourceDapArray = mdv->getDapArray();
 
     BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - locationCoordinateDim: '" <<
             sourceDapArray->dimension_name(mdv->getLocationCoordinateDimension()) << "'" << endl);
-
-
-
 
     // We want the manipulate the Array's Dimensions so that only a single dimensioned slab of the location coordinate dimension
     // is read at a time. We need to cache the original constrained dimensions so that we can build the correct collection of
@@ -356,13 +409,13 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
     NDimensionalArray::computeConstrainedShape(sourceDapArray, &arrayShape );
 
     stringstream msg;
-    for(int i=0; i< arrayShape.size(); i++){
+    for(unsigned int i=0; i< arrayShape.size(); i++){
         msg << "[" << arrayShape[i] << "]";
     }
     BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - arrayShape" << msg.str() << endl);
     msg.str(std::string());
 
-    // Now, we know that the restricted slab size the new (restricted)n size of the last dimension,
+    // Now, we know that the restricted slab size has a new (restricted) size of the last dimension,
     // so we make the shape reflect that
 
     arrayShape[sourceDapArray->dimensions(true) - 1] = restrictedSlabSize;
@@ -372,28 +425,29 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
     BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - Restricted HyperSlab has  "<< restrictedSlabSize << " elements." << endl);
     BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - Array is of type '"<< libdap::type_name(dapType) << "'" << endl);
 
-    for(int i=0; i< arrayShape.size(); i++){
+    for(unsigned int i=0; i< arrayShape.size(); i++){
         msg << "[" << arrayShape[i] << "]";
     }
     BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - arrayShape" << msg.str() << endl);
     msg.str(std::string());
 
-    Type resultType = ugrid::getGridfieldsReturnType(dapType);
+    // Now we make a new NDimensionalArray instance that we will use to hold the results.
+    NDimensionalArray *result = new NDimensionalArray(&arrayShape, dapType);
 
-    NDimensionalArray *result = new NDimensionalArray(&arrayShape, resultType);
-
-    //rDAWorker(dapArray, dapArray->dim_begin(), locationCoordinateDim, gridLocation, result);
-    rDAWorker(mdv, sourceDapArray->dim_begin(), dds, restrictLocation, filterExpression, result);
+    // And we pass that along with other stuff into the recursive rDAWorker that's going to go get all the stuff
+    rDAWorker(mdv, sourceDapArray->dim_begin(), slab_subset_index, result);
 
 
+    // And now that the recursion we grab have the NDimensionalArray cough up the rteuslt as a libdap::Array
     libdap::Array  *resultDapArray = result->getArray(sourceDapArray);
 
+    // Delete the NDimensionalArray
     delete result;
 
+    // Return the result as libdap:Array
     return resultDapArray;
 
 }
-
 
 
 
@@ -416,12 +470,12 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
 
  @exception Error Thrown If the Array is not a one dimensional
  array. */
-void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
+void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
-	BESDEBUG("ugrid", "ugr4() - BEGIN" << endl);
+	BESDEBUG("ugrid", "ugr5() - BEGIN" << endl);
 
 	string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-			+ "<function name=\"ugr4\" version=\"0.1\">\n"
+			+ "<function name=\"ugr5\" version=\"0.1\">\n"
 			+ "Server function for Unstructured grid operations.\n" + "usage: "
 			+ ugrSyntax + "\n"+ "</function>";
 
@@ -445,8 +499,8 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	for (it = args.rangeVars.begin(); it != args.rangeVars.end(); ++it) {
 	    addRangeVar(&dds, *it, meshToRangeVarsMap);
 	}
-	BESDEBUG("ugrid", "ugr4() - The user requested "<< args.rangeVars.size() << " range data variables." << endl);
-	BESDEBUG("ugrid", "ugr4() - The user's request referenced "<< meshToRangeVarsMap->size() << " mesh topology variables." << endl);
+	BESDEBUG("ugrid", "ugr5() - The user requested "<< args.rangeVars.size() << " range data variables." << endl);
+	BESDEBUG("ugrid", "ugr5() - The user's request referenced "<< meshToRangeVarsMap->size() << " mesh topology variables." << endl);
 
 	// ----------------------------------
 	// OK, so up to this point we have not read any data from the data set, but we have QC'd the inputs and verified that
@@ -473,23 +527,40 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 		string meshVariableName = mit->first;
 		vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
 
-		// When we built the meshToRangeVarsMap we QC'd this so we already know that
-		// the meshVar exists - no need to re-check.
-        BaseType *meshVar = dds.var(meshVariableName);
-
         vector<BaseType *> dapResults;
 
         // Building the restricted TwoDMeshTopology without adding any range variables and then converting the result
         // Grid field to Dap Objects should return all of the Ugrid structural stuff - mesh variable, node coordinate variables,
         // face and edge coordinate variables if present.
-        BESDEBUG("ugrid", "ugr4() - Adding restricted mesh_topology structure for mesh '" << meshVariableName << "' to DAP response." << endl);
+        BESDEBUG("ugrid", "ugr5() - Adding restricted mesh_topology structure for mesh '" << meshVariableName << "' to DAP response." << endl);
 
         TwoDMeshTopology *tdmt = new TwoDMeshTopology();
         tdmt->init(meshVariableName, &dds);
-        tdmt->buildRestrictedGfTopology(args.dimension, args.filterExpression);
+
+        tdmt->buildBasicGfTopology();
+        tdmt->addIndexVariable(node);
+        //tdmt->addIndexVariable(face);
+        tdmt->applyRestrictOperator(args.dimension, args.filterExpression);
+
+        long nodeResultSize = tdmt->getResultGridSize(node);
+
+        vector<unsigned int> node_subset_index(nodeResultSize);
+        tdmt->getResultIndex(node, &node_subset_index[0]);
+
+
+        BESDEBUG("ugrid", "ugr5() - node_subset_index"<< vectorToString(&node_subset_index) << endl);
+
+
+        //long faceResultSize = tdmt->getResultGridSize(face);
+        //int node_index[faceResultSize];
+        //tdmt->getResultIndex(face, node_index);
+
+        // This gets all the stuff that's attached to the grid - which at this point does not include the range variables but does include the
+        // index variable. good enough for now but need to drop the index....
         tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
 
-        BESDEBUG("ugrid", "ugr4() - Restriction of mesh_topology '"<< tdmt->getMeshVariable()->name() << "' structure completed." << endl);
+
+        BESDEBUG("ugrid", "ugr5() - Restriction of mesh_topology '"<< tdmt->getMeshVariable()->name() << "' structure completed." << endl);
 
         // now that we have the mesh topology variable we are going to look at each of the requested
         // range variables (aka MeshDataVariable instances) and we're going to subset that using the
@@ -497,7 +568,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	    for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
 	        MeshDataVariable *mdv = *rvit;
 
-	        BESDEBUG("ugrid", "ugr4() - Processing MeshDataVariable  '"<< mdv->getName() << "' ." << endl);
+	        BESDEBUG("ugrid", "ugr5() - Processing MeshDataVariable  '"<< mdv->getName() << "' ." << endl);
 
 	        tdmt->setLocationCoordinateDimension(mdv);
 
@@ -505,10 +576,10 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	         * Here is where we will do the range variable sub-setting including decomposing the requested variable
 	         * into 1-dimensional hyper-slabs that can be fed into the gridfields library
 	         */
-            libdap:Array *restrictedRangeVarArray =
-                    restrictRangeVariableByOneDHyperSlab(mdv, tdmt->getResultGridSize(node), meshVariableName, &dds, args.dimension, args.filterExpression);
+            libdap::Array *restrictedRangeVarArray =
+                    restrictRangeVariableByOneDHyperSlab(mdv, &node_subset_index);
 
-            BESDEBUG("ugrid", "ugr4() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
+            BESDEBUG("ugrid", "ugr5() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
 
             dapResults.push_back(restrictedRangeVarArray);
 
@@ -518,17 +589,17 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         delete tdmt;
 
 
-		BESDEBUG("ugrid", "ugr4() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
+		BESDEBUG("ugrid", "ugr5() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
 		for (vector<BaseType *>::iterator btIt=dapResults.begin(); btIt != dapResults.end(); ++btIt) {
 		    BaseType *bt = *btIt;
-	        BESDEBUG("ugrid", "ugr4() - Adding variable "<< bt->name() << " to DAP structure " << dapResult->name() << endl);
+	        BESDEBUG("ugrid", "ugr5() - Adding variable "<< bt->name() << " to DAP structure " << dapResult->name() << endl);
 			dapResult->add_var_nocopy(bt);
 		}
 	}
 
 	*btpp = dapResult;
 
-	BESDEBUG("ugrid", "ugr4() - Releasing maps and vectors..." << endl);
+	BESDEBUG("ugrid", "ugr5() - Releasing maps and vectors..." << endl);
 	for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
 	    vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
         for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
@@ -543,7 +614,8 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
 
 
-	BESDEBUG("ugrid", "ugr4() - END" << endl);
+
+	BESDEBUG("ugrid", "ugr5() - END" << endl);
 
 	return;
 }

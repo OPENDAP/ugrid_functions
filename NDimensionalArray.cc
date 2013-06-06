@@ -44,7 +44,7 @@ namespace libdap {
 
 string NDimensionalArray::vectorToIndices(vector<unsigned int> *v){
     stringstream s;
-    for(int i=0; i<v->size() ;i++){
+    for(unsigned int i=0; i<v->size() ;i++){
         s << "[" <<  (*v)[i] << "]";
    }
     return s.str();
@@ -52,7 +52,7 @@ string NDimensionalArray::vectorToIndices(vector<unsigned int> *v){
 
 
 NDimensionalArray::NDimensionalArray()
-    :_storage(0),_totalValueCount(0),_shape(0),_sizeOfValue(0),_dapType(dods_null_c) {
+    :_dapType(dods_null_c),_shape(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
 
     string msg = "NDimArray::NDimArray() - INTERNAL_ERROR: This is the private constructor and should never be used";
     BESDEBUG(NDimensionalArray_debug_key, msg << endl);
@@ -61,27 +61,31 @@ NDimensionalArray::NDimensionalArray()
 
 
 NDimensionalArray::NDimensionalArray(libdap::Array *a)
-    :_storage(0),_totalValueCount(0),_shape(0),_sizeOfValue(0),_dapType(dods_null_c) {
+    :_dapType(dods_null_c),_shape(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(libdap::Array *) - BEGIN"<< endl);
 
     _shape = new vector<unsigned int>(a->dimensions(true), (unsigned int)1);
     _totalValueCount = computeConstrainedShape(a, _shape);
-    BESDEBUG("ugrid", "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
     _dapType = a->var()->type();
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
 
     allocateStorage(_totalValueCount, _dapType);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(libdap::Array *) - END"<< endl);
 }
 
 
 NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *shape, libdap::Type dapType)
-    :_storage(0),_totalValueCount(0),_shape(0),_sizeOfValue(0),_dapType(dods_null_c) {
+    :_dapType(dods_null_c),_shape(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *, libdap::Type) - BEGIN"<< endl);
 
     _shape = new vector<unsigned int>(*shape);
     _totalValueCount = computeArraySizeFromShapeVector(_shape);
     _dapType = dapType;
-    BESDEBUG("ugrid", "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
     allocateStorage(_totalValueCount, _dapType);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *, libdap::Type) - END"<< endl);
 
 }
 
@@ -155,9 +159,7 @@ void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(li
     unsigned int stride;
     unsigned int stop;
 
-    unsigned int dimSize = 1;
     int dimNum = 0;
-    long totalSize = 1;
 
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Array has " << a->dimensions(true) << " dimensions."<< endl);
 
@@ -180,7 +182,7 @@ void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(li
 
         }
         if(next_dIt==a->dim_end()){
-            if( start!=0 || stride!=1 || stop!=(a->dimension_size(dIt)-1)){
+            if( start!=0 || stride!=1 || stop!=((unsigned int)a->dimension_size(dIt)-1)){
                 msg << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - The array '" << a->name() <<"' has not been constrained to a last dimension hyperslab.";
                 BESDEBUG(NDimensionalArray_debug_key, msg.str() << endl);
                 throw Error(msg.str());
@@ -216,7 +218,7 @@ void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(li
 long NDimensionalArray::computeArraySizeFromShapeVector(vector<unsigned int> *shape ){
     long totalSize = 1;
 
-    for(int i=0; i<shape->size(); i++){
+    for(unsigned int i=0; i<shape->size(); i++){
         totalSize *= (*shape)[i];
     }
 
@@ -465,7 +467,7 @@ dods_float64 NDimensionalArray::setValue(std::vector<unsigned int> *location, do
  * have N-1 elements where N is the number of dimensions in the NDimensionalArray.
  */
 void NDimensionalArray::getLastDimensionHyperSlab(std::vector<unsigned int> *location, void **slab, unsigned int *elementCount){
-    BESDEBUG("ugrid", endl<< endl <<"NDimensionalArray::getLastDimensionHyperSlab() - BEGIN"<<endl);
+    BESDEBUG(NDimensionalArray_debug_key, endl<< endl <<"NDimensionalArray::getLastDimensionHyperSlab() - BEGIN"<<endl);
     confirmStorage();
     if(location->size()!=_shape->size()-1){
         string msg = "NDimensionalArray::getLastDimensionHyperSlab() - Passed location vector doesn't match array shape.";
@@ -474,20 +476,20 @@ void NDimensionalArray::getLastDimensionHyperSlab(std::vector<unsigned int> *loc
     }
 
 
-    BESDEBUG("ugrid", "NDimensionalArray::getLastDimensionHyperSlab() - location" <<vectorToIndices(location) << endl);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getLastDimensionHyperSlab() - location" <<vectorToIndices(location) << endl);
 
 
     vector<unsigned int> slabLocation(*location);
 
 
     slabLocation.push_back(0);
-    BESDEBUG("ugrid", "NDimensionalArray::getLastDimensionHyperSlab() - slabLocation" <<vectorToIndices(&slabLocation) << endl);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getLastDimensionHyperSlab() - slabLocation" <<vectorToIndices(&slabLocation) << endl);
 
     unsigned int storageIndex = getStorageIndex(_shape, &slabLocation);
 
     *slab = &((char *)_storage)[storageIndex*_sizeOfValue];
     *elementCount = *(_shape->rbegin());
-    BESDEBUG("ugrid", "NDimensionalArray::getLastDimensionHyperSlab() - END"<<endl<<endl);
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getLastDimensionHyperSlab() - END"<<endl<<endl);
 
 }
 
@@ -670,7 +672,7 @@ libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray){
     }
 
     // Copy the source objects attributes.
-    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
+    BESDEBUG(NDimensionalArray_debug_key, "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
     resultDapArray->set_attr_table(templateArray->get_attr_table());
 
 

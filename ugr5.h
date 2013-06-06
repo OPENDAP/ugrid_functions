@@ -1,6 +1,4 @@
 
-// -*- mode: c++; c-basic-offset:4 -*-
-
 // This file is part of libdap, A C++ implementation of the OPeNDAP Data
 // Access Protocol.
 
@@ -26,8 +24,12 @@
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 
-#ifndef UGR4_H_
-#define UGR4_H_
+// NOTE: This file is built only when the gridfields library is linked with
+// the netcdf_handler (i.e., the handler's build is configured using the
+// --with-gridfields=... option to the 'configure' script).
+
+#ifndef UGR5_H_
+#define UGR5_H_
 
 #include "BaseType.h"
 #include "DDS.h"
@@ -35,27 +37,27 @@
 
 namespace ugrid {
 
-void ugr4(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp) ;
+void ugr5(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp) ;
 
 /**
  * The UGR4 class encapsulates the function 'ugr4::ugr4'
  * along with additional meta-data regarding its use and applicability.
  */
-class UGR4: public libdap::ServerFunction {
+class UGR5: public libdap::ServerFunction {
 
 private:
 
 public:
-    UGR4() {
-		setName("ugr4");
-		setDescriptionString("This function can subset the range variables of a two dimensional triangular mesh unstructured grid.");
-		setUsageString("ugr4(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
-		setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
-		setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
-		setFunction(ugrid::ugr4);
-		setVersion("1.0");
+    UGR5() {
+        setName("ugr5");
+        setDescriptionString("This function can subset the range variables of a two dimensional triangular mesh unstructured grid.");
+        setUsageString("ugr5(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
+        setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
+        setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
+        setFunction(ugrid::ugr5);
+        setVersion("1.0");
     }
-    virtual ~UGR4()
+    virtual ~UGR5()
     {
     }
 
@@ -64,5 +66,4 @@ public:
 
 }// namespace ugrid_restrict
 
-
-#endif /* UGR4_H_ */
+#endif /* UGR5_H_ */

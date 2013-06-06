@@ -29,6 +29,7 @@ SRCS = UgridFunctions.cc \
 	TwoDMeshTopology.cc  \
 	ugrid_restrict.cc  \
 	ugr4.cc  \
+	ugr5.cc  \
 	NDimensionalArray.cc \
 	gf3.cc
 
@@ -43,6 +44,7 @@ HDRS = UgridFunctions.h\
 	TwoDMeshTopology.h \
 	ugrid_restrict.h \
 	ugr4.h \
+	ugr5.h \
 	NDimensionalArray.h \
 	gf3.h
 

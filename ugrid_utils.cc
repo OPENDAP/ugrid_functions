@@ -262,6 +262,18 @@ Type getGridfieldsReturnType(libdap::Array *a){
 }
 
 
+GF::Array *newGFIndexArray(string name, long size, vector<int*> *sharedIntArrays){
+    GF::Array *gfa = new GF::Array(name, GF::INT);
+    int *values = new int[size];
+    for(long i=0; i<size ;i++){
+        values[i] = i;
+    }
+    gfa->shareIntData(values, size);
+    sharedIntArrays->push_back(values);
+    return gfa;
+}
+
+
 /**
  * Extract data from a DAP array and return those values in a gridfields
  * array. This function sets the \e send_p property of the DAP Array and
