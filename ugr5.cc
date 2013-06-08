@@ -539,26 +539,33 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
         tdmt->buildBasicGfTopology();
         tdmt->addIndexVariable(node);
-        //tdmt->addIndexVariable(face);
+        tdmt->addIndexVariable(face);
         tdmt->applyRestrictOperator(args.dimension, args.filterExpression);
 
-        long nodeResultSize = tdmt->getResultGridSize(node);
+        vector<vector<unsigned int> *> location_subset_indices(3);
 
+        long nodeResultSize = tdmt->getResultGridSize(node);
         vector<unsigned int> node_subset_index(nodeResultSize);
         tdmt->getResultIndex(node, &node_subset_index[0]);
 
+        location_subset_indices[node] = &node_subset_index;
 
         BESDEBUG("ugrid", "ugr5() - node_subset_index"<< vectorToString(&node_subset_index) << endl);
 
 
-        //long faceResultSize = tdmt->getResultGridSize(face);
-        //int node_index[faceResultSize];
-        //tdmt->getResultIndex(face, node_index);
+        long faceResultSize = tdmt->getResultGridSize(face);
+        vector<unsigned int> face_subset_index(faceResultSize);
+        tdmt->getResultIndex(face, &face_subset_index[0]);
+
+        location_subset_indices[face] = &face_subset_index;
+        BESDEBUG("ugrid", "ugr5() - face_subset_index"<< vectorToString(&face_subset_index) << endl);
+
 
         // This gets all the stuff that's attached to the grid - which at this point does not include the range variables but does include the
         // index variable. good enough for now but need to drop the index....
         tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
 
+        BESDEBUG("ugrid", "ugr5() - face_subset_index"<< vectorToString(&node_subset_index) << endl);
 
         BESDEBUG("ugrid", "ugr5() - Restriction of mesh_topology '"<< tdmt->getMeshVariable()->name() << "' structure completed." << endl);
 
@@ -568,16 +575,19 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	    for(rvit=requestedRangeVarsForMesh->begin(); rvit!=requestedRangeVarsForMesh->end(); rvit++){
 	        MeshDataVariable *mdv = *rvit;
 
-	        BESDEBUG("ugrid", "ugr5() - Processing MeshDataVariable  '"<< mdv->getName() << "' ." << endl);
+	        BESDEBUG("ugrid", "ugr5() - Processing MeshDataVariable  '"<< mdv->getName() << "' associated with rank/location: "<< mdv->getGridLocation() << endl);
+
 
 	        tdmt->setLocationCoordinateDimension(mdv);
+
+
 
 	        /**
 	         * Here is where we will do the range variable sub-setting including decomposing the requested variable
 	         * into 1-dimensional hyper-slabs that can be fed into the gridfields library
 	         */
             libdap::Array *restrictedRangeVarArray =
-                    restrictRangeVariableByOneDHyperSlab(mdv, &node_subset_index);
+                    restrictRangeVariableByOneDHyperSlab(mdv, location_subset_indices[mdv->getGridLocation()]);
 
             BESDEBUG("ugrid", "ugr5() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
 

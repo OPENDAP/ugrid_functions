@@ -234,7 +234,8 @@ public:
     void buildRestrictedGfTopology(locationType loc, string filterExpression);
     void buildGridFieldsTopology();
 
-    int getResultGridSize(locationType dim);
+    int getInputGridSize(locationType location);
+    int getResultGridSize(locationType location);
     void convertResultGridFieldToDapObjects(vector<libdap::BaseType *> *results);
     void convertResultGridFieldStructureToDapObjects(vector<libdap::BaseType *> *results);
     void convertResultRangeVarsToDapObjects(vector<BaseType *> *results);

@@ -461,6 +461,11 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
 {
     BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - BEGIN Gathering face coordinate arrays..." << endl);
 
+    if(faceCoordinateArrays==0)
+        faceCoordinateArrays = new vector<libdap::Array *>();
+
+    faceCoordinateArrays->clear();
+
     string face_coordinates;
     AttrTable at = meshTopology->get_attr_table();
 
@@ -471,10 +476,6 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
         BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - Located '"<< UGRID_FACE_COORDINATES << "' attribute." << endl);
 
 
-        if(faceCoordinateArrays==0)
-            faceCoordinateArrays = new vector<libdap::Array *>();
-
-        faceCoordinateArrays->clear();
 
         // Split the node_coordinates string up on spaces
         vector<string> faceCoordinateNames = split(face_coordinates, ' ');
@@ -729,6 +730,16 @@ void TwoDMeshTopology::buildBasicGfTopology(){
         GF::Array *gfa = extractGridFieldArray(nca,sharedIntArrays,sharedFloatArrays);
         gfArrays.push_back(gfa);
         d_inputGridField->AddAttribute(node, gfa);
+    }
+
+    // We read and add the coordinate data (using GridField->addAttribute() to the GridField at
+    // grid dimension/rank/dimension 0 (a.k.a. node)
+    for (ncit = faceCoordinateArrays->begin(); ncit != faceCoordinateArrays->end(); ++ncit) {
+        libdap::Array *fca = *ncit;
+        BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Adding face coordinate "<< fca->name() << " to GF::GridField at rank " << face << endl);
+        GF::Array *gfa = extractGridFieldArray(fca,sharedIntArrays,sharedFloatArrays);
+        gfArrays.push_back(gfa);
+        d_inputGridField->AddAttribute(face, gfa);
     }
 }
 
@@ -1062,7 +1073,7 @@ void TwoDMeshTopology::convertResultGridFieldStructureToDapObjects(vector<BaseTy
         results->push_back(resultCoordinateArray);
     }
 
-#if 0
+#if 1
     // Add the face coordinate arrays to the results.
     BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - Converting the face coordinate arrays to DAP arrays." << endl);
     for (it = faceCoordinateArrays->begin(); it != faceCoordinateArrays->end(); ++it) {
@@ -1435,39 +1446,72 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
 }
 
 
-/**
- * @brief Adds an index variable at the gridfields rank as indicated by the passed locationType.
- */
-void TwoDMeshTopology::addIndexVariable(locationType location)
-{
-    int size = 0;
-    string name = "index";
+static string getIndexVariableName(locationType location){
     switch(location){
 
         case node:
         {
-            name = "node_index";
-            size = nodeCount;
+            return "node_index";
         }
         break;
 
         case face:
         {
-            name = "face_index";
-            size = faceCount;
+            return  "face_index";
         }
         break;
 
         case edge:
         default:
-        {
-            string msg = "TwoDMeshTopology::setLocationCoordinateDimension() - Unknown/Unsupported location value '"  +
-                    libdap::long_to_string(location) + "'";
-            BESDEBUG("ugrid",  msg << endl);
-            throw Error( msg );
-        }
         break;
     }
+    string msg = "TwoDMeshTopology::setLocationCoordinateDimension() - Unknown/Unsupported location value '"  +
+            libdap::long_to_string(location) + "'";
+    BESDEBUG("ugrid",  msg << endl);
+    throw Error( msg );
+
+}
+
+
+int TwoDMeshTopology::getInputGridSize(locationType location){
+
+    switch(location){
+        case node:
+        {
+            return nodeCount;
+        }
+        break;
+
+        case face:
+        {
+            return  faceCount;
+        }
+        break;
+
+        case edge:
+        default:
+        break;
+    }
+
+    string msg = "TwoDMeshTopology::setLocationCoordinateDimension() - Unknown/Unsupported location value '"  +
+            libdap::long_to_string(location) + "'";
+    BESDEBUG("ugrid",  msg << endl);
+    throw Error( msg );
+
+}
+
+
+/**
+ * @brief Adds an index variable at the gridfields rank as indicated by the passed locationType.
+ */
+void TwoDMeshTopology::addIndexVariable(locationType location)
+{
+
+    int size = getInputGridSize(location);
+    string name = getIndexVariableName(location);
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::addIndexVariable() - Adding index variable '" << name <<
+              "'  size: " << libdap::long_to_string(size) << endl);
 
     GF::Array *indexArray = newGFIndexArray(name,size,sharedIntArrays);
     d_inputGridField->AddAttribute(location, indexArray);
@@ -1475,40 +1519,15 @@ void TwoDMeshTopology::addIndexVariable(locationType location)
 }
 
 
+
+
 /**
  * @brief
  */
 void TwoDMeshTopology::getResultIndex(locationType location, void *target)
 {
-    Type type = dods_int32_c;
-    string name;
-
-    switch(location){
-
-        case node:
-        {
-            name = "node_index";
-        }
-        break;
-
-        case face:
-        {
-            name = "face_index";
-        }
-        break;
-
-        case edge:
-        default:
-        {
-            string msg = "TwoDMeshTopology::setLocationCoordinateDimension() - Unknown/Unsupported location value '"  +
-                    libdap::long_to_string(location) + "'";
-            BESDEBUG("ugrid",  msg << endl);
-            throw Error( msg );
-        }
-        break;
-    }
-
-    getResultGFAttributeValues(name,type,location,target);
+    string name = getIndexVariableName(location);
+    getResultGFAttributeValues(name,dods_int32_c,location,target);
 
 }
 

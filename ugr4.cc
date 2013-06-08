@@ -489,6 +489,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         tdmt->buildRestrictedGfTopology(args.dimension, args.filterExpression);
         tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
 
+
         BESDEBUG("ugrid", "ugr4() - Restriction of mesh_topology '"<< tdmt->getMeshVariable()->name() << "' structure completed." << endl);
 
         // now that we have the mesh topology variable we are going to look at each of the requested
@@ -506,7 +507,7 @@ void ugr4(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 	         * into 1-dimensional hyper-slabs that can be fed into the gridfields library
 	         */
             libdap:Array *restrictedRangeVarArray =
-                    restrictRangeVariableByOneDHyperSlab(mdv, tdmt->getResultGridSize(node), meshVariableName, &dds, args.dimension, args.filterExpression);
+                    restrictRangeVariableByOneDHyperSlab(mdv, tdmt->getResultGridSize(mdv->getGridLocation()), meshVariableName, &dds, args.dimension, args.filterExpression);
 
             BESDEBUG("ugrid", "ugr4() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
 
