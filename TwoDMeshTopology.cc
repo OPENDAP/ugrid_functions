@@ -896,6 +896,9 @@ GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 
 void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpression)
 {
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - BEGIN" << endl);
+
     // I think this function could be done with just the following single line:
     // resultGridField = GF::RefRestrictOp::Restrict(filterExpression,loc,d_inputGridField);
 
@@ -909,6 +912,8 @@ void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpr
 	BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - Applying GridField operator." << endl);
 	GF::GridField *resultGF = op.getResult();
 	resultGridField = resultGF;
+    BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - GridField operator applied and result obtained." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - END" << endl);
 }
 
 
@@ -1393,7 +1398,27 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
     // Try to get the Attribute from 'rank' with the same name as the source array
     BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::GridField Attribute '" <<
             attrName << "'" << endl);
-    GF::Array* gfa = resultGridField->GetAttribute(rank, attrName);
+
+    GF::Array *gfa = 0;
+    if(resultGridField->IsAttribute(rank,attrName)){
+        gfa = resultGridField->GetAttribute(rank, attrName);
+    }
+    else {
+        string msg = "Oddly, the requested attribute "+ attrName +" associated with rank "+ libdap::long_to_string(rank) +
+                " does not appear in the resultGridField object! \n" +
+                "resultGridField->MaxRank(): " + libdap::long_to_string(resultGridField->MaxRank());
+
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - ERROR! " << msg << endl);
+
+
+
+
+
+        throw InternalErr(__FILE__, __LINE__,
+                  "ERROR  - Unable to locate requested GridField attribute. "+ msg);
+
+    }
+
 
 
     switch (dapType) {
@@ -1511,7 +1536,7 @@ void TwoDMeshTopology::addIndexVariable(locationType location)
     string name = getIndexVariableName(location);
 
     BESDEBUG("ugrid", "TwoDMeshTopology::addIndexVariable() - Adding index variable '" << name <<
-              "'  size: " << libdap::long_to_string(size) << endl);
+              "'  size: " << libdap::long_to_string(size)  << " at rank " << libdap::long_to_string(location) << endl);
 
     GF::Array *indexArray = newGFIndexArray(name,size,sharedIntArrays);
     d_inputGridField->AddAttribute(location, indexArray);

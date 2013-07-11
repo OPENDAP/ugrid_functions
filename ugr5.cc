@@ -40,6 +40,8 @@
 #include <sstream>
 //#include <cxxabi.h>
 
+#include <curl/curl.h>
+
 #define DODS_DEBUG
 
 #include "BaseType.h"
@@ -151,10 +153,11 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[]) {
 						+ ugrSyntax + "  was passed a/an "
 						+ bt->type_name());
 	args.dimension = (locationType) dynamic_cast<Int32&>(*argv[0]).value();
+    BESDEBUG( "ugrid", "args.dimension: " << libdap::long_to_string(args.dimension) << endl);
 
 
 	// ---------------------------------------------
-	// Process the last argument, the relational expression used to restrict the ugrid content.
+	// Process the last argument, the relational/filter expression used to restrict the ugrid content.
 	bt = argv[argc - 1];
 	if (bt->type() != dods_str_c)
 		throw Error(malformed_expr,
@@ -162,7 +165,15 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[]) {
 						+ ugrSyntax + "  was passed a/an "
 						+ bt->type_name());
 	args.filterExpression = dynamic_cast<Str&>(*bt).value();
+    BESDEBUG( "ugrid", "args.filterExpression: '" << args.filterExpression << "' (AS RECEIVED)" << endl);
 
+	int decodedLength;
+	CURL *curl = curl_easy_init( );
+	char *decodedFilterExpression = curl_easy_unescape(curl , args.filterExpression.c_str() ,  args.filterExpression.size() , &decodedLength );
+	curl_easy_cleanup(curl );
+	args.filterExpression = string(decodedFilterExpression,decodedLength);
+    BESDEBUG( "ugrid", "args.filterExpression: '" << args.filterExpression << "' (URL DECODED)" << endl);
+	curl_free(decodedFilterExpression);
 
 	// --------------------------------------------------
 	// Process the range variables selected by the user.
