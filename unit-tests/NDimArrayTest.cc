@@ -18,7 +18,7 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 
@@ -28,6 +28,7 @@
 
 #define DODS_DEBUG
 
+#include <BESDebug.h>
 
 #include "util.h"
 #include "debug.h"
@@ -242,18 +243,18 @@ public:
 
         vector<unsigned int> shape(test.dimensions(true));
 
-        DBG(cerr << " getStorageIndex_test() - shape.size()="<< libdap::long_to_string(shape.size()) << endl);
+        DBG(cerr << " getStorageIndex_test() - shape.size()="<< shape.size() << endl);
 
         long constrainedSize = libdap::NDimensionalArray::computeConstrainedShape(&test,&shape);
-        DBG(cerr << " getStorageIndex_test() - constrainedSize="<< libdap::long_to_string(constrainedSize) << endl);
+        DBG(cerr << " getStorageIndex_test() - constrainedSize=" << constrainedSize << endl);
         CPPUNIT_ASSERT(constrainedSize == test.length());
 
         for(int i=0; i< shape.size() ; i++){
-            DBG(cerr << " getStorageIndex_test() - shape["<< libdap::long_to_string(i) << "]="<< libdap::long_to_string(shape[i])  << endl);
+            DBG(cerr << " getStorageIndex_test() - shape["<< i << "]="<< shape[i]  << endl);
         }
 
         vector<unsigned int> location(test.dimensions(true));
-        DBG(cerr << " getStorageIndex_test() - location.size()="<< libdap::long_to_string(location.size()) << endl);
+        DBG(cerr << " getStorageIndex_test() - location.size()="<< location.size() << endl);
         location[0] = 2;
         location[1] = 2;
         location[2] = 2;
@@ -324,6 +325,7 @@ int main(int argc, char*argv[]) {
         switch (option_char) {
         case 'd':
             debug = 1;  // debug is a static global
+            BESDebug::SetUp( "cerr,ugrid" ) ;
             break;
         default:
             break;

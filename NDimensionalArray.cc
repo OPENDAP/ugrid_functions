@@ -18,7 +18,7 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 
@@ -130,7 +130,7 @@ long NDimensionalArray::computeConstrainedShape(libdap::Array *a, vector<unsigne
 
     stringstream msg;
 
-    for(dIt =a->dim_begin() ; dIt!=a->dim_end() ;dIt++){
+    for(dIt = a->dim_begin() ; dIt!=a->dim_end() ;dIt++){
         BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
         start  = a->dimension_start(dIt, true);
         stride = a->dimension_stride(dIt, true);
