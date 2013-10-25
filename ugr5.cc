@@ -290,98 +290,132 @@ static string vectorToString(vector<unsigned int> *index){
 /**
  *
  */
-static void rDAWorker(
-        MeshDataVariable *mdv,
-        libdap::Array::Dim_iter thisDim,
-        vector<unsigned int> *slab_subset_index,
-        NDimensionalArray *results) {
+static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, vector<unsigned int> *slab_subset_index,
+		NDimensionalArray *results)
+{
+	libdap::Array *dapArray = mdv->getDapArray();
 
-    libdap::Array *dapArray = mdv->getDapArray();
-
-    BESDEBUG("ugrid", "rDAWorker() - slab_subset_index"<< vectorToString(slab_subset_index) <<
-            " size: " <<  libdap::long_to_string(slab_subset_index->size()) << endl);
-
-
-
-    if(thisDim==dapArray->dim_end()){
-
-
-
-        BESDEBUG("ugrid", "rdaWorker() - Arrived At Last Dimension"<<endl);
-
-        dapArray->set_read_p(false);
-
-        BESDEBUG("ugrid", "rdaWorker() - dap array: "<< arrayState(dapArray, "    "));
-
-
-        vector<unsigned int> lastDimHyperSlabLocation;
-        NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(dapArray,&lastDimHyperSlabLocation);
-
-        BESDEBUG("ugrid", "rdaWorker() - lastDimHyperSlabLocation: "<< NDimensionalArray::vectorToIndices(&lastDimHyperSlabLocation) << endl);
-
-        unsigned int elementCount;
-
-        void *slab;
-        results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation,&slab,&elementCount);
-
-        dapArray->read();
-
-        copyUsingSubsetIndex(dapArray, slab_subset_index, slab);
-
-
-
+	BESDEBUG("ugrid",
+			"rDAWorker() - slab_subset_index" << vectorToString(slab_subset_index) << " size: "
+					<< libdap::long_to_string(slab_subset_index->size()) << endl);
 #if 0
-        stringstream s;
-        for(unsigned int i=0; i<elementCount ; i++){
-            float f = ((float *) slab)[i];
-            s << "slab[" << i << "]: " << f << endl;
-        }
-        BESDEBUG("ugrid", "rdaWorker() - Retrieved slab: "<< endl << s.str());
+	if (thisDim == dapArray->dim_end()) {
+#if 0
+		BESDEBUG("ugrid", "rdaWorker() - Arrived At Last Dimension"<<endl);
 
-        // BESDEBUG("ugrid", "rdaWorker() - results: " << results->toString());
+		dapArray->set_read_p(false);
+
+		BESDEBUG("ugrid", "rdaWorker() - dap array: "<< arrayState(dapArray, "    "));
+
+		vector<unsigned int> lastDimHyperSlabLocation;
+		NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(dapArray,&lastDimHyperSlabLocation);
+
+		BESDEBUG("ugrid", "rdaWorker() - lastDimHyperSlabLocation: "<< NDimensionalArray::vectorToIndices(&lastDimHyperSlabLocation) << endl);
+
+		unsigned int elementCount;
+
+		void *slab;
+		results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation,&slab,&elementCount);
+
+		dapArray->read();
+
+		copyUsingSubsetIndex(dapArray, slab_subset_index, slab);
 #endif
+#if 0
+		stringstream s;
+		for(unsigned int i=0; i<elementCount; i++) {
+			float f = ((float *) slab)[i];
+			s << "slab[" << i << "]: " << f << endl;
+		}
+		BESDEBUG("ugrid", "rdaWorker() - Retrieved slab: "<< endl << s.str());
 
+		// BESDEBUG("ugrid", "rdaWorker() - results: " << results->toString());
+#endif
+	}
+	else {
+#endif
+	libdap::Array::Dim_iter locationCoordinateDim = mdv->getLocationCoordinateDimension();
 
+	//libdap::Array::Dim_iter nextDim = thisDim;
+	// nextDim++; // now it's the next dimension.
+	BESDEBUG("ugrid", "rdaWorker() - thisDim: '" << dapArray->dimension_name(thisDim) << "'" << endl);
+	BESDEBUG("ugrid",
+			"rdaWorker() - locationCoordinateDim: '" << dapArray->dimension_name(locationCoordinateDim) << "'" << endl);
+	// locationCoordinateDim is, e.g., 'nodes'. jhrg 10/25/13
+	if (thisDim != locationCoordinateDim) {
+		unsigned int start = dapArray->dimension_start(thisDim, true);
+		unsigned int stride = dapArray->dimension_stride(thisDim, true);
+		unsigned int stop = dapArray->dimension_stop(thisDim, true);
 
-    }
-    else {
-        libdap::Array::Dim_iter locationCoordinateDim = mdv->getLocationCoordinateDimension();
+		BESDEBUG("ugrid", "rdaWorker() - array state: " << arrayState(dapArray, "    "));
 
-        libdap::Array::Dim_iter nextDim = thisDim;
-        nextDim++; // now it's the next dimension.
-        BESDEBUG("ugrid", "rdaWorker() - thisDim: '" << dapArray->dimension_name(thisDim) << "'" << endl);
-        BESDEBUG("ugrid", "rdaWorker() - locationCoordinateDim: '" << dapArray->dimension_name(locationCoordinateDim) << "'" << endl);
-        // locationCoordinateDim is, e.g., 'nodes'. jhrg 10/25/13
-        if(thisDim==locationCoordinateDim){
-            BESDEBUG("ugrid", "rdaWorker() - Found locationCoordinateDim" << endl);
+		for (unsigned int dimIndex = start; dimIndex <= stop; dimIndex += stride) {
+			dapArray->add_constraint(thisDim, dimIndex, 1, dimIndex);
+			//rDAWorker(mdv, nextDim, slab_subset_index, results);
+			rDAWorker(mdv, thisDim + 1, slab_subset_index, results);
+		}
 
-            if(nextDim!=dapArray->dim_end()){
-                string msg = "rDAWorker() - The location coordinate dimension is not the last dimension in the array. Hyperslab subsetting of this dimension is not supported.";
-                BESDEBUG("ugrid", msg << endl);
-                throw Error(malformed_expr, msg);
+		// Reset the constraint for this dimension.
+		dapArray->add_constraint(thisDim, start, stride, stop);
+	}
+	else {
+		BESDEBUG("ugrid", "rdaWorker() - Found locationCoordinateDim" << endl);
 
-            }
+		//if(nextDim!=dapArray->dim_end()){
+		if ((thisDim + 1) != dapArray->dim_end()) {
+			string msg =
+					"rDAWorker() - The location coordinate dimension is not the last dimension in the array. Hyperslab subsetting of this dimension is not supported.";
+			BESDEBUG("ugrid", msg << endl);
+			throw Error(malformed_expr, msg);
+		}
 
-            rDAWorker(mdv, nextDim, slab_subset_index, results);
-        }
-        else {
+		BESDEBUG("ugrid", "rdaWorker() - Arrived At Last Dimension" << endl);
 
+		dapArray->set_read_p(false);
 
-            unsigned int start  = dapArray->dimension_start(thisDim, true);
-            unsigned int stride = dapArray->dimension_stride(thisDim, true);
-            unsigned int stop   = dapArray->dimension_stop(thisDim, true);
+		BESDEBUG("ugrid", "rdaWorker() - dap array: " << arrayState(dapArray, "    "));
 
-            BESDEBUG("ugrid", "rdaWorker() - array state: " << arrayState(dapArray, "    "));
+		vector<unsigned int> lastDimHyperSlabLocation;
+		NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(dapArray, &lastDimHyperSlabLocation);
 
-            for(unsigned int dimIndex=start; dimIndex<=stop ; dimIndex+=stride){
-                dapArray->add_constraint(thisDim,dimIndex,1,dimIndex);
-                rDAWorker(mdv, nextDim, slab_subset_index, results);
-            }
+		BESDEBUG("ugrid",
+				"rdaWorker() - lastDimHyperSlabLocation: "
+						<< NDimensionalArray::vectorToIndices(&lastDimHyperSlabLocation) << endl);
 
-            // Reset the constraint for this dimension.
-            dapArray->add_constraint(thisDim,start,stride,stop);
-        }
-    }
+		unsigned int elementCount;
+
+		void *slab;
+		results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation, &slab, &elementCount);
+
+		dapArray->read();
+
+		copyUsingSubsetIndex(dapArray, slab_subset_index, slab);
+#if 0
+		rDAWorker(mdv, nextDim, slab_subset_index, results);
+#endif
+	}
+#if 0
+	else {
+
+		unsigned int start = dapArray->dimension_start(thisDim, true);
+		unsigned int stride = dapArray->dimension_stride(thisDim, true);
+		unsigned int stop = dapArray->dimension_stop(thisDim, true);
+
+		BESDEBUG("ugrid", "rdaWorker() - array state: " << arrayState(dapArray, "    "));
+
+		for (unsigned int dimIndex = start; dimIndex <= stop; dimIndex += stride) {
+			dapArray->add_constraint(thisDim, dimIndex, 1, dimIndex);
+			//rDAWorker(mdv, nextDim, slab_subset_index, results);
+			rDAWorker(mdv, thisDim + 1, slab_subset_index, results);
+		}
+
+		// Reset the constraint for this dimension.
+		dapArray->add_constraint(thisDim, start, stride, stop);
+	}
+#endif
+#if 0
+}
+#endif
 }
 
 
