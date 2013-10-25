@@ -219,7 +219,7 @@ static string arrayState(libdap::Array *dapArray, string indent){
 
     for(thisDim= dapArray->dim_begin(); thisDim!=dapArray->dim_end() ;thisDim++){
 
-    arrayState << indent << "  thisDim:  '" << dapArray->dimension_name(thisDim) << "' ";
+    arrayState << indent << "  dim:  '" << dapArray->dimension_name(thisDim) << "' ";
     arrayState << indent << "    start:  " << dapArray->dimension_start(thisDim)  << " ";
     arrayState << indent << "    stride: " << dapArray->dimension_stride(thisDim)  << " ";
     arrayState << indent << "    stop:   " << dapArray->dimension_stop(thisDim)  << " ";
