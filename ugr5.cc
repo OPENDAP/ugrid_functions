@@ -351,7 +351,7 @@ static void rDAWorker(
         nextDim++; // now it's the next dimension.
         BESDEBUG("ugrid", "rdaWorker() - thisDim: '" << dapArray->dimension_name(thisDim) << "'" << endl);
         BESDEBUG("ugrid", "rdaWorker() - locationCoordinateDim: '" << dapArray->dimension_name(locationCoordinateDim) << "'" << endl);
-
+        // locationCoordinateDim is, e.g., 'nodes'. jhrg 10/25/13
         if(thisDim==locationCoordinateDim){
             BESDEBUG("ugrid", "rdaWorker() - Found locationCoordinateDim" << endl);
 
@@ -381,10 +381,7 @@ static void rDAWorker(
             // Reset the constraint for this dimension.
             dapArray->add_constraint(thisDim,start,stride,stop);
         }
-
     }
-
-
 }
 
 
@@ -424,12 +421,12 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
         msg << "[" << arrayShape[i] << "]";
     }
     BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - arrayShape" << msg.str() << endl);
-    msg.str(std::string());
+    msg.str(std::string()); // jhrg 10/25/13 msg.str("")
 
     // Now, we know that the restricted slab size has a new (restricted) size of the last dimension,
     // so we make the shape reflect that
 
-    arrayShape[sourceDapArray->dimensions(true) - 1] = restrictedSlabSize;
+    arrayShape[sourceDapArray->dimensions(true) - 1] = restrictedSlabSize; // jhrg 10/25/13 arrayShape.last() = ...
     libdap::Type dapType = sourceDapArray->var()->type();
 
 
@@ -448,7 +445,6 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
     // And we pass that along with other stuff into the recursive rDAWorker that's going to go get all the stuff
     rDAWorker(mdv, sourceDapArray->dim_begin(), slab_subset_index, result);
 
-
     // And now that the recursion we grab have the NDimensionalArray cough up the rteuslt as a libdap::Array
     libdap::Array  *resultDapArray = result->getArray(sourceDapArray);
 
@@ -457,12 +453,7 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
 
     // Return the result as libdap:Array
     return resultDapArray;
-
 }
-
-
-
-
 
 /**
  Subset an irregular mesh (aka unstructured grid).
@@ -553,6 +544,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         tdmt->addIndexVariable(face);
         tdmt->applyRestrictOperator(args.dimension, args.filterExpression);
 
+        // 3: because there are nodes, edges, and faces. jhrg 10/25/13
         vector<vector<unsigned int> *> location_subset_indices(3);
 
         long nodeResultSize = tdmt->getResultGridSize(node);

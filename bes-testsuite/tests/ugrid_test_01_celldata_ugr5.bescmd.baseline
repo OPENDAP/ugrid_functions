@@ -1,0 +1,9 @@
+Dataset: function_result_ugrid_test_01.nc
+ugr_result.X, 0, 1, 1.5, 1, 0, 0
+ugr_result.Y, 1.5, 1, 0, -1, -1.5, 0
+ugr_result.fnca[0], 1, 2, 3, 4
+ugr_result.fnca[1], 2, 3, 4, 5
+ugr_result.fnca[2], 6, 6, 6, 6
+ugr_result.fvcom_mesh, 0
+ugr_result.celldata, 0.2, 0.3, 0.4, 0.5
+
