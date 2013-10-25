@@ -298,42 +298,7 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 	BESDEBUG("ugrid",
 			"rDAWorker() - slab_subset_index" << vectorToString(slab_subset_index) << " size: "
 					<< libdap::long_to_string(slab_subset_index->size()) << endl);
-#if 0
-	if (thisDim == dapArray->dim_end()) {
-#if 0
-		BESDEBUG("ugrid", "rdaWorker() - Arrived At Last Dimension"<<endl);
 
-		dapArray->set_read_p(false);
-
-		BESDEBUG("ugrid", "rdaWorker() - dap array: "<< arrayState(dapArray, "    "));
-
-		vector<unsigned int> lastDimHyperSlabLocation;
-		NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(dapArray,&lastDimHyperSlabLocation);
-
-		BESDEBUG("ugrid", "rdaWorker() - lastDimHyperSlabLocation: "<< NDimensionalArray::vectorToIndices(&lastDimHyperSlabLocation) << endl);
-
-		unsigned int elementCount;
-
-		void *slab;
-		results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation,&slab,&elementCount);
-
-		dapArray->read();
-
-		copyUsingSubsetIndex(dapArray, slab_subset_index, slab);
-#endif
-#if 0
-		stringstream s;
-		for(unsigned int i=0; i<elementCount; i++) {
-			float f = ((float *) slab)[i];
-			s << "slab[" << i << "]: " << f << endl;
-		}
-		BESDEBUG("ugrid", "rdaWorker() - Retrieved slab: "<< endl << s.str());
-
-		// BESDEBUG("ugrid", "rdaWorker() - results: " << results->toString());
-#endif
-	}
-	else {
-#endif
 	libdap::Array::Dim_iter locationCoordinateDim = mdv->getLocationCoordinateDimension();
 
 	//libdap::Array::Dim_iter nextDim = thisDim;
@@ -390,32 +355,7 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 		dapArray->read();
 
 		copyUsingSubsetIndex(dapArray, slab_subset_index, slab);
-#if 0
-		rDAWorker(mdv, nextDim, slab_subset_index, results);
-#endif
 	}
-#if 0
-	else {
-
-		unsigned int start = dapArray->dimension_start(thisDim, true);
-		unsigned int stride = dapArray->dimension_stride(thisDim, true);
-		unsigned int stop = dapArray->dimension_stop(thisDim, true);
-
-		BESDEBUG("ugrid", "rdaWorker() - array state: " << arrayState(dapArray, "    "));
-
-		for (unsigned int dimIndex = start; dimIndex <= stop; dimIndex += stride) {
-			dapArray->add_constraint(thisDim, dimIndex, 1, dimIndex);
-			//rDAWorker(mdv, nextDim, slab_subset_index, results);
-			rDAWorker(mdv, thisDim + 1, slab_subset_index, results);
-		}
-
-		// Reset the constraint for this dimension.
-		dapArray->add_constraint(thisDim, start, stride, stop);
-	}
-#endif
-#if 0
-}
-#endif
 }
 
 
