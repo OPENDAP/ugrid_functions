@@ -350,8 +350,6 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 	}
 }
 
-
-
 /**
  * Now, for each variable array on the mesh we have to hyper-slab the array such that all the dimensions, with the
  * exception of the rank/location dimension (the one that is either the number of nodes, edges, or faces depending
