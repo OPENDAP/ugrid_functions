@@ -295,17 +295,13 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 {
 	libdap::Array *dapArray = mdv->getDapArray();
 
-	BESDEBUG("ugrid",
-			"rDAWorker() - slab_subset_index" << vectorToString(slab_subset_index) << " size: "
-					<< libdap::long_to_string(slab_subset_index->size()) << endl);
+	BESDEBUG("ugrid", "rDAWorker() - slab_subset_index" << vectorToString(slab_subset_index) << " size: "
+		<< libdap::long_to_string(slab_subset_index->size()) << endl);
 
 	libdap::Array::Dim_iter locationCoordinateDim = mdv->getLocationCoordinateDimension();
 
-	//libdap::Array::Dim_iter nextDim = thisDim;
-	// nextDim++; // now it's the next dimension.
 	BESDEBUG("ugrid", "rdaWorker() - thisDim: '" << dapArray->dimension_name(thisDim) << "'" << endl);
-	BESDEBUG("ugrid",
-			"rdaWorker() - locationCoordinateDim: '" << dapArray->dimension_name(locationCoordinateDim) << "'" << endl);
+	BESDEBUG("ugrid", "rdaWorker() - locationCoordinateDim: '" << dapArray->dimension_name(locationCoordinateDim) << "'" << endl);
 	// locationCoordinateDim is, e.g., 'nodes'. jhrg 10/25/13
 	if (thisDim != locationCoordinateDim) {
 		unsigned int start = dapArray->dimension_start(thisDim, true);
@@ -316,7 +312,6 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 
 		for (unsigned int dimIndex = start; dimIndex <= stop; dimIndex += stride) {
 			dapArray->add_constraint(thisDim, dimIndex, 1, dimIndex);
-			//rDAWorker(mdv, nextDim, slab_subset_index, results);
 			rDAWorker(mdv, thisDim + 1, slab_subset_index, results);
 		}
 
@@ -326,10 +321,8 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 	else {
 		BESDEBUG("ugrid", "rdaWorker() - Found locationCoordinateDim" << endl);
 
-		//if(nextDim!=dapArray->dim_end()){
 		if ((thisDim + 1) != dapArray->dim_end()) {
-			string msg =
-					"rDAWorker() - The location coordinate dimension is not the last dimension in the array. Hyperslab subsetting of this dimension is not supported.";
+			string msg = "rDAWorker() - The location coordinate dimension is not the last dimension in the array. Hyperslab subsetting of this dimension is not supported.";
 			BESDEBUG("ugrid", msg << endl);
 			throw Error(malformed_expr, msg);
 		}
@@ -343,9 +336,8 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 		vector<unsigned int> lastDimHyperSlabLocation;
 		NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(dapArray, &lastDimHyperSlabLocation);
 
-		BESDEBUG("ugrid",
-				"rdaWorker() - lastDimHyperSlabLocation: "
-						<< NDimensionalArray::vectorToIndices(&lastDimHyperSlabLocation) << endl);
+		BESDEBUG("ugrid", "rdaWorker() - lastDimHyperSlabLocation: "
+			<< NDimensionalArray::vectorToIndices(&lastDimHyperSlabLocation) << endl);
 
 		unsigned int elementCount;
 
