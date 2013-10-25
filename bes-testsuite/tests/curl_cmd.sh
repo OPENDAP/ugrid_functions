@@ -2,10 +2,12 @@
 
 
 #export dap_server="http://ec2-54-242-224-73.compute-1.amazonaws.com:8080"
-export dap_server="http://localhost:8080"
-
 #export data_set="/opendap/hyrax/ebs/Ike/2D_varied_manning_windstress/test_dir-norename.ncml"
+
+export dap_server="http://localhost:8080"
 export data_set="/opendap/hyrax/ugrids/Ike/2D_varied_manning_windstress/test_dir-norename.ncml"
+
+
 export requestSuffix=".dds"
 
 # Unescaped:     ugr5(0,ua,"29.3<lat&lat<29.8&-95.0>lon&lon>-94.4")
