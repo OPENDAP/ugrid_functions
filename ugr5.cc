@@ -298,6 +298,8 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 	BESDEBUG("ugrid", "rDAWorker() - slab_subset_index" << vectorToString(slab_subset_index) << " size: "
 		<< libdap::long_to_string(slab_subset_index->size()) << endl);
 
+	// The locationCoordinateDimension is the dimension of the array that is associated with the ugrid "rank" - e.g. it is the
+	// dimension that ties the variable to the 'nodes' (rank 0) or 'edges' (rank 1) or 'faces' (rank 2) of the ugrid.
 	libdap::Array::Dim_iter locationCoordinateDim = mdv->getLocationCoordinateDimension();
 
 	BESDEBUG("ugrid", "rdaWorker() - thisDim: '" << dapArray->dimension_name(thisDim) << "'" << endl);
@@ -342,7 +344,8 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 		unsigned int elementCount;
 
 		void *slab;
-		results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation, &slab, &elementCount);
+        //results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation, &slab, &elementCount);
+        results->getNextLastDimensionHyperSlab(&slab);
 
 		dapArray->read();
 
@@ -376,35 +379,36 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
     // is read at a time. We need to cache the original constrained dimensions so that we can build the correct collection of
     // location coordinate dimension slabs.
 
-    // What's the shape of the requested range variable array?
-    vector<unsigned int> arrayShape(sourceDapArray->dimensions(true));
-    NDimensionalArray::computeConstrainedShape(sourceDapArray, &arrayShape );
+    // Now we need to compute the shape of the final subset result array from the source range variable array and the slab subset.
+    // What's the shape of the source array with any constraint applied?
+    vector<unsigned int> resultArrayShape(sourceDapArray->dimensions(true));
+    NDimensionalArray::computeConstrainedShape(sourceDapArray, &resultArrayShape );
 
     stringstream msg;
-    for(unsigned int i=0; i< arrayShape.size(); i++){
-        msg << "[" << arrayShape[i] << "]";
+    for(unsigned int i=0; i< resultArrayShape.size(); i++){
+        msg << "[" << resultArrayShape[i] << "]";
     }
-    BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - arrayShape" << msg.str() << endl);
-    msg.str(std::string()); // jhrg 10/25/13 msg.str("")
+    BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - Constrained source array shape" << msg.str() << endl);
+    msg.str("");
 
-    // Now, we know that the restricted slab size has a new (restricted) size of the last dimension,
-    // so we make the shape reflect that
+    // Now, we know that the result array has a last dimension slab size determined by the slab_subset_index (whichwas made by the ugrid sub-setting),
+    // so we make the result array shape reflect that
 
-    arrayShape[sourceDapArray->dimensions(true) - 1] = restrictedSlabSize; // jhrg 10/25/13 arrayShape.last() = ...
+    resultArrayShape[sourceDapArray->dimensions(true) - 1] = restrictedSlabSize; // jhrg 10/25/13 resultArrayShape.last() = ...
     libdap::Type dapType = sourceDapArray->var()->type();
 
 
-    BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - Restricted HyperSlab has  "<< restrictedSlabSize << " elements." << endl);
+    BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - UGrid restricted HyperSlab has  "<< restrictedSlabSize << " elements." << endl);
     BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - Array is of type '"<< libdap::type_name(dapType) << "'" << endl);
 
-    for(unsigned int i=0; i< arrayShape.size(); i++){
-        msg << "[" << arrayShape[i] << "]";
+    for(unsigned int i=0; i< resultArrayShape.size(); i++){
+        msg << "[" << resultArrayShape[i] << "]";
     }
-    BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - arrayShape" << msg.str() << endl);
+    BESDEBUG("ugrid", "restrictDapArrayByOneDHyperSlab() - resultArrayShape" << msg.str() << endl);
     msg.str(std::string());
 
     // Now we make a new NDimensionalArray instance that we will use to hold the results.
-    NDimensionalArray *result = new NDimensionalArray(&arrayShape, dapType);
+    NDimensionalArray *result = new NDimensionalArray(&resultArrayShape, dapType);
 
     // And we pass that along with other stuff into the recursive rDAWorker that's going to go get all the stuff
     rDAWorker(mdv, sourceDapArray->dim_begin(), slab_subset_index, result);

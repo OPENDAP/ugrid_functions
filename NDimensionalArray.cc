@@ -52,7 +52,7 @@ string NDimensionalArray::vectorToIndices(vector<unsigned int> *v){
 
 
 NDimensionalArray::NDimensionalArray()
-    :_dapType(dods_null_c),_shape(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
+    :_dapType(dods_null_c),_shape(0),_currentLastDimensionSlabIndex(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
 
     string msg = "NDimArray::NDimArray() - INTERNAL_ERROR: This is the private constructor and should never be used";
     BESDEBUG(NDimensionalArray_debug_key, msg << endl);
@@ -61,7 +61,7 @@ NDimensionalArray::NDimensionalArray()
 
 
 NDimensionalArray::NDimensionalArray(libdap::Array *a)
-    :_dapType(dods_null_c),_shape(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
+    :_dapType(dods_null_c),_shape(0),_currentLastDimensionSlabIndex(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(libdap::Array *) - BEGIN"<< endl);
 
     _shape = new vector<unsigned int>(a->dimensions(true), (unsigned int)1);
@@ -76,7 +76,7 @@ NDimensionalArray::NDimensionalArray(libdap::Array *a)
 
 
 NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *shape, libdap::Type dapType)
-    :_dapType(dods_null_c),_shape(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
+    :_dapType(dods_null_c),_shape(0),_currentLastDimensionSlabIndex(0),_totalValueCount(0),_sizeOfValue(0),_storage(0) {
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *, libdap::Type) - BEGIN"<< endl);
 
     _shape = new vector<unsigned int>(*shape);
@@ -225,45 +225,6 @@ long NDimensionalArray::computeArraySizeFromShapeVector(vector<unsigned int> *sh
     return totalSize;
 }
 
-/**
- * Computes the element index in the underlying one dimensional array for the passed location based on an
- * n-dimensional array described by the shape vector.
- */
-long NDimensionalArray::getStorageIndex(vector<unsigned int> *shape, vector<unsigned int> *location){
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - BEGIN." << endl);
-    long storageIndex = 0;
-
-
-    if(location->size() != shape->size()){
-        string msg = "getStorageIndex() - The supplied location vector does not match array shape.";
-        BESDEBUG(NDimensionalArray_debug_key, msg << endl);
-        throw Error(msg);
-    }
-
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - Shape and location have the same number of elements." << endl);
-
-    long dimIndex     = 0;
-    long chunkSize = 1;
-
-    for(dimIndex = shape->size()-1 ; dimIndex >=0 ; dimIndex--){
-        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - dimIndex=" << libdap::long_to_string(dimIndex)  << endl);
-
-       if((*location)[dimIndex] >= (*shape)[dimIndex]){
-            string msg = "NDimensionalArray::getStorageIndex() - The location vector references a value that does not match the array shape. ";
-            msg += "location[" + libdap::long_to_string(dimIndex) + "]=";
-            msg += libdap::long_to_string((*location)[dimIndex]) + " ";
-            msg += "shape[" + libdap::long_to_string(dimIndex) + "]=";
-            msg += libdap::long_to_string((*shape)[dimIndex]) + " ";
-            BESDEBUG(NDimensionalArray_debug_key, msg << endl);
-            throw Error(msg);
-        }
-        storageIndex += chunkSize * ((*location)[dimIndex]);
-        chunkSize *= ((*shape)[dimIndex]);
-    }
-
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - END." << endl);
-    return storageIndex;
-}
 
 /**
  * Allocates internal storage for the NDimensionalArray
@@ -491,6 +452,54 @@ void NDimensionalArray::getLastDimensionHyperSlab(std::vector<unsigned int> *loc
     *elementCount = *(_shape->rbegin());
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getLastDimensionHyperSlab() - END"<<endl<<endl);
 
+}
+
+void NDimensionalArray::getNextLastDimensionHyperSlab(void **slab){
+
+    unsigned int storageIndex = _shape->back() * _currentLastDimensionSlabIndex++;
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getNextLastDimensionHyperSlab() - Storage Index:"<< libdap::long_to_string(storageIndex) << endl);
+    *slab = &((char *)_storage)[storageIndex*_sizeOfValue];
+
+}
+
+/**
+ * Computes the element index in the underlying one dimensional array for the passed location based on an
+ * n-dimensional array described by the shape vector.
+ */
+long NDimensionalArray::getStorageIndex(vector<unsigned int> *shape, vector<unsigned int> *location){
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - BEGIN." << endl);
+    long storageIndex = 0;
+
+
+    if(location->size() != shape->size()){
+        string msg = "getStorageIndex() - The supplied location vector does not match array shape.";
+        BESDEBUG(NDimensionalArray_debug_key, msg << endl);
+        throw Error(msg);
+    }
+
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - Shape and location have the same number of elements." << endl);
+
+    long dimIndex     = 0;
+    long chunkSize = 1;
+
+    for(dimIndex = shape->size()-1 ; dimIndex >=0 ; dimIndex--){
+        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - dimIndex=" << libdap::long_to_string(dimIndex)  << endl);
+
+       if((*location)[dimIndex] >= (*shape)[dimIndex]){
+            string msg = "NDimensionalArray::getStorageIndex() - The location vector references a value that does not match the array shape. ";
+            msg += "location[" + libdap::long_to_string(dimIndex) + "]=";
+            msg += libdap::long_to_string((*location)[dimIndex]) + " ";
+            msg += "shape[" + libdap::long_to_string(dimIndex) + "]=";
+            msg += libdap::long_to_string((*shape)[dimIndex]) + " ";
+            BESDEBUG(NDimensionalArray_debug_key, msg << endl);
+            throw Error(msg);
+        }
+        storageIndex += chunkSize * ((*location)[dimIndex]);
+        chunkSize *= ((*shape)[dimIndex]);
+    }
+
+    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - END." << endl);
+    return storageIndex;
 }
 
 

@@ -48,6 +48,8 @@ private:
     libdap::Type _dapType;
 
     std::vector<unsigned int> *_shape;
+    unsigned int  _currentLastDimensionSlabIndex;
+
     long _totalValueCount; // Number of elements
     unsigned int _sizeOfValue;
     void *_storage;
@@ -94,6 +96,10 @@ public:
     Type getTypeTemplate(){ return _dapType; }
 
     void getLastDimensionHyperSlab(std::vector<unsigned int> *location,void **slab, unsigned int *elementCount);
+    void getNextLastDimensionHyperSlab(void **slab);
+    void resetSlabIndex(){ _currentLastDimensionSlabIndex = 0;}
+    unsigned int getCurrentLastDimensionHyperSlab(){ return _currentLastDimensionSlabIndex;}
+    void setCurrentLastDimensionHyperSlab(unsigned int newIndex){ _currentLastDimensionSlabIndex = newIndex;}
 
     void setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_byte    *values, unsigned int numVal);
     void setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_int16   *values, unsigned int numVal);
