@@ -1404,7 +1404,7 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
         gfa = resultGridField->GetAttribute(rank, attrName);
     }
     else {
-        string msg = "Oddly, the requested attribute "+ attrName +" associated with rank "+ libdap::long_to_string(rank) +
+        string msg = "Oddly, the requested attribute '"+ attrName +"' associated with rank "+ libdap::long_to_string(rank) +
                 " does not appear in the resultGridField object! \n" +
                 "resultGridField->MaxRank(): " + libdap::long_to_string(resultGridField->MaxRank());
 
