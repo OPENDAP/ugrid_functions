@@ -47,8 +47,7 @@ test_config.h: test_config.h.in Makefile
 #
 
 if CPPUNIT
-UNIT_TESTS = NDimArrayTest BindTest GFTests possibly_lost
-	
+UNIT_TESTS = NDimArrayTest BindTest possibly_lost GFTests
 else
 UNIT_TESTS =
 
@@ -61,7 +60,7 @@ check-local:
 	@echo ""
 endif
 
-TEST_SRC = testFile.cc testFile.h
+# TEST_SRC = testFile.cc testFile.h
 
 NDimArrayTest_SOURCES = NDimArrayTest.cc
 NDimArrayTest_LDADD = ../.libs/libugrid_functions_la-NDimensionalArray.o $(AM_LDADD)
