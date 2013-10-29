@@ -1,9 +1,10 @@
-Dataset {
-    Structure {
-        Float64 X[nodes = 6];
-        Float64 Y[nodes = 6];
-        Int32 fnca[three = 3][faces = 4];
-        Int32 fvcom_mesh;
-        Float32 twoDnodedata[time = 1][nodes = 6];
-    } ugr_result;
-} function_result_ugrid_test_01.nc;
+Dataset: function_result_ugrid_test_01.nc
+ugr_result.X, 0, 1, 1.5, 1, 0, 0
+ugr_result.Y, 1.5, 1, 0, -1, -1.5, 0
+ugr_result.fnca[0], 1, 2, 3, 4
+ugr_result.fnca[1], 2, 3, 4, 5
+ugr_result.fnca[2], 6, 6, 6, 6
+ugr_result.fvcom_mesh, 0
+ugr_result.threeDnodedata[0][0], 21.2, 21.3, 21.4, 21.5, 21.6, 21.9
+ugr_result.threeDnodedata[0][1], 22.2, 22.3, 22.4, 22.5, 22.6, 22.9
+
