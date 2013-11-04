@@ -47,7 +47,7 @@ namespace ugrid {
 #define UGRID_NODE_COORDINATES "node_coordinates"
 #define UGRID_FACE_NODE_CONNECTIVITY "face_node_connectivity"
 
-#define UGRID_DIMENSION "dimension"
+#define UGRID_TOPOLOGY_DIMENSION "topology_dimension"
 #define UGRID_LOCATION "location"
 #define UGRID_GRID_LOCATION "grid_location"
 #define UGRID_NODE "node"

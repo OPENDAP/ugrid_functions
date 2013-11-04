@@ -165,10 +165,10 @@ void TwoDMeshTopology::init(string meshVarName, DDS *dds)
 
     BaseType *meshVar = getMeshVariable();
 
-	dimension = getAttributeValue(meshVar,UGRID_DIMENSION);
+	dimension = getAttributeValue(meshVar,UGRID_TOPOLOGY_DIMENSION);
 
     if (dimension.empty()) {
-        string msg = "TwoDMeshTopology::init() - The mesh topology variable  '" + meshVar->name() + "' is missing the required attribute named '" + UGRID_DIMENSION + "'";
+        string msg = "TwoDMeshTopology::init() - The mesh topology variable  '" + meshVar->name() + "' is missing the required attribute named '" + UGRID_TOPOLOGY_DIMENSION + "'";
         BESDEBUG("ugrid",msg );
         throw Error( msg);
     }
