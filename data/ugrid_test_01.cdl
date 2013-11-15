@@ -9,7 +9,7 @@ variables:
 	int fvcom_mesh ;
 		fvcom_mesh:face_node_connectivity = "fnca" ;
 		fvcom_mesh:standard_name = "mesh_topology" ;
-		fvcom_mesh:dimension = 2 ;
+		fvcom_mesh:topology_dimension = 2 ;
 		fvcom_mesh:node_coordinates = "X Y" ;
 	float X(nodes) ;
 		X:grid = "element" ;
