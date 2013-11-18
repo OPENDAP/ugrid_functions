@@ -4,8 +4,6 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I conf
 
-# AM_CPPFLAGS = 
-
 # These are not used by automake but are often useful for certain types of
 # debugging. The best way to use these is to run configure as:
 #     export CXXFLAGS='...'; ./configure --disable-shared
@@ -13,15 +11,11 @@ ACLOCAL_AMFLAGS = -I conf
 CXXFLAGS_DEBUG = -g3 -O0  -Wall -W -Wcast-align -Werror
 TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
-
-
-SUBDIRS =  . unit-tests bes-testsuite
+SUBDIRS =  . unit-tests
 DIST_SUBDIRS = unit-tests bes-testsuite
 
 lib_besdir=$(libdir)/bes
 lib_bes_LTLIBRARIES = libugrid_functions.la
-
-#noinst_LTLIBRARIES = libugrid_functions.la
 
 SRCS = UgridFunctions.cc \
 	ugrid_utils.cc \
@@ -32,10 +26,6 @@ SRCS = UgridFunctions.cc \
 	ugr5.cc  \
 	NDimensionalArray.cc \
 	gf3.cc
-
-#        gf2.cc 
-
-
 
 HDRS = UgridFunctions.h\
 	LocationType.h \
@@ -48,13 +38,18 @@ HDRS = UgridFunctions.h\
 	NDimensionalArray.h \
 	gf3.h
 
-#       gf2.h 
-
 libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)
 libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
 libugrid_functions_la_LDFLAGS = -avoid-version -module 
 libugrid_functions_la_LIBADD = $(GF_LIBS) 
 
+EXTRA_DIST = data COPYING ugrid_functions.conf.in 
+
+package_version=$(PACKAGE_MAJOR_VERSION).$(PACKAGE_MINOR_VERSION).$(PACKAGE_SUBMINOR_VERSION)
+
+CLEANFILES = *~ ugrid_functions.conf ugrid_functions-$(package_version).tar.gz
+
+# ugrid_functions.spec OSX_Resources
 
 install-data-local: ugrid_functions.conf
 	@currdate=`date +"%y%m%d%H%M"`; \
@@ -66,7 +61,8 @@ install-data-local: ugrid_functions.conf
 uninstall-local:
 	rm -f $(DESTDIR)$(sysconfdir)/bes/modules/ugrid_functions.conf
 
-ugrid_functions.conf: ugrid_functions.conf.in ../config.status
+
+ugrid_functions.conf: ugrid_functions.conf.in $(top_builddir)/config.status
 	sed -e "s%[@]pkgdatadir[@]%${pkgdatadir}%" \
                 -e "s%[@]sysconfdir[@]%${sysconfdir}%" \
                 -e "s%[@]pkglibdir[@]%${pkglibdir}%" \
