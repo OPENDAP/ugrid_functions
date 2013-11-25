@@ -225,7 +225,7 @@ public:
 	TwoDMeshTopology();
 	~TwoDMeshTopology();
 	void init(string meshVarName, libdap::DDS *dds);
-	void addDataVariable(MeshDataVariable *mdt);
+	// void addDataVariable(MeshDataVariable *mdt);
 	string name(){ return getMeshVariable()->name();}
     libdap::BaseType *getMeshVariable(){ return d_myMeshVar; }
 
@@ -238,9 +238,9 @@ public:
     int getResultGridSize(locationType location);
     // void convertResultGridFieldToDapObjects(vector<libdap::BaseType *> *results);
     void convertResultGridFieldStructureToDapObjects(vector<libdap::BaseType *> *results);
-    void convertResultRangeVarsToDapObjects(vector<BaseType *> *results);
+    // void convertResultRangeVarsToDapObjects(vector<BaseType *> *results);
     // void restrictRange(vector<libdap::BaseType *> *results);
-    libdap::Array *restrictDapArray(libdap::Array*, libdap::Array::Dim_iter locationCoordinateDim, locationType gridLocation);
+    // libdap::Array *restrictDapArray(libdap::Array*, libdap::Array::Dim_iter locationCoordinateDim, locationType gridLocation);
     void setLocationCoordinateDimension(MeshDataVariable *mdv);
 
     void addIndexVariable(locationType location);
