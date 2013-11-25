@@ -28,10 +28,7 @@ using std::endl;
 
 #include "UgridFunctions.h"
 #include "ServerFunctionsList.h"
-#include "gf3.h"
 #include "BESDebug.h"
-#include "ugrid_restrict.h"
-#include "ugr4.h"
 #include "ugr5.h"
 
 //namespace ugrid {

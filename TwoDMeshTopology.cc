@@ -307,7 +307,7 @@ void TwoDMeshTopology::setLocationCoordinateDimension(MeshDataVariable *mdv){
 }
 
 
-
+#if 0 // Unused crufty code from previous efforts
 void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
 {
 
@@ -317,9 +317,8 @@ void TwoDMeshTopology::addDataVariable(MeshDataVariable *mdv)
     rangeDataArrays->push_back(mdv);
     BESDEBUG("ugrid", "TwoDMeshTopology::addDataVariable() - DONE" << endl);
 
-
 }
-
+#endif
 
 
 
@@ -745,6 +744,7 @@ void TwoDMeshTopology::buildBasicGfTopology(){
 
 
 
+#if 0 // Unused crufty code from previous efforts
 /**
  * @brief Builds a basic GF topology and then applies the passed filter restriction at the passed rank.
  */
@@ -752,6 +752,7 @@ void TwoDMeshTopology::buildRestrictedGfTopology(locationType loc, string filter
     buildBasicGfTopology();
     applyRestrictOperator(loc, filterExpression);
 }
+#endif
 
 int TwoDMeshTopology::getResultGridSize(locationType dim){
     return resultGridField->Size(dim);
@@ -759,7 +760,7 @@ int TwoDMeshTopology::getResultGridSize(locationType dim){
 
 
 
-
+#if 0 // Unused crufty code from previous efforts
 /**
  * @brief Builds the GridField Topology object and loads all all of the requested variables - OLDWAY
  */
@@ -779,7 +780,7 @@ void TwoDMeshTopology::buildGridFieldsTopology()
     }
 
 }
-
+#endif
 
 
 
@@ -917,6 +918,7 @@ void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpr
 }
 
 
+#if 0 // Unused crufty code from previous efforts
 /**
  *
  */
@@ -977,8 +979,6 @@ static void rDAWorker(
 
 }
 
-
-
 /**
  * Now, for each variable array on the mesh we have to hyper-slab the array such that all the dimensions, with the
  * exception of the rank/location dimension (the one that is either the number of nodes, edges, or faces depending
@@ -1009,9 +1009,9 @@ libdap::Array *TwoDMeshTopology::restrictDapArray(libdap::Array *dapArray, libda
     return myResult;
 
 }
+#endif
 
-
-
+#if 0 // Unused crufty code from previous efforts
 void TwoDMeshTopology::restrictRange( vector<BaseType *> *results){
 
 
@@ -1058,7 +1058,7 @@ void TwoDMeshTopology::restrictRange( vector<BaseType *> *results){
     BESDEBUG("ugrid", "TwoDMeshTopology::restrictRange() - END" << endl);
 
 }
-
+#endif
 
 
 
@@ -1101,6 +1101,7 @@ void TwoDMeshTopology::convertResultGridFieldStructureToDapObjects(vector<BaseTy
 
 
 
+#if 0 // Unused crufty code from previous efforts
 /**
  * Builds the DAP response content from the GF::GridField result object.
  */
@@ -1125,8 +1126,9 @@ void TwoDMeshTopology::convertResultRangeVarsToDapObjects(vector<BaseType *> *re
     BESDEBUG("ugrid", "TwoDMeshTopology::convertResultRangeVarsToDapObjects() - END" << endl);
 
 }
+#endif
 
-
+#if 0 // Unused crufty code from previous efforts
 /**
  * Builds the DAP response content from the GF::GridField result object.
  */
@@ -1141,7 +1143,7 @@ void TwoDMeshTopology::convertResultGridFieldToDapObjects(vector<BaseType *> *re
     BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldToDapObjects() - END" << endl);
 
 }
-
+#endif
 
 
 
@@ -1191,7 +1193,7 @@ libdap::Array *TwoDMeshTopology::getNewFncDapArray(libdap::Array *templateArray,
 	// make the new array big enough to hold all the values.
 	newArray->reserve_value_capacity(3 * N);
 
-#if 0
+#if 0 // This is debugging - keep it around we might need it...
 	cerr<<"getNewFcnDapArray() -"<<endl<<endl;
 	cerr << "Newly minted Array: "<< endl;
 	newArray->print_val(cerr);
@@ -1376,7 +1378,7 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
 
 
 
-
+#if 0
 /**
  * Retrieves a single dimensional rank 0 GF attribute array from a GF::GridField and places the data into
  * DAP array of the appropriate type.
@@ -1385,6 +1387,8 @@ void TwoDMeshTopology::getResultGFAttributeValues(libdap::Array *templateArray, 
 
     getResultGFAttributeValues(templateArray->name(),templateArray->var()->type(),rank,target);
 }
+#endif
+
 
 /**
  * Retrieves a single dimensional GF attribute array from a GF::GridField and places the data into

@@ -231,22 +231,22 @@ public:
 
     void buildBasicGfTopology();
     void applyRestrictOperator(locationType loc, string filterExpression);
-    void buildRestrictedGfTopology(locationType loc, string filterExpression);
-    void buildGridFieldsTopology();
+    // void buildRestrictedGfTopology(locationType loc, string filterExpression);
+    // void buildGridFieldsTopology();
 
     int getInputGridSize(locationType location);
     int getResultGridSize(locationType location);
-    void convertResultGridFieldToDapObjects(vector<libdap::BaseType *> *results);
+    // void convertResultGridFieldToDapObjects(vector<libdap::BaseType *> *results);
     void convertResultGridFieldStructureToDapObjects(vector<libdap::BaseType *> *results);
     void convertResultRangeVarsToDapObjects(vector<BaseType *> *results);
-    void restrictRange(vector<libdap::BaseType *> *results);
+    // void restrictRange(vector<libdap::BaseType *> *results);
     libdap::Array *restrictDapArray(libdap::Array*, libdap::Array::Dim_iter locationCoordinateDim, locationType gridLocation);
     void setLocationCoordinateDimension(MeshDataVariable *mdv);
 
     void addIndexVariable(locationType location);
     void getResultIndex(locationType location, void *target);
 
-    void getResultGFAttributeValues(libdap::Array *templateArray, locationType rank, void *target);
+    // void getResultGFAttributeValues(libdap::Array *templateArray, locationType rank, void *target);
     void getResultGFAttributeValues(string attrName, libdap::Type type, locationType rank, void *target);
 };
 
