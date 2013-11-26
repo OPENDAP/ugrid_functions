@@ -51,7 +51,7 @@ public:
     UGR5() {
         setName("ugr5");
         setDescriptionString("This function can subset the range variables of a two dimensional triangular mesh unstructured grid.");
-        setUsageString("ugr5(0, node_var [,node_var_2,...,node_var_n], 'relational query over range')");
+        setUsageString("ugr5(0, node_var [,node_var_2,...,node_var_n], 'relational query over domain')");
         setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
         setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
         setFunction(ugrid::ugr5);
