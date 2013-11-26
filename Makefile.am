@@ -11,7 +11,7 @@ ACLOCAL_AMFLAGS = -I conf
 CXXFLAGS_DEBUG = -g3 -O0  -Wall -W -Wcast-align -Werror
 TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
-SUBDIRS =  . unit-tests
+SUBDIRS =  . unit-tests bes-testsuite
 DIST_SUBDIRS = unit-tests bes-testsuite
 
 lib_besdir=$(libdir)/bes
