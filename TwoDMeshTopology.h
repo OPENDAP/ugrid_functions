@@ -28,21 +28,20 @@
 #ifndef _TwoDMeshTopology_h
 #define _TwoDMeshTopology_h 1
 
-
-
 #include <gridfields/type.h>
 #include <gridfields/gridfield.h>
 #include <gridfields/grid.h>
 #include <gridfields/cellarray.h>
 
-
 using namespace std;
 using namespace libdap;
 
-class libdap::BaseType;
-class libdap::Array;
-class ugrid::MeshDataVariable;
-class libdap::Grid;
+namespace libdap {
+    class BaseType;
+    class Array;
+    class MeshDataVariable;
+    class Grid;
+}
 
 namespace ugrid {
 
@@ -175,7 +174,7 @@ private:
 	 *
 	 */
 	vector<string> *faceCoordinateNames;
-	vector<Array *> *faceCoordinateArrays;
+    vector<libdap::Array *> *faceCoordinateArrays;
 
 	/**
 	 * OPTIONAL

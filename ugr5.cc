@@ -229,7 +229,7 @@ static string arrayState(libdap::Array *dapArray, string indent){
 }
 
 
-static void copyUsingSubsetIndex(Array *sourceArray, vector<unsigned int> *subsetIndex, void *result){
+static void copyUsingSubsetIndex(libdap::Array *sourceArray, vector<unsigned int> *subsetIndex, void *result){
     BESDEBUG("ugrid", "ugrid::copyUsingIndex() - BEGIN" << endl);
 
     switch (sourceArray->var()->type()) {
@@ -260,13 +260,9 @@ static void copyUsingSubsetIndex(Array *sourceArray, vector<unsigned int> *subse
         throw InternalErr(__FILE__, __LINE__,
                 "ugrid::hgr5::copyUsingSubsetIndex() - Unknown DAP type encountered.");
     }
+
     BESDEBUG("ugrid", "ugrid::copyUsingIndex() - END" << endl);
-
-
-
 }
-
-
 
 static string vectorToString(vector<unsigned int> *index){
     BESDEBUG("ugrid", "indexToString() - BEGIN"<< endl);

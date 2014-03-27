@@ -34,7 +34,9 @@ using namespace std;
 using namespace libdap;
 using namespace ugrid;
 
-class libdap::Array;
+namespace libdap {
+    class Array;
+}
 
 namespace ugrid {
 

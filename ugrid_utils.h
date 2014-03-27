@@ -30,11 +30,12 @@
 
 #include <gridfields/array.h>
 
-
 using namespace std;
 using namespace libdap;
 
-class libdap::Array;
+namespace {
+    class Array;
+}
 
 namespace ugrid {
 
