@@ -14,7 +14,7 @@ AM_INIT_AUTOMAKE(1.10)
 # which can make running unit tests with valgrind far more pleasant. 
 AM_DISABLE_STATIC
 
-AC_CONFIG_TESTDIR(bes-testsuite, [.])
+AC_CONFIG_TESTDIR(tests, [.])
 
 DODS_GCOV_VALGRIND
 
@@ -147,13 +147,13 @@ dnl OPENDAP_DEBUG_OPTION
 AC_CONFIG_FILES([Makefile 
 	unit-tests/Makefile
 	unit-tests/test_config.h
-	bes-testsuite/Makefile 
-	bes-testsuite/package.m4 
-	bes-testsuite/atlocal])
+	tests/Makefile 
+	tests/package.m4 
+	tests/atlocal])
 
-AC_CONFIG_FILES([bes-testsuite/generate_data_baseline.sh], 
-	[chmod 755 bes-testsuite/generate_data_baseline.sh])
-AC_CONFIG_FILES([bes-testsuite/generate_metadata_baseline.sh],
-	[chmod 755 bes-testsuite/generate_metadata_baseline.sh])
+AC_CONFIG_FILES([tests/generate_data_baseline.sh], 
+	[chmod 755 tests/generate_data_baseline.sh])
+AC_CONFIG_FILES([tests/generate_metadata_baseline.sh],
+	[chmod 755 tests/generate_metadata_baseline.sh])
 
 AC_OUTPUT

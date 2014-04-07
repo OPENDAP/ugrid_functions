@@ -58,6 +58,8 @@ BES.ProcessManagerMethod=multiple
 
 BES.DefaultResponseMethod=POST
 
+DAP.ResponseCache.path=./response_cache
+
 #-----------------------------------------------------------------------#
 #                                                                       #
 # Data Handler Specific key/value parameters                            #
