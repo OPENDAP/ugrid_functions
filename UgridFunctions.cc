@@ -46,7 +46,7 @@ static string getFunctionNames(){
     }
     return msg;
 }
-void UgridFunctions::initialize(const string &modname) {
+void UgridFunctions::initialize(const string &/*modname*/) {
 	BESDEBUG( "UgridFunctions", "initialize() - BEGIN" << endl );
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 #if 0
@@ -72,7 +72,7 @@ void UgridFunctions::initialize(const string &modname) {
     BESDEBUG( "UgridFunctions", "initialize() - END" << endl );
 }
 
-void UgridFunctions::terminate(const string &modname) {
+void UgridFunctions::terminate(const string &/*modname*/) {
 	BESDEBUG( "UgridFunctions", "Removing UgridFunctions Modules (this does nothing)." << endl );
 }
 

@@ -122,21 +122,22 @@ private:
                 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8
         };
 
+#if 0
+        // Unused
         float twoDnodedata[] = {
                 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8,
                 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8,
                 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
         };
-
         float oneDFaceData[] = {
                 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8
         };
-
+#endif
         int index[] = {
                 0, 1, 2, 3, 4, 5, 6, 7, 8
         };
 
-        GF::Array *coordinate, *nodeData, *faceData;
+        GF::Array *coordinate, *nodeData; // unused. 4/7/14 jhrg , *faceData;
 
         *g = new GF::Grid(name);
 
@@ -272,7 +273,7 @@ public:
 
             delete resultGF;
             delete opieGridField;
-            for(int i=0; i<gfAttributes.size();i++){
+            for(unsigned int i=0; i<gfAttributes.size();i++){
                 delete gfAttributes[i];
             }
             delete opieGrid;

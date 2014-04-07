@@ -119,7 +119,7 @@ public:
 
 SingletonList *SingletonList::d_instance = 0;
 
-void possibly_lost_function(int argc, libdap::BaseType *argv[], libdap::DDS &dds, libdap::BaseType **btpp)
+void possibly_lost_function(int /*argc*/, libdap::BaseType */*argv*/[], libdap::DDS &/*dds*/, libdap::BaseType **btpp)
 {
     string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
             + "<function name=\"ugr4\" version=\"0.1\">\n"
@@ -202,7 +202,7 @@ public:
         vector<string> *names = new vector<string>();
         SingletonList::TheList()->getFunctionNames(names);
         DBG(cerr << "PossiblyLost::possibly_lost_solution() - SingletonList::getFunctionNames(): " << endl);
-        for(int i=0; i<names->size() ;i++){
+        for(unsigned int i=0; i<names->size() ;i++){
             DBG(cerr <<  "   name["<< i << "]: "<< (*names)[i] << endl);
         }
         delete names;

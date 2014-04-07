@@ -20,7 +20,7 @@ endif
 
 # These are not used by automake but are often useful for certain types of
 # debugging. Set CXXFLAGS to this in the nightly build using export ...
-CXXFLAGS_DEBUG = -g3 -O0  -Wall -W -Wcast-align -Werror
+CXXFLAGS_DEBUG = -g3 -O0  -Wall -Wcast-align
 TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 # This determines what gets built by make check
@@ -39,8 +39,8 @@ CLEANFILES = testout .dodsrc  *.gcda *.gcno
 
 DISTCLEANFILES = test_config.h *.strm *.file tmp.txt
 
-test_config.h: test_config.h.in Makefile
-	sed -e "s%[@]abs_srcdir[@]%${abs_srcdir}%" $< > test_config.h
+# test_config.h: test_config.h.in Makefile
+#	sed -e "s%[@]abs_srcdir[@]%${abs_srcdir}%" $< > test_config.h
 
 ############################################################################
 # Unit Tests

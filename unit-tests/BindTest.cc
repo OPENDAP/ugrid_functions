@@ -55,6 +55,8 @@ using namespace GF;
 
 namespace ugrid {
 
+#if 0
+// Unused
 static ArrayReader *new_makeArrayReader(double *array, int size) {
     stringstream *ss = new stringstream();
     stringbuf *pbuf;
@@ -62,6 +64,7 @@ static ArrayReader *new_makeArrayReader(double *array, int size) {
     pbuf->sputn((char *) array, sizeof(double)*size);
     return new ArrayReader(ss);
 }
+#endif
 
 class BindTest: public CppUnit::TestFixture {
 
@@ -70,13 +73,13 @@ private:
     Grid *makeGrid(int scale, string name) {
         CellArray *twocells;
         CellArray *onecells;
-        CellArray *zerocells;
+        // Unused CellArray *zerocells;
         Grid *grid;
         Node triangle[3];
         Node segment[2];
-        Node node;
+        // Unused Node node;
 
-        bool wf;
+        // Unused bool wf;
         int i;
         twocells = new CellArray();
         for (i = 0; i < scale / 2; i++) {
@@ -121,8 +124,7 @@ private:
     /**
      *
      */
-    GridField *makeGridField(int size, string gridname, const char *datname,
-            int k) {
+    GridField *makeGridField(int size, string /*gridname*/, const char */*datname*/, int k) {
 
         Grid *G;
         GridField *GF;

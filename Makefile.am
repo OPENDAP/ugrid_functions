@@ -8,7 +8,7 @@ ACLOCAL_AMFLAGS = -I conf
 # debugging. The best way to use these is to run configure as:
 #     export CXXFLAGS='...'; ./configure --disable-shared
 # the --disable-shared is not required, but it seems to help with debuggers.
-CXXFLAGS_DEBUG = -g3 -O0  -Wall -W -Wcast-align -Werror
+CXXFLAGS_DEBUG = -g3 -O0  -Wall -Wcast-align
 TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 SUBDIRS =  . unit-tests bes-testsuite
@@ -23,9 +23,6 @@ SRCS = UgridFunctions.cc \
 	TwoDMeshTopology.cc  \
 	ugr5.cc  \
 	NDimensionalArray.cc 
-#	ugrid_restrict.cc  \
-#	ugr4.cc  \
-#	gf3.cc
 
 HDRS = UgridFunctions.h\
 	LocationType.h \
@@ -34,9 +31,6 @@ HDRS = UgridFunctions.h\
 	TwoDMeshTopology.h \
 	ugr5.h \
 	NDimensionalArray.h 
-#	ugrid_restrict.h \
-#	ugr4.h \
-#	gf3.h
 
 libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)
 libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)

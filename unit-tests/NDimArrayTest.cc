@@ -145,15 +145,11 @@ public:
         CPPUNIT_ASSERT(slabElementCount == lastDimSize);
 
         DBG(cerr << " setLastDimesnionHyperSlab_test() - Checking slab values... " << endl);
-       for(i=0; i<slabElementCount ; i++)
+       for(unsigned int i=0; i<slabElementCount ; i++)
             CPPUNIT_ASSERT(slab[i] == pi);
 
 
        DBG(cerr << " setLastDimesnionHyperSlab_test() - END." << endl);
-
-
-
-
     }
 
     void getLastDimesnionHyperSlab_test() {
@@ -249,7 +245,7 @@ public:
         DBG(cerr << " getStorageIndex_test() - constrainedSize=" << constrainedSize << endl);
         CPPUNIT_ASSERT(constrainedSize == test.length());
 
-        for(int i=0; i< shape.size() ; i++){
+        for(unsigned int i=0; i< shape.size() ; i++){
             DBG(cerr << " getStorageIndex_test() - shape["<< i << "]="<< shape[i]  << endl);
         }
 
@@ -293,7 +289,7 @@ public:
     }
 
     void checkLocationIndex(vector<unsigned int> *shape, vector<unsigned int> *location, long index){
-        for(int i=0; i< location->size() ; i++){
+        for(unsigned int i=0; i< location->size() ; i++){
             DBG(cerr << " checkLocation() - location["<< libdap::long_to_string(i) << "]="<< libdap::long_to_string((*location)[i])  << endl);
         }
 

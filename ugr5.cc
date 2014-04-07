@@ -337,7 +337,7 @@ static void rDAWorker(MeshDataVariable *mdv, libdap::Array::Dim_iter thisDim, ve
 		BESDEBUG("ugrid", "rdaWorker() - lastDimHyperSlabLocation: "
 			<< NDimensionalArray::vectorToIndices(&lastDimHyperSlabLocation) << endl);
 
-		unsigned int elementCount;
+		// unused. 4/7/14 jhrg. unsigned int elementCount;
 
 		void *slab;
         //results->getLastDimensionHyperSlab(&lastDimHyperSlabLocation, &slab, &elementCount);
