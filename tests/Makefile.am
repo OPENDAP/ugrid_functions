@@ -19,7 +19,7 @@ noinst_DATA = bes.conf
 
 CLEANFILES = *.log *.sum gmon.out
 
-EXTRA_DIST = tests ugrid_functionsTest.at $(TESTSUITE) \
+EXTRA_DIST = bescmd ugrid_functionsTest.at $(TESTSUITE) \
         atlocal.in package.m4 bes.conf.in handler_tests_macros.m4
 
 DISTCLEANFILES = bes.conf
