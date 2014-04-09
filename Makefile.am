@@ -37,7 +37,7 @@ libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
 libugrid_functions_la_LDFLAGS = -avoid-version -module 
 libugrid_functions_la_LIBADD = $(GF_LIBS) 
 
-EXTRA_DIST = data COPYING ugrid_functions.conf.in 
+EXTRA_DIST = data COPYING ugrid_functions.conf.in ugrid_functions.spec
 
 package_version=$(PACKAGE_MAJOR_VERSION).$(PACKAGE_MINOR_VERSION).$(PACKAGE_SUBMINOR_VERSION)
 

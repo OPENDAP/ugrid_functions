@@ -79,13 +79,16 @@ AC_ARG_WITH([gridfields],
          AC_MSG_NOTICE([Using $withval as the GridFields prefix directory.])
          GF_LIBS="-L$withval/lib -lgridfields"
          GF_CFLAGS="-I$withval/include"
+	 GF_PATH=$withval
          AC_DEFINE([GRIDFIELDS],[1],[define if gridfields lib is present])
          libgf_ok="yes"
      fi],
     [])
 
 AC_ARG_ENABLE([gridfields],
-    AC_HELP_STRING([--enable-gridfields], [Enable libgridfields-based server functions (default is NO)]))
+    AC_HELP_STRING([--enable-gridfields], [Enable gridfields (default is YES)]),
+    [],
+    [enable_gridfields=yes])
 
 if test "$libgf_ok" = "no" -a "$enable_gridfields" = "yes"
 then
@@ -121,6 +124,7 @@ then
 
     GF_LIBS="`gridfields-config --libs`"
     GF_CFLAGS="`gridfields-config --cflags`"
+    GF_PATH="`gridfields-config --prefix`"
 
     AC_DEFINE([GRDIFIELDS],[1],[define if gridfields lib is present])
     AC_MSG_RESULT([yes; used gridfields-config])
@@ -132,6 +136,7 @@ fi
 
 AC_SUBST([GF_LIBS])
 AC_SUBST([GF_CFLAGS])
+AC_SUBST([GF_PATH])
 
 if test "$libgf_ok" = "yes"
 then
