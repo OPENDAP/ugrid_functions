@@ -121,7 +121,7 @@ public:
         NDimensionalArray nda(&test);
         nda.setAll(0);
 
-        long lastDimSize = nda.getLastDimensionElementCount();
+        unsigned long lastDimSize = nda.getLastDimensionElementCount();
         DBG(cerr << " setLastDimesnionHyperSlab_test() - lastDimSize="<< libdap::long_to_string(lastDimSize) << endl);
         CPPUNIT_ASSERT(lastDimSize == 1000);
 
@@ -192,7 +192,7 @@ public:
         vector<unsigned int> location(test.dimensions(true)-1);
         void *slab, *firstSlab;
         unsigned int slabElementCount;
-        long offset;
+        unsigned long offset;
 
         void *internalStorage = nda.getStorage();
         DBG(cerr << " getLastDimesnionHyperSlab_test() - internalStorage="<< internalStorage << endl);

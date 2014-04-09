@@ -293,7 +293,7 @@ void NDimensionalArray::confirmType(Type dapType){
  * Verifies that the passed value n is the same as the size of the last dimension. If not, and Error is thrown.
  */
 void NDimensionalArray::confirmLastDimSize(unsigned int n){
-    long elementCount = getLastDimensionElementCount();
+    unsigned long elementCount = getLastDimensionElementCount();
     if(elementCount != n){
         string msg = "NDimensionalArray::setLastDimensionHyperSlab() - Passed valueCount does not match size of last dimension hyper-slab. ";
         msg += "Last dimension hyper-slab has " + libdap::long_to_string(elementCount) + " elements. ";

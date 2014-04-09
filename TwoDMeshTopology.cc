@@ -1394,8 +1394,8 @@ void TwoDMeshTopology::getResultGFAttributeValues(libdap::Array *templateArray, 
  * Retrieves a single dimensional GF attribute array from a GF::GridField and places the data into
  * DAP array of the appropriate type.
  */
-void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type dapType, locationType rank, void *target){
-
+void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type dapType, locationType rank, void *target)
+{
     BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - BEGIN" << endl);
 
     // The result variable is assumed to be bound to the GridField at 'rank'
@@ -1413,17 +1413,9 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
                 "resultGridField->MaxRank(): " + libdap::long_to_string(resultGridField->MaxRank());
 
         BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - ERROR! " << msg << endl);
-
-
-
-
-
         throw InternalErr(__FILE__, __LINE__,
                   "ERROR  - Unable to locate requested GridField attribute. "+ msg);
-
     }
-
-
 
     switch (dapType) {
     case dods_byte_c:
@@ -1444,7 +1436,7 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
 
 
         BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
-        memcpy(target,GF_ints.data(), GF_ints.size()*sizeof(dods_int32));
+        memcpy(target, &GF_ints[0], GF_ints.size()*sizeof(dods_int32));
         break;
     }
     case dods_float32_c:
@@ -1458,11 +1450,8 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
             s << "GF_ints[" << i << "]: " << GF_floats[i] << endl;
         }
         BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieved GF_floats: "<< endl << s.str());
-
-
-
         BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
-        memcpy(target,GF_floats.data(), GF_floats.size()*sizeof(dods_float64));
+        memcpy(target, &GF_floats[0], GF_floats.size()*sizeof(dods_float64));
         break;
 
     }
