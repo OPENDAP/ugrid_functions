@@ -463,8 +463,11 @@ string getAttributeValue(BaseType *bt, string aName) {
 	AttrTable::Attr_iter loc = at.simple_find(aName);
 	if (loc != at.attr_end()) {
 		DBG(cerr << "checkAttributeValue() - " << "'" << bt->name() << "' has a attribute named '" << aName << "'"<< endl);
+#if 0
 		string value = at.get_attr(loc, 0);
 		return value;
+#endif
+		return at.get_attr(loc, 0);
 	}
 	return "";
 }
