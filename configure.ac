@@ -66,7 +66,8 @@ AM_PATH_CPPUNIT(1.12.0,
 
 
 dnl When pkgconfig support is added, use this
-libdap_libgridfields_module='libgridfields >= 0.7.0'
+libdap_libgridfields_module='libgridfields >= 1.0.3'
+libgf_needed="1.0.3"
 
 libgf_ok="no"
 
@@ -96,30 +97,12 @@ then
 AC_MSG_CHECKING([for libgridfields])
 if gridfields-config --version > /dev/null 2>&1
 then
-    version_libgf=`gridfields-config --version | sed 's@libgridfields \(.*\)@\1@'`
-
-    version_M=`echo $version_libgf | sed 's@^\([[0-9]]\)*\.\([[0-9]]*\)\.\([[0-9]]*\)$@\1@'`
-    version_m=`echo $version_libgf | sed 's@^\([[0-9]]\)*\.\([[0-9]]*\)\.\([[0-9]]*\)$@\2@'`
-    version_m_m=`echo $version_libgf | sed 's@^\([[0-9]]\)*\.\([[0-9]]*\)\.\([[0-9]]*\)$@\3@'`
-    
-    dnl Test for several different versions of libgridfields
-    
-    if test $version_M -gt 0
-    then
-        libgf_ok='yes'
-    elif test $version_M -eq 0 && test $version_m -gt 7
-    then
-        libgf_ok='yes'
-    elif test $version_M -eq 0 && test $version_m -eq 7 && test $version_m_m -gt 0
-    then
-        libgf_ok='yes'
-    else
-        libgf_ok='no'
-    fi
+    version_libgf=`gridfields-config --version | sed 's@gridfields \(.*\)@\1@'`
+    AX_COMPARE_VERSION([$version_libgf], [ge], [$libgf_needed], [libgf_ok='yes'], [libgf_ok='no'])
 
     if test "$libgf_ok"="no"
     then
-        AC_MSG_ERROR([must have libgf 0.7.0 or greater, found $version_libgf])
+        AC_MSG_ERROR([must have libgf $libgf_needed or greater, found $version_libgf])
     fi
 
     GF_LIBS="`gridfields-config --libs`"
