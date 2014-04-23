@@ -3,7 +3,7 @@
 # Configure script for OPeNDAP Gateway data handler
 
 AC_PREREQ(2.59)
-AC_INIT([ugrid_functions], [1.0.0], [support@opendap.org])
+AC_INIT([ugrid_functions], [1.0.1], [support@opendap.org])
 AC_CONFIG_AUX_DIR([conf])
 AC_CONFIG_MACRO_DIR([conf])
 
@@ -50,11 +50,11 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_CHECK_FUNCS([atexit strchr])
 
 dnl Checks for specific libraries
-AC_CHECK_LIBDAP([3.11.0], 
+AC_CHECK_LIBDAP([3.13.0], 
 	[ LIBS="$LIBS $DAP_LIBS"  CPPFLAGS="$CPPFLAGS $DAP_CFLAGS"],
 	[ AC_MSG_ERROR([Cannot find libdap]) ])
 
-AC_CHECK_BES([3.9.0], 
+AC_CHECK_BES([3.13.0], 
 	[LIBS="$LIBS $BES_LIBS"  CPPFLAGS="$CPPFLAGS $BES_CPPFLAGS"], 
 	[ AC_MSG_ERROR([Could not find bes library and headers]) ])
 

@@ -1,6 +1,6 @@
 Summary:         ugrid functions handler for the OPeNDAP Data server
 Name:            ugrid_functions
-Version:         1.0.0
+Version:         1.0.1
 Release:         1
 License:         LGPLv2+
 Group:           System Environment/Daemons 
