@@ -1,0 +1,532 @@
+2014-04-22  James Gallagher <jgallagher@opendap.org>
+
+	Added.
+
+	A    conf/ax_compare_version.m4
+
+2014-04-09  James Gallagher <jgallagher@opendap.org>
+
+	Fixes for distcheck and rpm build. The rpm build will fail on wasabi
+	until I get gridfields installed as an rpm itself.
+
+	M    configure.ac
+	M    Makefile.am
+
+2014-04-09  James Gallagher <jgallagher@opendap.org>
+
+	Fixes for the dist and distcheck targets. Added fortfy target and cccc too
+
+	M    Makefile.am
+	M    tests/Makefile.am
+
+2014-04-09  James Gallagher <jgallagher@opendap.org>
+
+	Minor tweaks for osx 10.5 - vector::data() is not supported on this
+	compiler (g++ 4.0) and there were some signed/unsigned compares.
+
+	M    unit-tests/NDimArrayTest.cc
+	M    NDimensionalArray.cc
+	M    TwoDMeshTopology.cc
+
+2014-04-07  James Gallagher <jgallagher@opendap.org>
+
+	Test hackery
+
+2014-04-07  James Gallagher <jgallagher@opendap.org>
+
+	Tests hacking...
+
+	M    Makefile.am
+	M    UgridFunctions.cc
+	A  + bes-testsuite/bescmd
+	M    bes-testsuite/generate_data_baseline.sh.in
+	M    bes-testsuite/generate_metadata_baseline.sh.in
+	M    bes-testsuite/handler_tests_macros.m4
+	D    bes-testsuite/tests
+	M    ugr5.cc
+	M    unit-tests/BindTest.cc
+	M    unit-tests/GFTests.cc
+	M    unit-tests/Makefile.am
+	M    unit-tests/NDimArrayTest.cc
+	M    unit-tests/possibly_lost.cc
+
+2014-03-26  James Gallagher <jgallagher@opendap.org>
+
+	Fixed issues with the libdap namespace
+
+2013-11-26  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Repaired Makefile.am so that bes tests get run for make check
+
+2013-11-25  Nathan Potter <ndp@opendap.org>
+
+2013-11-25  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Mothballed old code. Disabled unsed code in TwoDMeshTopology.cc
+
+2013-11-25  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Mothballed old code. Disabled unsed code in TwoDMeshTopology.cc
+
+2013-11-25  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Mothballed old code. Disabled unsed code in TwoDMeshTopology.cc
+
+2013-11-18  James Gallagher <jgallagher@opendap.org>
+
+	Added
+
+2013-11-18  James Gallagher <jgallagher@opendap.org>
+
+	Added COPYING
+
+2013-11-18  James Gallagher <jgallagher@opendap.org>
+
+	Fixed the distclean target
+
+	M    configure.ac
+	M    Makefile.am
+
+2013-11-15  James Gallagher <jgallagher@opendap.org>
+
+	Updated the test data file so that the 'mesh_topology' variable has the
+	attribute 'topology_dimension' (the attribute was named 'dimension'
+	in the original version of the file.
+
+	M    data/ugrid_test_01.nc
+	M    data/ugrid_test_01.cdl
+
+2013-11-03  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updated utilized attribtes to match updated ugrid spcification
+
+2013-10-29  James Gallagher <jgallagher@opendap.org>
+
+	Fixed case error in file name
+
+	D    unit-tests/GFtests.cc
+	A  + unit-tests/GFTests.cc
+	M    unit-tests/Makefile.am
+
+2013-10-29  Nathan Potter <ndp@opendap.org>
+
+2013-10-28  Nathan Potter <ndp@opendap.org>
+
+	ugrid: Fixed ugr5 function so that constrained range arrays are handled correctly (woot) Disabled other older version of the function. Valgrind looks good, not clean, but problems appear to be elsewhere in the code stack.
+
+2013-10-28  Nathan Potter <ndp@opendap.org>
+
+	ugrid: Fixed ugr5 function so that constrained range arrays are handled correctly (woot) Disabled other older version of the function. Valgrind looks good, not clean, but problems appear to be elsewhere in the code stack.
+
+2013-10-25  James Gallagher <jgallagher@opendap.org>
+
+	Trimmed extraneous stuff from bes.conf and did a littel formatting in
+	ugr5.cc
+
+	M    bes-testsuite/bes.conf.in
+	M    ugr5.cc
+
+2013-10-25  Nathan Potter <ndp@opendap.org>
+
+2013-10-25  James Gallagher <jgallagher@opendap.org>
+
+	more refactoring for rDAWorker
+
+2013-10-25  James Gallagher <jgallagher@opendap.org>
+
+	more refactor of rDAWorker
+
+2013-10-25  James Gallagher <jgallagher@opendap.org>
+
+	refactor rDAWorker
+
+2013-10-25  James Gallagher <jgallagher@opendap.org>
+
+	Added some tests
+
+2013-10-25  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Adding constrained variables bescmd
+
+2013-10-24  James Gallagher <jgallagher@opendap.org>
+
+	updated the copyrights
+
+2013-09-26  James Gallagher <jgallagher@opendap.org>
+
+	removed -fno-defer-pop from all copies of Makefile.am since the new OSX compiler prints warnings about it and it seems to not make a difference with newer g++ versions.
+
+2013-07-11  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Added shell to echo correctly formatted curl commands (for ugr5 requests) to stdout
+
+2013-07-11  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updated bes-testsuiite test commands
+
+2013-07-11  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Reorgainzed tests (not ready for production but cruft has been shifted around), add URL decoding to ugr5 (of questionable durability)
+
+2013-06-08  Nathan Potter <ndp@opendap.org>
+
+	ugrid_function: I think I have subsetting of face data working (at least when the constraint is applied to node coordinates)
+
+2013-06-08  Nathan Potter <ndp@opendap.org>
+
+	ugrid_function: I think I have subsetting of face data working (at least when the constraint is applied to node coordinates)
+
+2013-06-06  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Added new function 'ugr5' that utilizes a single call to gridfields and an index variable in order to subset nodes.
+
+2013-05-23  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Fixing mem dealloc problem.
+
+2013-05-22  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: mem leak fix
+
+2013-05-21  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions:
+
+2013-05-13  Nathan Potter <ndp@opendap.org>
+
+2013-05-10  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Added version function test in an effort to to solve seg fault problem.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: added three dimensional node data to test dataset.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: added three dimensional node data to test dataset.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: added three dimensional node data to test dataset.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: added three dimensional node data to test dataset.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: added three dimensional node data to test dataset.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Multidimensional range variables working.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Multidimensional range variables working.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Multidimensional range variables working.
+
+2013-05-09  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Multidimensional range variables working.
+
+2013-05-03  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Team sync
+
+2013-05-02  James Gallagher <jgallagher@opendap.org>
+
+	Minor changes to Makefile.am in bes-testsuite and possible_lost.
+
+2013-05-02  James Gallagher <jgallagher@opendap.org>
+
+	Added - hacked really - pthread_once_init code.
+
+2013-05-02  James Gallagher <jgallagher@opendap.org>
+
+	delete_instance() now checks for null.
+
+2013-05-02  James Gallagher <jgallagher@opendap.org>
+
+	Correct Singleton implementation
+
+2013-05-02  Nathan Potter <ndp@opendap.org>
+
+2013-05-02  Nathan Potter <ndp@opendap.org>
+
+2013-05-01  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Repaired memory leaks in ugr4()
+
+2013-05-01  James Gallagher <jgallagher@opendap.org>
+
+	Removed duplicate nc_module inclusion.
+
+2013-05-01  James Gallagher <jgallagher@opendap.org>
+
+	Added.
+
+2013-05-01  Nathan Potter <ndp@opendap.org>
+
+2013-05-01  James Gallagher <jgallagher@opendap.org>
+
+	changed dapResult->add_var_nocopy() to add_var() in search of a seg fault issue.
+
+2013-05-01  Nathan Potter <ndp@opendap.org>
+
+2013-04-30  Nathan Potter <ndp@opendap.org>
+
+2013-04-30  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: New tests. Team sync check in
+
+2013-04-30  Nathan Potter <ndp@opendap.org>
+
+2013-04-29  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: mmmm valgrind...
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Changed name from ugrid_functionTest to ugrid_functionsTest. Added deps for handler_tests_macros.m4, ...
+
+2013-04-29  Nathan Potter <ndp@opendap.org>
+
+2013-04-29  Nathan Potter <ndp@opendap.org>
+
+2013-04-29  Nathan Potter <ndp@opendap.org>
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Ignored generated files/dirs.
+
+2013-04-29  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updating test list.
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Added atlocal to AC_CONFIG_FILES
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Added bes-testsuite in Makefile.am
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Added tests to the configure.ac file.
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Makefile.am and related edits.
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	nc to tests (ugrid functions stores the bescmd files in 'tests')
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Tweaked bes.conf.in...
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Added ugrid functions and main netcdf module
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Removed extraneous comments...
+
+2013-04-29  James Gallagher <jgallagher@opendap.org>
+
+	Initial versions of the templates for tests.
+
+2013-04-29  Nathan Potter <ndp@opendap.org>
+
+2013-04-26  James Gallagher <jgallagher@opendap.org>
+
+	Set svnignore
+
+2013-04-26  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updating test dataset and source CDL
+
+2013-04-26  James Gallagher <jgallagher@opendap.org>
+
+2013-04-26  James Gallagher <jgallagher@opendap.org>
+
+	minor edits
+
+2013-04-26  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updating test dataset and source CDL
+
+2013-04-26  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Adding ugr4, a function to pedantically build multidimensional data responses for ugrid using gridfields. Initial check-in only transmits the ugrid structure for the requested variables, not the variables themselves.
+
+2013-04-25  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Invrmental test changes...
+
+2013-04-23  James Gallagher <jgallagher@opendap.org>
+
+	Twiddled semicolons in DBG() macros
+
+2013-04-23  James Gallagher <jgallagher@opendap.org>
+
+	refactor
+
+2013-04-23  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: BindTest now uses DBG macros
+
+2013-04-19  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: BindTest working.
+
+2013-04-19  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Adding BindTest
+
+2013-04-17  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: NDimensionalArray tests and comments.
+
+2013-04-16  Nathan Potter <ndp@opendap.org>
+
+2013-04-16  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: adding Ndimnesional array
+
+2013-04-16  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Adding unit tests.
+
+2013-03-26  Nathan Potter <ndp@opendap.org>
+
+2013-03-26  Nathan Potter <ndp@opendap.org>
+
+	team sync checkin
+
+2013-03-25  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updating handling of spec metadata.
+
+2013-03-15  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: ugr3() no can return both node and edge and face data.
+
+2013-03-11  Nathan Potter <ndp@opendap.org>
+
+2013-03-11  Nathan Potter <ndp@opendap.org>
+
+2013-02-10  Nathan Potter <ndp@opendap.org>
+
+	bes: repaired character case issurs in import statements
+
+2013-02-08  Nathan Potter <ndp@opendap.org>
+
+2013-02-06  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Moved AbstractFunction class to ServerFunction class
+
+2013-02-06  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updated to use BESDEBUG
+
+2013-02-06  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Now uses AbstractFunction
+
+2013-02-01  Nathan Potter <ndp@opendap.org>
+
+2013-02-01  Nathan Potter <ndp@opendap.org>
+
+2013-02-01  Nathan Potter <ndp@opendap.org>
+
+2013-01-29  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Updated tests
+
+2013-01-29  James Gallagher <jgallagher@opendap.org>
+
+	Moved the template methods for the extractArray code into the ugrid_util.h header to 'fix' a problem with template instantiation.
+
+2013-01-29  Nathan Potter <ndp@opendap.org>
+
+	team sync
+
+2013-01-29  Nathan Potter <ndp@opendap.org>
+
+2013-01-29  Nathan Potter <ndp@opendap.org>
+
+2013-01-29  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Team Sync.
+
+2013-01-29  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Almost there. INstalled targets working but there's a namespace issue when the module is loaded.
+
+2013-01-29  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: It compiles!
+
+2013-01-28  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: Add tests for gdal lib
+
+2013-01-28  James Gallagher <jgallagher@opendap.org>
+
+	Configure works...
+
+	M    Makefile.am
+
+2013-01-28  James Gallagher <jgallagher@opendap.org>
+
+	Removed unneeded macro collections
+
+	D    conf/cppunit.m4
+	D    conf/sys_errlist.m4
+	D    conf/openssl.m4
+	D    conf/acinclude.m4
+	D    conf/vl_lib_readline.m4
+	D    conf/dispatch.m4
+
+2013-01-28  James Gallagher <jgallagher@opendap.org>
+
+	Fixes for configure - not done yet
+
+	M    configure.ac
+	M    Makefile.am
+
+2013-01-28  James Gallagher <jgallagher@opendap.org>
+
+	Removed generated files
+
+	D    conf/ltsugar.m4
+	D    conf/libtool.m4
+	D    conf/ltversion.m4
+	D    conf/lt~obsolete.m4
+	D    conf/ltoptions.m4
+
+2013-01-28  Nathan Potter <ndp@opendap.org>
+
+2013-01-28  Nathan Potter <ndp@opendap.org>
+
+	ugrid_functions: First stab at an independant ugrid functions project.
+
+2013-01-28  Nathan Potter <ndp@opendap.org>
+
+	creating top level project for ugrid functions
+
+;; Local Variables:
+;; coding: utf-8
+;; End:
+2011-01-01  Nathan Potter <ndp@opendap.org>
+
+Creating Change Log

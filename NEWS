@@ -1,0 +1,8 @@
+Version 1.0.1
+
+This is the first official release of the ugrid_functions module. This module
+adds a server side function to Hyrax that allows a user to request domain subsets 
+of unstructured gridded data sets that conform to the convention described here: 
+
+    https://github.com/ugrid-conventions/ugrid-conventions
+
