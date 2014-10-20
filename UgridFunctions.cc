@@ -65,8 +65,10 @@ void UgridFunctions::initialize(const string &/*modname*/) {
 #endif
 
     BESDEBUG("UgridFunctions", "initialize() - Adding UGR5 function..." << endl);
+
     ugrid::UGR5 *ugr5 = new ugrid::UGR5();
     libdap::ServerFunctionsList::TheList()->add_function(ugr5);
+
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
     BESDEBUG( "UgridFunctions", "initialize() - END" << endl );

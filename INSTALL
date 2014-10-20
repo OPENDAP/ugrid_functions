@@ -21,7 +21,9 @@ BUILDING THE SOFTWARE
      edited. Make sure you read over the CONFIGURATION section! Thanks.
 
   1. Type `./configure' at the system prompt. On some systems you may have
-     to type `sh configure'.
+     to type `sh configure'. If you are building this to run wiht a BES that
+     was installed from RPM packages, be sure to check out the info about
+     that in the README file!
 
   2. Type `make' to build the software, `make check' to run the tests.
 
