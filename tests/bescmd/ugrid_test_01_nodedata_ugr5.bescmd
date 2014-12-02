@@ -10,5 +10,5 @@
       <bes:constraint>ugr5(0,oneDnodedata,twoDnodedata,threeDnodedata,%22X%3E=0%22)</bes:constraint>
     </bes:container>
   </bes:define>
-  <bes:get type="ascii" definition="d1" />
+  <bes:get type="dods" definition="d1" />
 </bes:request>

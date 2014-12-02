@@ -7,11 +7,18 @@ AUTOMAKE_OPTIONS = foreign
 
 # Headers in 'tests' are used by the arrayT unit tests.
 
-AM_CPPFLAGS = -I$(top_srcdir) $(GF_CFLAGS) $(XML2_CFLAGS)
-AM_LDADD =  $(GF_LIBS)
+if DAP_MODULES
+AM_CPPFLAGS = -I$(top_srcdir)/modules/ugrid_functions $(GF_CFLAGS) -I$(top_srcdir)/dispatch -I$(top_srcdir)/dap $(DAP_CFLAGS)
+LIBADD = $(GF_LIBS) $(BES_DISPATCH_LIB) $(BES_EXTRA_LIBS) $(DAP_SERVER_LIBS) $(DAP_CLIENT_LIBS)
+else
+AM_CPPFLAGS = I$(top_srcdir) $(GF_CFLAGS) $(XML2_CFLAGS)
+LIBADD = $(GF_LIBS) 
+endif
+
+# AM_CPPFLAGS = -I$(top_srcdir) $(GF_CFLAGS) $(XML2_CFLAGS)
 if CPPUNIT
 AM_CPPFLAGS += $(CPPUNIT_CFLAGS)
-AM_LDADD += $(CPPUNIT_LIBS)
+LIBADD += $(CPPUNIT_LIBS)
 endif
 
 if USE_VALGRIND
@@ -39,9 +46,6 @@ CLEANFILES = testout .dodsrc  *.gcda *.gcno
 
 DISTCLEANFILES = test_config.h *.strm *.file tmp.txt
 
-# test_config.h: test_config.h.in Makefile
-#	sed -e "s%[@]abs_srcdir[@]%${abs_srcdir}%" $< > test_config.h
-
 ############################################################################
 # Unit Tests
 #
@@ -60,17 +64,15 @@ check-local:
 	@echo ""
 endif
 
-# TEST_SRC = testFile.cc testFile.h
-
-NDimArrayTest_SOURCES = NDimArrayTest.cc
-NDimArrayTest_LDADD = ../.libs/libugrid_functions_la-NDimensionalArray.o $(AM_LDADD)
+NDimArrayTest_SOURCES =  NDimArrayTest.cc
+NDimArrayTest_LDADD = ../NDimensionalArray.o $(LIBADD)
 
 BindTest_SOURCES = BindTest.cc
-BindTest_LDADD = $(AM_LDADD)
+BindTest_LDADD = $(LIBADD)
 
 GFTests_SOURCES = GFTests.cc
-GFTests_LDADD = $(AM_LDADD)
+GFTests_LDADD = $(LIBADD)
 
 possibly_lost_SOURCES = possibly_lost.cc
-possibly_lost_LDADD = $(AM_LDADD)
+possibly_lost_LDADD = $(LIBADD)
 

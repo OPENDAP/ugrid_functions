@@ -9,19 +9,21 @@ AT_TESTED([besstandalone])
 
 AT_ARG_OPTION_ARG([generate g],
     [  -g arg, --generate=arg   Build the baseline file for test 'arg'],
-    [if ./generate_metadata_baseline.sh $at_arg_generate; then
+    [if besstandalone -c $abs_builddir/bes.conf -i $abs_srcdir/$at_arg_generate \
+     > $abs_srcdir/$at_arg_generate.baseline; then
          echo "Built baseline for $at_arg_generate"
      else
          echo "Could not generate baseline for $at_arg_generate"
      fi     
      exit],[])
 
-AT_ARG_OPTION_ARG([generate-data a],
-    [  -a arg, --generate-data=arg   Build the baseline file for test 'arg'],
-    [if ./generate_data_baseline.sh $at_arg_generate_data; then
-         echo "Built baseline for $at_arg_generate_data"
+AT_ARG_OPTION_ARG([data a],
+    [  -a arg, --data=arg   Build the baseline file for test 'arg'],
+    [if besstandalone -c $abs_builddir/bes.conf -i $abs_srcdir/$at_arg_data \
+     | getdap -M - > $abs_srcdir/$at_arg_data.baseline; then
+         echo "Built baseline for $at_arg_data"
      else
-         echo "Could not generate baseline for $at_arg_generate_data"
+         echo "Could not generate baseline for $at_arg_data"
      fi     
      exit],[])
 

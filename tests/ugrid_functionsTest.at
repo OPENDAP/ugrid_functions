@@ -4,7 +4,8 @@ m4_include([handler_tests_macros.m4])
 
 AT_BESCMD_RESPONSE_TEST([ugrid_test_01_unconstrained_ugr5.bescmd])
 AT_BESCMD_RESPONSE_TEST([ugrid_test_01_constrained_ugr5.bescmd])
-AT_BESCMD_RESPONSE_TEST([ugrid_test_01_constrained_2_ugr5.bescmd])
 
-AT_BESCMD_RESPONSE_TEST([ugrid_test_01_celldata_ugr5.bescmd])
-AT_BESCMD_RESPONSE_TEST([ugrid_test_01_nodedata_ugr5.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_constrained_2_ugr5.bescmd])
+
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_celldata_ugr5.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_nodedata_ugr5.bescmd])
