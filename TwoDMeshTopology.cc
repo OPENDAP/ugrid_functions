@@ -1166,11 +1166,13 @@ libdap::Array *TwoDMeshTopology::getNewFncDapArray(libdap::Array *templateArray,
 	// Is the template array really 3xN?
 	libdap::Array::Dim_iter di = templateArray->dim_begin();
 	if (di->c_size != 3) {
-		string msg =
-				"Expected a 2 dimensional array with shape of 3xN! The array "
-						+ templateArray->name() + " has a first "
+		string  msg =
+				"Expected a 2 dimensional array with shape of 3xN! The array '"
+						+ templateArray->name() + "' has a first "
 						+ "dimension of size " + libdap::long_to_string(di->c_size);
 		BESDEBUG("ugrid", "TwoDMeshTopology::getNewFcnDapArray() - "<< msg << endl);
+		templateArray->print_decl(cerr, " ", true,false, true);
+
 		throw Error(malformed_expr, msg);
 	}
 

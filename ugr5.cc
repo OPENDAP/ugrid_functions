@@ -508,10 +508,11 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         tdmt->addIndexVariable(face);
         tdmt->applyRestrictOperator(args.dimension, args.filterExpression);
 
-        // 3: because there are nodes, edges, and faces. jhrg 10/25/13
+        // 3: because there are nodes (rank = 0), edges (rank = 1), and faces (rank = 2). jhrg 10/25/13
         vector<vector<unsigned int> *> location_subset_indices(3);
 
         long nodeResultSize = tdmt->getResultGridSize(node);
+        BESDEBUG("ugrid", "ugr5() - there are "<< nodeResultSize << " nodes in the subset." << endl);
         vector<unsigned int> node_subset_index(nodeResultSize);
         tdmt->getResultIndex(node, &node_subset_index[0]);
 
@@ -521,18 +522,19 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
 
         long faceResultSize = tdmt->getResultGridSize(face);
-        vector<unsigned int> face_subset_index(faceResultSize);
-        tdmt->getResultIndex(face, &face_subset_index[0]);
-
-        location_subset_indices[face] = &face_subset_index;
-        BESDEBUG("ugrid", "ugr5() - face_subset_index"<< vectorToString(&face_subset_index) << endl);
+        BESDEBUG("ugrid", "ugr5() - there are "<< faceResultSize << " faces in the subset." << endl);
+        if(faceResultSize > 0){
+        	vector<unsigned int> face_subset_index(faceResultSize);
+        	tdmt->getResultIndex(face, &face_subset_index[0]);
+        	location_subset_indices[face] = &face_subset_index;
+        	BESDEBUG("ugrid", "ugr5() - face_subset_index"<< vectorToString(&face_subset_index) << endl);
+        }
 
 
         // This gets all the stuff that's attached to the grid - which at this point does not include the range variables but does include the
         // index variable. good enough for now but need to drop the index....
         tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
 
-        BESDEBUG("ugrid", "ugr5() - face_subset_index"<< vectorToString(&node_subset_index) << endl);
 
         BESDEBUG("ugrid", "ugr5() - Restriction of mesh_topology '"<< tdmt->getMeshVariable()->name() << "' structure completed." << endl);
 
