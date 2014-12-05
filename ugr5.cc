@@ -523,12 +523,13 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
         long faceResultSize = tdmt->getResultGridSize(face);
         BESDEBUG("ugrid", "ugr5() - there are "<< faceResultSize << " faces in the subset." << endl);
+        vector<unsigned int> face_subset_index(faceResultSize);
         if(faceResultSize > 0){
-        	vector<unsigned int> face_subset_index(faceResultSize);
         	tdmt->getResultIndex(face, &face_subset_index[0]);
-        	location_subset_indices[face] = &face_subset_index;
-        	BESDEBUG("ugrid", "ugr5() - face_subset_index"<< vectorToString(&face_subset_index) << endl);
         }
+    	location_subset_indices[face] = &face_subset_index;
+    	BESDEBUG("ugrid", "ugr5() - face_subset_index: "<< vectorToString(&face_subset_index) << endl);
+
 
 
         // This gets all the stuff that's attached to the grid - which at this point does not include the range variables but does include the
