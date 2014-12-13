@@ -4,6 +4,14 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I conf
 
+if DAP_MODULES
+AM_CPPFLAGS = $(GF_CFLAGS) -I$(top_srcdir)/dispatch -I$(top_srcdir)/dap $(DAP_CFLAGS)
+LIBADD = $(GF_LIBS) $(DAP_SERVER_LIBS) $(DAP_CLIENT_LIBS)
+else
+AM_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
+LIBADD = $(GF_LIBS) 
+endif
+
 # These are not used by automake but are often useful for certain types of
 # debugging. The best way to use these is to run configure as:
 #     export CXXFLAGS='...'; ./configure --disable-shared
@@ -12,7 +20,7 @@ CXXFLAGS_DEBUG = -g3 -O0  -Wall -Wcast-align
 TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 SUBDIRS =  . unit-tests tests
-DIST_SUBDIRS = unit-tests tests
+# DIST_SUBDIRS = unit-tests tests
 
 lib_besdir=$(libdir)/bes
 lib_bes_LTLIBRARIES = libugrid_functions.la
@@ -33,15 +41,15 @@ HDRS = UgridFunctions.h\
 	NDimensionalArray.h 
 
 libugrid_functions_la_SOURCES = $(SRCS) $(HDRS)
-libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
+# libugrid_functions_la_CPPFLAGS = $(GF_CFLAGS) $(XML2_CFLAGS)
 libugrid_functions_la_LDFLAGS = -avoid-version -module 
-libugrid_functions_la_LIBADD = $(GF_LIBS) 
+libugrid_functions_la_LIBADD = $(LIBADD) 
 
 EXTRA_DIST = data COPYING ugrid_functions.conf.in ugrid_functions.spec
 
 package_version=$(PACKAGE_MAJOR_VERSION).$(PACKAGE_MINOR_VERSION).$(PACKAGE_SUBMINOR_VERSION)
 
-CLEANFILES = *~ ugrid_functions.conf ugrid_functions-$(package_version).tar.gz
+CLEANFILES = *~ ugrid_functions.conf ugrid_functions-*.tar.gz
 
 # ugrid_functions.spec OSX_Resources
 
