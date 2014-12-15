@@ -514,8 +514,9 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         long nodeResultSize = tdmt->getResultGridSize(node);
         BESDEBUG("ugrid", "ugr5() - there are "<< nodeResultSize << " nodes in the subset." << endl);
         vector<unsigned int> node_subset_index(nodeResultSize);
-        tdmt->getResultIndex(node, &node_subset_index[0]);
-
+        if(nodeResultSize>0){
+        	tdmt->getResultIndex(node, &node_subset_index[0]);
+        }
         location_subset_indices[node] = &node_subset_index;
 
         BESDEBUG("ugrid", "ugr5() - node_subset_index"<< vectorToString(&node_subset_index) << endl);
