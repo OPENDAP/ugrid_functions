@@ -9,6 +9,8 @@ AC_CONFIG_MACRO_DIR([conf])
 
 AM_INIT_AUTOMAKE(1.10)
 
+AM_CONDITIONAL([DAP_MODULES], [false])
+
 # The handler is a shared object library, so we don't normally need
 # the static lib. Override this default by specifying `--enable-static',
 # which can make running unit tests with valgrind far more pleasant. 
@@ -132,12 +134,20 @@ fi
 
 dnl OPENDAP_DEBUG_OPTION
 
+## This sets up the special symbols used to build the bes.conf file for
+## the tests. Previously, this was done in the Makefile.am down in the
+## test directory, but building the bes.conf here works better with
+## autoconf overall and esp. with the 'modules' build. jhrg 11/19/14
+modulesdir=$BES_MODULE_DIR
+AC_SUBST(modulesdir)
+
 AC_CONFIG_FILES([Makefile 
 	unit-tests/Makefile
 	unit-tests/test_config.h
 	tests/Makefile 
 	tests/package.m4 
-	tests/atlocal])
+	tests/atlocal
+	tests/bes.conf])
 
 AC_CONFIG_FILES([tests/generate_data_baseline.sh], 
 	[chmod 755 tests/generate_data_baseline.sh])
