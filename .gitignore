@@ -44,6 +44,7 @@ aclocal.m4
 libtool
 atconfig
 atlocal
+ugrid_functions.conf
 
 ## ugrid_functions specific files
 
