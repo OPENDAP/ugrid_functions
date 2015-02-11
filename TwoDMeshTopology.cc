@@ -160,7 +160,7 @@ void TwoDMeshTopology::init(string meshVarName, DDS *dds)
     if(bt)
         d_myMeshVar = bt;
     else
-        throw new Error("Unable to locate variable: "+meshVarName);
+        throw Error("Unable to locate variable: "+meshVarName);
 
 
     BaseType *meshVar = getMeshVariable();

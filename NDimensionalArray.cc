@@ -621,7 +621,7 @@ long NDimensionalArray::getLastDimensionElementCount(){
 libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray){
 
     if(_shape->size() != templateArray->dimensions(true))
-        throw new Error("Template Array has different number of dimensions than NDimensional Array!!");
+        throw Error("Template Array has different number of dimensions than NDimensional Array!!");
 
     libdap::Array  *resultDapArray;
 
