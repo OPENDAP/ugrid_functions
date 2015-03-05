@@ -100,7 +100,7 @@ static void addRangeVar(DDS *dds, libdap::Array *rangeVar, map<string, vector<Me
         string msg = "The range variable '"+mdv->getName()+"' references the mesh variable '"+meshVarName+
                 "' which cannot be located in this dataset.";
         BESDEBUG("ugrid", "addRangeVar() - " << msg  << endl);
-        throw new Error(no_such_variable,msg);
+        throw Error(no_such_variable,msg);
     }
 
 
