@@ -1,3 +1,74 @@
+2015-03-19  James Gallagher  <jgallagher@opendap.org>
+
+	Fix for	distclean and the modules build.
+
+2015-03-04  James Gallagher  <jgallagher@opendap.org>
+
+	Merge branch 'master' of https://github.com/opendap/ugrid_functions
+
+2015-02-10  Nathan Potter  <ndp@opendap.org>
+
+	Fixed bad pattern of 'throw new Error/Exception' - a byproduct of
+	thinking in Java and not C++
+
+	Merge branch 'master' of https://github.com/opendap/ugrid_functions
+
+	Fixed bad pattern of 'throw new Error'
+
+2015-02-03  James Gallagher  <jgallagher@opendap.org>
+
+	Added ugrid_functions.conf to gitignore.
+
+2015-01-16  James Gallagher  <jgallagher@opendap.org>
+
+	Removed dist-hook which as a hack for SVN
+
+2014-12-15  Nathan Potter  <ndp@opendap.org>
+
+	Merge branch 'master' of https://github.com/opendap/ugrid_functions
+
+	ugrid-functions: Indtrumentation.
+
+2014-12-12  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed configure.ac and unit-tests/Makefile.am after merging with 'modules'
+
+	Merge remote-tracking branch 'origin/modules'
+
+2014-12-05  Nathan Potter  <ndp@opendap.org>
+
+	ugrid_functions: Fixed to support empty fnc arrays without error
+
+2014-12-03  Nathan Potter  <ndp@opendap.org>
+
+	olfs: Some instrumentation for ugrid
+
+2014-12-02  James Gallagher  <jgallagher@opendap.org>
+
+	Added ugrid_fucntions to the bes modules build.
+
+2014-10-20  James Gallagher  <jgallagher@opendap.org>
+
+	Added the ugr5() implementation code and some text in the README and INSTALL files.
+	M    INSTALL
+	M    README
+	M    UgridFunctions.cc
+
+2014-04-23  Nathan Potter  <ndp@opendap.org>
+
+	ugrid_functions: Checking software version update and associated release changes.
+
+	ugrid_functions: Checking software version update and associated release changes.
+
+2014-04-23  James Gallagher  <jgallagher@opendap.org>
+
+	minor change - testing to see if fortify's report was a quirk of a
+	rule or something else. Not conclusive, but the change removes a
+	unneeded temporary variable. M ugrid_utils.cc
+
+	Updated the version number of the gridfields library.
+	M    configure.ac
+	
 2014-04-22  James Gallagher <jgallagher@opendap.org>
 
 	Added.

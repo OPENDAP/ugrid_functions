@@ -4,6 +4,10 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I conf
 
+# Set the module version here, in the spec file and in configure.ac
+M_NAME=ugrid_functions
+M_VER=1.0.2
+
 if DAP_MODULES
 AM_CPPFLAGS = $(GF_CFLAGS) -I$(top_srcdir)/dispatch -I$(top_srcdir)/dap $(DAP_CFLAGS)
 LIBADD = $(GF_LIBS) $(DAP_SERVER_LIBS) $(DAP_CLIENT_LIBS)
@@ -146,5 +150,3 @@ pkg-dmg: pkg-main
 	-rm -rf @PACKAGE@-@PACKAGE_VERSION@
 
 pkg: pkg-main
-
-                
