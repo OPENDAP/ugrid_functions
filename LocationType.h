@@ -1,9 +1,3 @@
-/*
- * LocationType.h
- *
- *  Created on: Dec 12, 2012
- *      Author: jimg
- */
 
 // Copyright (c) 2012 OPeNDAP, Inc.
 // Authors: Nathan Potter <ndp@opendap.org>

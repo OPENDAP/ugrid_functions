@@ -1,4 +1,5 @@
-netcdf hex {
+
+netcdf ugrid_test_01 {
 dimensions:
 	condition = 4 ;
 	time = 3 ;
@@ -41,7 +42,7 @@ variables:
 		bogusMeshRef:location = "node" ;
 data:
 
- fvcom_mesh = 666;
+ fvcom_mesh = 1;
  
  X = -1.0, 0.0, 1.0, 1.5,  1.0,  0.0, -1.0, -1.5, 0.0 ;
 

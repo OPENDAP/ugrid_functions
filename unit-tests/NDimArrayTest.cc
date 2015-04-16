@@ -131,7 +131,7 @@ public:
 
         double pi = std::atan(1)*4;
         dods_float64 stuff[lastDimSize];
-        for(long i=0; i<lastDimSize ;i++)
+        for(unsigned long i=0; i<lastDimSize ;i++)
             stuff[i] = pi;
 
         DBG(cerr << " setLastDimesnionHyperSlab_test() - setting slab values to "<< libdap::double_to_string(pi) << endl);
@@ -183,7 +183,7 @@ public:
             test.add_constraint(dIt,start[i],stride[i],stop[i]);
         }
 
-        long constrainedSize = libdap::NDimensionalArray::computeConstrainedShape(&test,&shape);
+        unsigned long constrainedSize = libdap::NDimensionalArray::computeConstrainedShape(&test,&shape);
         DBG(cerr << " getLastDimesnionHyperSlab_test() - constrainedSize="<< libdap::long_to_string(constrainedSize) << endl);
         CPPUNIT_ASSERT(constrainedSize == 50000);
 

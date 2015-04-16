@@ -30,9 +30,9 @@
 
 #include "LocationType.h"
 
-using namespace std;
-using namespace libdap;
-using namespace ugrid;
+//using namespace std;
+//using namespace libdap;
+//using namespace ugrid;
 
 namespace libdap {
     class Array;
@@ -40,29 +40,29 @@ namespace libdap {
 
 namespace ugrid {
 
-class MeshDataVariable {
+class MeshDataVariable
+{
 
 private:
 
     bool _initialized;
 
-	/**
-	 * The DAP dataset variable that the user requested.
-	 */
-	libdap::Array *meshDataVar;
+    /**
+     * The DAP dataset variable that the user requested.
+     */
+    libdap::Array *meshDataVar;
 
-	/*
-	 * Coordinate Dimension
-	 */
-	libdap::Array::Dim_iter _coordinateDimension;
+    /*
+     * Coordinate Dimension
+     */
+    libdap::Array::Dim_iter _coordinateDimension;
 
-	/**
-	 * REQUIRED
-	 * The attribute mesh points to the mesh_topology variable containing the meta-data attributes
-	 * of the mesh on which the variable has been defined.
-	 */
-	string meshName;
-
+    /**
+     * REQUIRED
+     * The attribute mesh points to the mesh_topology variable containing the meta-data attributes
+     * of the mesh on which the variable has been defined.
+     */
+    string meshName;
 
     /**
      * REQUIRED
@@ -71,55 +71,44 @@ private:
      */
     locationType myGridLocation;
 
-
-
-	/**
-	 * OPTIONAL
-	 * The use of the coordinates attribute is copied from the CF-conventions.
-	 * It is used to map the values of variables defined on the unstructured
-	 * meshes directly to their location: latitude, longitude and optional elevation.
-	 *
-	 * The attribute node_coordinates contains a list of the whitespace separated names of
-	 * the auxiliary coordinate variables representing the node locations (latitude,
-	 * longitude, and optional elevation or other coordinates). These auxiliary coordinate
-	 * variables will have length nNodes or nFaces, depending on the value of the location attribute.
-	 *
-	 * It appears that the coordinates attribute is redundant since the coordinates could also be
-	 * obtained by using the appropriate coordinates definition in the mesh topology.
-	 *
-	 */
-	//vector<string> *coordinateNames;
-	//vector<Array *> *coordinateArrays;
+    /**
+     * OPTIONAL
+     * The use of the coordinates attribute is copied from the CF-conventions.
+     * It is used to map the values of variables defined on the unstructured
+     * meshes directly to their location: latitude, longitude and optional elevation.
+     *
+     * The attribute node_coordinates contains a list of the whitespace separated names of
+     * the auxiliary coordinate variables representing the node locations (latitude,
+     * longitude, and optional elevation or other coordinates). These auxiliary coordinate
+     * variables will have length nNodes or nFaces, depending on the value of the location attribute.
+     *
+     * It appears that the coordinates attribute is redundant since the coordinates could also be
+     * obtained by using the appropriate coordinates definition in the mesh topology.
+     *
+     */
+    //vector<string> *coordinateNames;
+    //vector<Array *> *coordinateArrays;
 public:
 
+    MeshDataVariable();
 
+    void setGridLocation(locationType loc) { myGridLocation = loc; }
+    locationType getGridLocation() const  { return myGridLocation; }
 
-	MeshDataVariable();
+    void setMeshName(string mName)  { meshName = mName; }
+    string getMeshName() const { return meshName; }
 
-	void setGridLocation(locationType loc){myGridLocation = loc;}
-	locationType getGridLocation(){return myGridLocation;}
+    string getName() const { return meshDataVar->name(); }
 
-	void setMeshName(string mName){meshName=mName;}
-	string getMeshName(){ return meshName;}
+    libdap::Array *getDapArray() const { return meshDataVar; }
 
-	string getName(){ return meshDataVar->name();}
+    libdap::Array::Dim_iter getLocationCoordinateDimension() const { return _coordinateDimension; }
 
-	libdap::Array *getDapArray(){ return meshDataVar;}
+    void setLocationCoordinateDimension(libdap::Array::Dim_iter cdim) { _coordinateDimension = cdim; }
 
-    libdap::Array::Dim_iter getLocationCoordinateDimension(){
-        return _coordinateDimension;
-    }
-
-    void setLocationCoordinateDimension(libdap::Array::Dim_iter cdim){
-        _coordinateDimension = cdim;
-    }
-
-	void init(libdap::Array *dapArray);
-
-
+    void init(libdap::Array *dapArray);
 };
 
-
-}// namespace gf3
+} // namespace ugrid
 
 #endif // _MeshDataVariable_h
