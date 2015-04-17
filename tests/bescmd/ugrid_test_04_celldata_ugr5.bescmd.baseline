@@ -1,0 +1,9 @@
+The data:
+Structure {
+    Float64 X[nodes = 6];
+    Float64 Y[nodes = 6];
+    Int32 fnca[faces = 4][three = 3];
+    Int32 fvcom_mesh;
+    Float32 celldata[faces = 4];
+} ugr_result = { {0, 1, 1.5, 1, 0, 0}, {1.5, 1, 0, -1, -1.5, 0}, {{1, 2, 6},{2, 3, 6},{3, 4, 6},{4, 5, 6}}, 17, {0.2, 0.3, 0.4, 0.5} };
+
