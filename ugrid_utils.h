@@ -70,8 +70,22 @@ namespace ugrid {
 GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
 GF::Array *newGFIndexArray(string name, long size, vector<int*> *sharedIntArrays);
 
+string getAttributeValue(libdap::BaseType *bt, string aName) ;
+bool matchesCfRoleOrStandardName(libdap::BaseType *bt, string aValue);
+
+bool checkAttributeValue(libdap::BaseType *bt, string aName, string aValue);
+
+vector<string> split(const string &s, char delim);
+vector<string> &split(const string &s, char delim, vector<string> &elems);
+
+int getNfrom3byNArray(libdap::Array *array);
+
+libdap::Type getGridfieldsReturnType(libdap::Type type);
+
 /**
- * DAP Array data extraction helper method.
+ * Helper for extractArray.
+ * @param a
+ * @return Data from a DAP array of type DODS in an array of type T
  */
 template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
     int length = a->length();
@@ -90,10 +104,23 @@ template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
     return dest;
 }
 
-/** Given a pointer to an Array that holds a numeric type, extract the
- values and return in an array of T. This function allocates the
- array using 'new T[n]' so delete[] can be used when you are done
- the data. */
+/**
+ * Given a pointer to an Array that holds a numeric type, extract the
+ * values and return in an array of T. This function allocates the
+ * array using 'new T[n]' so delete[] should be used when you are done
+ * the data.
+ *
+ * @note In ugr5() this is called only from one place in TwoDMeshTopology
+ * to extract the indexes for the ugrid FNC array. and I think the FNC
+ * array must be an int32 or uint32. Given that the GF::Node type is an
+ * uint32, this code is technically not needed. This function does not
+ * test for the case where T and DODS are actually equivalent types, and
+ * will perform an unnecessary copy on the data in that case.
+ *
+ * @param a The libdap Array.
+ * @return An array of type T where T is determined by the lvalue of the
+ * call to the function.
+ */
 template<typename T> T *extractArray(libdap::Array *a) {
 
     // Simple types are Byte, ..., Float64, String and Url.
@@ -101,17 +128,7 @@ template<typename T> T *extractArray(libdap::Array *a) {
         || a->var()->type() == libdap::dods_str_c || a->var()->type() == libdap::dods_url_c)
         throw libdap::Error(malformed_expr, "The function requires a DAP numeric-type array argument.");
 
-    a->set_send_p(true);
     a->read();
-    // This test should never pass due to the previous two lines;
-    // reading here seems to make
-    // sense rather than letting the caller forget to do so.
-    // is read() idemopotent?
-    if (!a->read_p())
-        throw libdap::InternalErr(__FILE__, __LINE__,
-                string("The Array '") + a->name() + "'does not contain values. send_read_p() not called?");
-
-
 
     // The types of arguments that the CE Parser will build for numeric
     // constants are limited to Uint32, Int32 and Float64. See ce_expr.y.
@@ -145,18 +162,6 @@ template<typename T> T *extractArray(libdap::Array *a) {
                 "The argument list built by the CE parser contained an unsupported numeric type.");
     }
 }
-
-string getAttributeValue(libdap::BaseType *bt, string aName) ;
-bool matchesCfRoleOrStandardName(libdap::BaseType *bt, string aValue);
-
-bool checkAttributeValue(libdap::BaseType *bt, string aName, string aValue);
-
-vector<string> split(const string &s, char delim);
-vector<string> &split(const string &s, char delim, vector<string> &elems);
-
-int getNfrom3byNArray(libdap::Array *array);
-
-libdap::Type getGridfieldsReturnType(libdap::Type type);
 
 }// namespace ugrid
 

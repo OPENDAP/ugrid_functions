@@ -205,7 +205,7 @@ private:
     libdap::Array *getGFAttributeAsDapArray(libdap::Array *sourceArray, locationType rank,
             GF::GridField *resultGridField);
     libdap::Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray);
-    libdap::Array *getNewFncDapArray(libdap::Array *templateArray, int N);
+    // libdap::Array *getNewFncDapArray(libdap::Array *templateArray, int N);
 
     void setNodeCoordinateDimension(MeshDataVariable *mdv);
     void setFaceCoordinateDimension(MeshDataVariable *mdv);
@@ -216,7 +216,7 @@ public:
 
     void init(string meshVarName, libdap::DDS *dds);
 
-    string name() const { return getMeshVariable()->name(); }
+    string meshVarName() const { return getMeshVariable()->name(); }
 
     libdap::BaseType *getMeshVariable() const { return d_meshVar; }
 

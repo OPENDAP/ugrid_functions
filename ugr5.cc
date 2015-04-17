@@ -167,20 +167,9 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[])
     args.filterExpression = dynamic_cast<Str&>(*bt).value();
     BESDEBUG("ugrid", "args.filterExpression: '" << args.filterExpression << "' (AS RECEIVED)" << endl);
 
-#if 0
-    int decodedLength;
-    // TODO Use escaping.cc code
-    CURL *curl = curl_easy_init();
-    char *decodedFilterExpression = curl_easy_unescape(curl, args.filterExpression.c_str(),
-            args.filterExpression.size(), &decodedLength);
-    curl_easy_cleanup(curl);
-    args.filterExpression = string(decodedFilterExpression, decodedLength);
-#endif
-
     args.filterExpression = www2id(args.filterExpression);
 
     BESDEBUG("ugrid", "args.filterExpression: '" << args.filterExpression << "' (URL DECODED)" << endl);
-    //curl_free(decodedFilterExpression);
 
     // --------------------------------------------------
     // Process the range variables selected by the user.
@@ -488,14 +477,11 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
     // Since we only want each ugrid structure to appear in the results one time  (cause otherwise we might be trying to add
     // the same variables with the same names to the result multiple times.) we grind on this by iterating over the
     // names of the mesh topology names.
-    vector<MeshDataVariable *>::iterator rvit;
     map<string, vector<MeshDataVariable *> *>::iterator mit;
     for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
 
         string meshVariableName = mit->first;
         vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
-
-        vector<BaseType *> dapResults;
 
         // Building the restricted TwoDMeshTopology without adding any range variables and then converting the result
         // Grid field to Dap Objects should return all of the Ugrid structural stuff - mesh variable, node coordinate variables,
@@ -535,6 +521,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
         // This gets all the stuff that's attached to the grid - which at this point does not include the range variables but does include the
         // index variable. good enough for now but need to drop the index....
+        vector<BaseType *> dapResults;
         tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
 
         BESDEBUG("ugrid",
@@ -543,6 +530,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         // now that we have the mesh topology variable we are going to look at each of the requested
         // range variables (aka MeshDataVariable instances) and we're going to subset that using the
         // gridfields library and add its subset version to the results.
+        vector<MeshDataVariable *>::iterator rvit;
         for (rvit = requestedRangeVarsForMesh->begin(); rvit != requestedRangeVarsForMesh->end(); rvit++) {
             MeshDataVariable *mdv = *rvit;
 
@@ -569,27 +557,19 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         BESDEBUG("ugrid", "ugr5() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
 
         for (vector<BaseType *>::iterator i = dapResults.begin(); i != dapResults.end(); ++i) {
-#if 0
-            BaseType *bt = *i;
-            // FIXME Hackery for renci tests jhrg 4/15/15
-            if (bt->name() == "meshVar") {
-                bt->read();
-                bt->set_read_p(true);
-            }
-
-            //continue;
-#endif
-            BESDEBUG("ugrid",
-                    "ugr5() - Adding variable "<< (*i)->name() << " to DAP structure " << dapResult->name() << endl);
+            BESDEBUG("ugrid", "ugr5() - Adding variable "<< (*i)->name() << " to DAP structure " << dapResult->name() << endl);
             dapResult->add_var_nocopy(*i);
         }
     }
 
     *btpp = dapResult;
 
+    // TODO replace with auto_ptr. jhrg 4/17/15
+
     BESDEBUG("ugrid", "ugr5() - Releasing maps and vectors..." << endl);
     for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
         vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
+        vector<MeshDataVariable *>::iterator rvit;
         for (rvit = requestedRangeVarsForMesh->begin(); rvit != requestedRangeVarsForMesh->end(); rvit++) {
             MeshDataVariable *mdv = *rvit;
             delete mdv;
