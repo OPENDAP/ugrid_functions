@@ -46,11 +46,16 @@
 #include "util.h"
 
 #include "ugrid_utils.h"
-#include "NDimensionalArray.h"
+//#include "NDimensionalArray.h"
 #include "MeshDataVariable.h"
 #include "TwoDMeshTopology.h"
 
 #include "BESDebug.h"
+
+#ifdef NDEBUG
+#undef BESDEBUG
+#define BESDEBUG( x, y )
+#endif
 
 using namespace std;
 using namespace libdap;
@@ -58,10 +63,10 @@ using namespace ugrid;
 
 namespace ugrid {
 
+/* not used. faceCoordinateNames(0), */
 TwoDMeshTopology::TwoDMeshTopology() :
         d_meshVar(0), nodeCoordinateArrays(0), nodeCount(0), faceNodeConnectivityArray(0), faceCount(0),
-        /* not used. faceCoordinateNames(0), */faceCoordinateArrays(0), gridTopology(0), d_inputGridField(0),
-        resultGridField(0), fncCellArray(0), _initialized(false)
+        faceCoordinateArrays(0), gridTopology(0), d_inputGridField(0), resultGridField(0), fncCellArray(0), _initialized(false)
 {
     rangeDataArrays = new vector<MeshDataVariable *>();
     sharedIntArrays = new vector<int *>();
@@ -132,14 +137,13 @@ void TwoDMeshTopology::init(string meshVarName, DDS *dds)
 
     d_meshVar = dds->var(meshVarName);
 
-    if (!d_meshVar)
-         throw Error("Unable to locate variable: " + meshVarName);
+    if (!d_meshVar) throw Error("Unable to locate variable: " + meshVarName);
 
     dimension = getAttributeValue(d_meshVar, UGRID_TOPOLOGY_DIMENSION);
 
     if (dimension.empty()) {
-        string msg = "ugr5(): The mesh topology variable  '" + d_meshVar->name()
-                + "' is missing the required attribute named '" + UGRID_TOPOLOGY_DIMENSION + "'";
+        string msg = "ugr5(): The mesh topology variable  '" + d_meshVar->name() + "' is missing the required attribute named '"
+                + UGRID_TOPOLOGY_DIMENSION + "'";
         BESDEBUG("ugrid", "TwoDMeshTopology::init() - " << msg);
         throw Error(msg);
     }
@@ -168,13 +172,12 @@ void TwoDMeshTopology::init(string meshVarName, DDS *dds)
     try {
         d_meshVar->read();    // read() sets read_p to true
     }
-    catch(Error &e) {
+    catch (Error &e) {
         // Make sure to report problems with this so it's easy to see that the
         // mesh variable was the culprit.
-        throw Error(malformed_expr, "ugr5(): While trying to read the UGrid mesh variable, an error occurred: "
-                + e.get_error_message());
+        throw Error(malformed_expr, "ugr5(): While trying to read the UGrid mesh variable, an error occurred: " + e.get_error_message());
     }
-    catch(std::exception &e) {
+    catch (std::exception &e) {
         throw Error(malformed_expr, string("ugr5(): While trying to read the UGrid mesh variable, an error occurred: ") + e.what());
     }
 
@@ -206,9 +209,8 @@ void TwoDMeshTopology::setNodeCoordinateDimension(MeshDataVariable *mdv)
     }
 
     throw Error(
-            "Unable to determine the node coordinate dimension of the range variable '" + mdv->getName()
-                    + "'  The node dimension is named '" + nodeDimensionName + "'  with size "
-                    + libdap::long_to_string(nodeCount));
+            "Unable to determine the node coordinate dimension of the range variable '" + mdv->getName() + "'  The node dimension is named '"
+                    + nodeDimensionName + "'  with size " + libdap::long_to_string(nodeCount));
 
 }
 
@@ -233,8 +235,7 @@ void TwoDMeshTopology::setFaceCoordinateDimension(MeshDataVariable *mdv)
     }
     throw Error(
             "Unable to determine the face coordinate dimension of the range variable '" + mdv->getName()
-                    + "'  The face coordinate dimension is named '" + faceDimensionName + "' with size "
-                    + libdap::long_to_string(faceCount));
+                    + "'  The face coordinate dimension is named '" + faceDimensionName + "' with size " + libdap::long_to_string(faceCount));
 
 }
 
@@ -243,14 +244,13 @@ void TwoDMeshTopology::setLocationCoordinateDimension(MeshDataVariable *mdv)
 
     BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - BEGIN" << endl);
 
-    libdap::Array *dapArray = mdv->getDapArray();
+    // libdap::Array *dapArray = mdv->getDapArray();
 
     string locstr;
     switch (mdv->getGridLocation()) {
 
     case node: {
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::setLocationCoordinateDimension() - Checking Node variable  '"<< mdv->getName() << "'" << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - Checking Node variable  '"<< mdv->getName() << "'" << endl);
         // Locate and set the MDV's node coordinate dimension.
         setNodeCoordinateDimension(mdv);
         locstr = "node";
@@ -258,8 +258,7 @@ void TwoDMeshTopology::setLocationCoordinateDimension(MeshDataVariable *mdv)
         break;
 
     case face: {
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::setLocationCoordinateDimension() - Checking Face variable  '"<< mdv->getName() << "'" << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - Checking Face variable  '"<< mdv->getName() << "'" << endl);
         // Locate and set the MDV's face coordinate dimension.
         setFaceCoordinateDimension(mdv);
         locstr = "face";
@@ -278,7 +277,8 @@ void TwoDMeshTopology::setLocationCoordinateDimension(MeshDataVariable *mdv)
     BESDEBUG("ugrid",
             "TwoDMeshTopology::setLocationCoordinateDimension() - MeshDataVariable '"<< mdv->getName() << "' is a "<< locstr <<" variable," << endl);
     BESDEBUG("ugrid",
-            "TwoDMeshTopology::setLocationCoordinateDimension() - MeshDataVariable '"<< mdv->getName() << "' location coordinate dimension is '" << dapArray->dimension_name(mdv->getLocationCoordinateDimension()) << "'" << endl);
+            "TwoDMeshTopology::setLocationCoordinateDimension() - MeshDataVariable '"<< mdv->getName() << "' location coordinate dimension is '"
+            << /*dapArray*/ mdv->getDapArray()->dimension_name(mdv->getLocationCoordinateDimension()) << "'" << endl);
 
     BESDEBUG("ugrid", "TwoDMeshTopology::setLocationCoordinateDimension() - DONE" << endl);
 
@@ -301,9 +301,8 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
         face_node_connectivity_var_name = at.get_attr(iter_fnc, 0);
     }
     else {
-        throw Error(
-                "Could not locate the " UGRID_FACE_NODE_CONNECTIVITY " attribute in the " UGRID_MESH_TOPOLOGY " variable! "
-                "The mesh_topology variable is named " + meshTopology->name());
+        throw Error("Could not locate the " UGRID_FACE_NODE_CONNECTIVITY " attribute in the " UGRID_MESH_TOPOLOGY " variable! "
+        "The mesh_topology variable is named " + meshTopology->name());
     }
     BESDEBUG("ugrid",
             "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Located the '" << UGRID_FACE_NODE_CONNECTIVITY << "' attribute." << endl);
@@ -314,31 +313,28 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
 
     if (btp == 0)
         throw Error(
-                "Could not locate the " UGRID_FACE_NODE_CONNECTIVITY " variable named '"
-                        + face_node_connectivity_var_name + "'! " + "The mesh_topology variable is named "
-                        + meshTopology->name());
+                "Could not locate the " UGRID_FACE_NODE_CONNECTIVITY " variable named '" + face_node_connectivity_var_name + "'! "
+                        + "The mesh_topology variable is named " + meshTopology->name());
 
     // Is it an array?
     libdap::Array *fncArray = dynamic_cast<libdap::Array*>(btp);
     if (fncArray == 0) {
         throw Error(malformed_expr,
-                "Face Node Connectivity variable '" + face_node_connectivity_var_name
-                        + "' is not an Array type. It's an instance of " + btp->type_name());
+                "Face Node Connectivity variable '" + face_node_connectivity_var_name + "' is not an Array type. It's an instance of "
+                        + btp->type_name());
     }
 
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Located FNC Array '" << fncArray->name() << "'." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Located FNC Array '" << fncArray->name() << "'." << endl);
 
     // It's got to have exactly 2 dimensions - [max#nodes_per_face][#faces]
     int numDims = fncArray->dimensions(true);
     if (numDims != 2) {
         throw Error(malformed_expr,
-                "Face Node Connectivity variable '" + face_node_connectivity_var_name
-                        + "' Must have two (2) dimensions. It has " + libdap::long_to_string(numDims));
+                "Face Node Connectivity variable '" + face_node_connectivity_var_name + "' Must have two (2) dimensions. It has "
+                        + libdap::long_to_string(numDims));
     }
 
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - FNC Array '" << fncArray->name() << "' has two (2) dimensions." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - FNC Array '" << fncArray->name() << "' has two (2) dimensions." << endl);
 
     // We just need to have both dimensions handy, so get the first and the second
     libdap::Array::Dim_iter firstDim = fncArray->dim_begin();
@@ -350,20 +346,16 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
         // we punt: We'll assume that smallest of the two is in fact the nodes per face and the larger the face index dimensions.
         int sizeFirst = fncArray->dimension_size(firstDim, true);
         int sizeSecond = fncArray->dimension_size(secondDim, true);
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - sizeFirst: "<< libdap::long_to_string(sizeFirst) << endl);
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - sizeSecond: "<< libdap::long_to_string(sizeSecond) << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - sizeFirst: "<< libdap::long_to_string(sizeFirst) << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - sizeSecond: "<< libdap::long_to_string(sizeSecond) << endl);
 
         if (sizeFirst < sizeSecond) {
-            BESDEBUG("ugrid",
-                    "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - FNC Array first dimension is smaller than second." << endl);
+            BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - FNC Array first dimension is smaller than second." << endl);
             fncNodesDim = firstDim;
             fncFacesDim = secondDim;
         }
         else {
-            BESDEBUG("ugrid",
-                    "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - FNC Array second dimension is smaller than first." << endl);
+            BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - FNC Array second dimension is smaller than first." << endl);
             fncNodesDim = secondDim;
             fncFacesDim = firstDim;
         }
@@ -388,8 +380,8 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
             fncFacesDim = secondDim;
         }
         else {
-            string msg = "The face coordinate dimension of the Face Node Connectivity variable '"
-                    + face_node_connectivity_var_name + "' Has dimension name.'" + fncArray->dimension_name(fncFacesDim)
+            string msg = "The face coordinate dimension of the Face Node Connectivity variable '" + face_node_connectivity_var_name
+                    + "' Has dimension name.'" + fncArray->dimension_name(fncFacesDim)
                     + "' which does not match the existing face coordinate dimension name '" + faceDimensionName + "'";
             BESDEBUG("ugrid", msg << endl);
             throw Error(msg);
@@ -398,25 +390,21 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
 
     }
 
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Face dimension name: '" << faceDimensionName << "'" << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Face dimension name: '" << faceDimensionName << "'" << endl);
 
     // Check to see if faceCount is initialized and do so if needed
     if (faceCount == 0) {
         faceCount = fncArray->dimension_size(fncFacesDim, true);
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Face count: "<< libdap::long_to_string(faceCount) << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Face count: "<< libdap::long_to_string(faceCount) << endl);
     }
     else {
         // Make sure the face counts match.
 
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Face count: "<< libdap::long_to_string(faceCount) << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Face count: "<< libdap::long_to_string(faceCount) << endl);
         if (faceCount != fncArray->dimension_size(fncFacesDim, true)) {
-            string msg = "The faces dimension of the Face Node Connectivity variable '"
-                    + face_node_connectivity_var_name + "' Has size "
-                    + libdap::long_to_string(fncArray->dimension_size(fncFacesDim, true))
-                    + " which does not match the existing face count of " + libdap::long_to_string(faceCount);
+            string msg = "The faces dimension of the Face Node Connectivity variable '" + face_node_connectivity_var_name + "' Has size "
+                    + libdap::long_to_string(fncArray->dimension_size(fncFacesDim, true)) + " which does not match the existing face count of "
+                    + libdap::long_to_string(faceCount);
             BESDEBUG("ugrid", msg << endl);
             throw Error(msg);
         }
@@ -435,8 +423,7 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
  */
 void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds)
 {
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::ingestFaceCoordinateArrays() - BEGIN Gathering face coordinate arrays..." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - BEGIN Gathering face coordinate arrays..." << endl);
 
     if (faceCoordinateArrays == 0) faceCoordinateArrays = new vector<libdap::Array *>();
 
@@ -449,8 +436,7 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
     if (iter_nodeCoors != at.attr_end()) {
         face_coordinates = at.get_attr(iter_nodeCoors, 0);
 
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestFaceCoordinateArrays() - Located '"<< UGRID_FACE_COORDINATES << "' attribute." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - Located '"<< UGRID_FACE_COORDINATES << "' attribute." << endl);
 
         // Split the node_coordinates string up on spaces
         vector<string> faceCoordinateNames = split(face_coordinates, ' ');
@@ -460,8 +446,7 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
         for (coorName_it = faceCoordinateNames.begin(); coorName_it != faceCoordinateNames.end(); ++coorName_it) {
             string faceCoordinateName = *coorName_it;
 
-            BESDEBUG("ugrid",
-                    "TwoDMeshTopology::ingestFaceCoordinateArrays() - Processing face coordinate '"<< faceCoordinateName << "'." << endl);
+            BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - Processing face coordinate '"<< faceCoordinateName << "'." << endl);
 
             //Now that we have the name of the coordinate variable get it from the DDS!!
             BaseType *btp = dds->var(faceCoordinateName);
@@ -473,18 +458,15 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
             libdap::Array *newFaceCoordArray = dynamic_cast<libdap::Array*>(btp);
             if (newFaceCoordArray == 0) {
                 throw Error(malformed_expr,
-                        "Face coordinate variable '" + faceCoordinateName
-                                + "' is not an Array type. It's an instance of " + btp->type_name());
+                        "Face coordinate variable '" + faceCoordinateName + "' is not an Array type. It's an instance of " + btp->type_name());
             }
 
-            BESDEBUG("ugrid",
-                    "TwoDMeshTopology::ingestFaceCoordinateArrays() - Found face coordinate array '"<< faceCoordinateName << "'." << endl);
+            BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - Found face coordinate array '"<< faceCoordinateName << "'." << endl);
 
             // Coordinate arrays MUST be single dimensioned.
             if (newFaceCoordArray->dimensions(true) != 1) {
                 throw Error(malformed_expr,
-                        "Face coordinate variable '" + faceCoordinateName
-                                + "' has more than one dimension. That's just not allowed. It has "
+                        "Face coordinate variable '" + faceCoordinateName + "' has more than one dimension. That's just not allowed. It has "
                                 + long_to_string(newFaceCoordArray->dimensions(true)) + " dimensions.");
             }
             BESDEBUG("ugrid",
@@ -500,8 +482,7 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
             if (faceDimensionName.empty()) {
                 faceDimensionName = dimName;
             }
-            BESDEBUG("ugrid",
-                    "TwoDMeshTopology::ingestFaceCoordinateArrays() - faceDimensionName: '"<< faceDimensionName << "' " << endl);
+            BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - faceDimensionName: '"<< faceDimensionName << "' " << endl);
 
             if (faceDimensionName.compare(dimName) != 0) {
                 throw Error(
@@ -514,15 +495,13 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
             if (faceCount == 0) {
                 faceCount = dimSize;
             }
-            BESDEBUG("ugrid",
-                    "TwoDMeshTopology::ingestFaceCoordinateArrays() - faceCount: "<< libdap::long_to_string(faceCount) << endl);
+            BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - faceCount: "<< libdap::long_to_string(faceCount) << endl);
 
             if (faceCount != dimSize) {
                 throw Error(
-                        "The face coordinate array '" + faceCoordinateName + "' has a dimension size of "
-                                + libdap::long_to_string(dimSize) + " which differs from the the expected size of "
-                                + libdap::long_to_string(faceCount) + " The mesh_topology variable is named "
-                                + meshTopology->name());
+                        "The face coordinate array '" + faceCoordinateName + "' has a dimension size of " + libdap::long_to_string(dimSize)
+                                + " which differs from the the expected size of " + libdap::long_to_string(faceCount)
+                                + " The mesh_topology variable is named " + meshTopology->name());
             }
             BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceCoordinateArrays() - Face counts match." << endl);
 
@@ -550,8 +529,7 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
  */
 void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds)
 {
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::ingestNodeCoordinateArrays() - BEGIN Gathering node coordinate arrays..." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - BEGIN Gathering node coordinate arrays..." << endl);
 
     string node_coordinates;
     AttrTable at = meshTopology->get_attr_table();
@@ -564,8 +542,7 @@ void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology
         throw Error("Could not locate the " UGRID_NODE_COORDINATES " attribute in the " UGRID_MESH_TOPOLOGY
         " variable! The mesh_topology variable is named " + meshTopology->name());
     }
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::ingestNodeCoordinateArrays() - Located '"<< UGRID_NODE_COORDINATES << "' attribute." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Located '"<< UGRID_NODE_COORDINATES << "' attribute." << endl);
 
     if (nodeCoordinateArrays == 0) nodeCoordinateArrays = new vector<libdap::Array *>();
 
@@ -580,8 +557,7 @@ void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology
     for (coorName_it = nodeCoordinateNames.begin(); coorName_it != nodeCoordinateNames.end(); ++coorName_it) {
         string nodeCoordinateName = *coorName_it;
 
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestNodeCoordinateArrays() - Processing node coordinate '"<< nodeCoordinateName << "'." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Processing node coordinate '"<< nodeCoordinateName << "'." << endl);
 
         //Now that we have the name of the coordinate variable get it from the DDS!!
         BaseType *btp = dds->var(nodeCoordinateName);
@@ -593,17 +569,14 @@ void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology
         libdap::Array *newNodeCoordArray = dynamic_cast<libdap::Array*>(btp);
         if (newNodeCoordArray == 0) {
             throw Error(malformed_expr,
-                    "Node coordinate variable '" + nodeCoordinateName + "' is not an Array type. It's an instance of "
-                            + btp->type_name());
+                    "Node coordinate variable '" + nodeCoordinateName + "' is not an Array type. It's an instance of " + btp->type_name());
         }
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestNodeCoordinateArrays() - Found node coordinate array '"<< nodeCoordinateName << "'." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Found node coordinate array '"<< nodeCoordinateName << "'." << endl);
 
         // Coordinate arrays MUST be single dimensioned.
         if (newNodeCoordArray->dimensions(true) != 1) {
             throw Error(malformed_expr,
-                    "Node coordinate variable '" + nodeCoordinateName
-                            + "' has more than one dimension. That's just not allowed. It has "
+                    "Node coordinate variable '" + nodeCoordinateName + "' has more than one dimension. That's just not allowed. It has "
                             + long_to_string(newNodeCoordArray->dimensions(true)) + " dimensions.");
         }
         BESDEBUG("ugrid",
@@ -619,35 +592,31 @@ void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology
         if (nodeDimensionName.empty()) {
             nodeDimensionName = dimName;
         }
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestNodeCoordinateArrays() - nodeDimensionName: '"<< nodeDimensionName << "' " << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - nodeDimensionName: '"<< nodeDimensionName << "' " << endl);
         if (nodeDimensionName.compare(dimName) != 0) {
             throw Error(
                     "The node coordinate array '" + nodeCoordinateName + "' has the named dimension '" + dimName
-                            + "' which differs from the expected  dimension name '" + nodeDimensionName
-                            + "'. The mesh_topology variable is named " + meshTopology->name());
+                            + "' which differs from the expected  dimension name '" + nodeDimensionName + "'. The mesh_topology variable is named "
+                            + meshTopology->name());
         }
         BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Node dimension names match." << endl);
 
         if (nodeCount == 0) {
             nodeCount = dimSize;
         }
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestNodeCoordinateArrays() - nodeCount: "<< libdap::long_to_string(nodeCount) << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - nodeCount: "<< libdap::long_to_string(nodeCount) << endl);
 
         if (nodeCount != dimSize) {
             throw Error(
-                    "The node coordinate array '" + nodeCoordinateName + "' has a dimension size of "
-                            + libdap::long_to_string(dimSize) + " which differs from the the expected size of "
-                            + libdap::long_to_string(nodeCount) + " The mesh_topology variable is named "
-                            + meshTopology->name());
+                    "The node coordinate array '" + nodeCoordinateName + "' has a dimension size of " + libdap::long_to_string(dimSize)
+                            + " which differs from the the expected size of " + libdap::long_to_string(nodeCount)
+                            + " The mesh_topology variable is named " + meshTopology->name());
         }
         BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Node counts match." << endl);
 
         // Add variable to nodeCoordinateArrays vector.
         nodeCoordinateArrays->push_back(newNodeCoordArray);
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::ingestNodeCoordinateArrays() - Coordinate array '"<< nodeCoordinateName << "' ingested." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Coordinate array '"<< nodeCoordinateName << "' ingested." << endl);
 
     }
 
@@ -665,8 +634,7 @@ void TwoDMeshTopology::buildBasicGfTopology()
     gridTopology = new GF::Grid(name());
 
     // 1) Make the implicit nodes - same size as the node coordinate arrays
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::buildGridFieldsTopology() - Building and adding implicit range Nodes to the GF::Grid" << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Building and adding implicit range Nodes to the GF::Grid" << endl);
     GF::AbstractCellArray *nodes = new GF::Implicit0Cells(nodeCount);
     // Attach the implicit nodes to the grid at rank 0
     gridTopology->setKCells(nodes, node);
@@ -677,8 +645,7 @@ void TwoDMeshTopology::buildBasicGfTopology()
     // Attach the Mesh to the grid.
     // Get the face node connectivity cells (i think these correspond to the GridFields K cells of Rank 2)
     // FIXME Read this array once! It is read again below..
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::buildGridFieldsTopology() - Building face node connectivity Cell array from the DAP version" << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Building face node connectivity Cell array from the DAP version" << endl);
     GF::CellArray *faceNodeConnectivityCells = getFaceNodeConnectivityCells();
 
     // Attach the Mesh to the grid at rank 2
@@ -687,8 +654,7 @@ void TwoDMeshTopology::buildBasicGfTopology()
     gridTopology->setKCells(faceNodeConnectivityCells, face);
 
     // The Grid is complete. Now we make a GridField from the Grid
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::buildGridFieldsTopology() - Construct new GF::GridField from GF::Grid" << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::buildGridFieldsTopology() - Construct new GF::GridField from GF::Grid" << endl);
     d_inputGridField = new GF::GridField(gridTopology);
     // TODO Question for Bill: Can we delete the GF::Grid (tdmt->gridTopology) here?
 
@@ -723,13 +689,13 @@ int TwoDMeshTopology::getResultGridSize(locationType dim)
 
 /**
  * Takes a row major 3xN Face node connectivity DAP array
- * and converts it to a collection GF::Nodes organized as
+ * and converts it to a collection GF::Cells organized as
  * 0,N,2N; 1,1+N,1+2N;
  *
  * This is the inverse operation to getGridFieldCellArrayAsDapArray()
  *
- *FIXME Make this use less memory. Certainly consider reading the values directly from
- *FIXME the DAP array (after it's read method has been called)
+ * FIXME Make this use less memory. Certainly consider reading the values directly from
+ * the DAP array (after it's read() method has been called)
  */
 GF::Node *TwoDMeshTopology::getFncArrayAsGFCells(libdap::Array *fncVar)
 {
@@ -750,8 +716,7 @@ GF::Node *TwoDMeshTopology::getFncArrayAsGFCells(libdap::Array *fncVar)
     // The the values from  fncVar now in cellids2 and ar organized
     // as 0,N,2N; 1,1+N,1+2N; ...
 
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::getFncArrayAsGFNodes() - Re-packing and copying GF::Node array to result." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::getFncArrayAsGFNodes() - Re-packing and copying GF::Node array to result." << endl);
     for (int fIndex = 0; fIndex < faceCount; fIndex++) {
         for (int nIndex = 0; nIndex < nodesPerFace; nIndex++) {
             cells[nodesPerFace * fIndex + nIndex] = temp_nodes[fIndex + (faceCount * nIndex)];
@@ -807,15 +772,13 @@ GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
     int nodesPerFace = faceNodeConnectivityArray->dimension_size(fncNodesDim);
     int total_size = nodesPerFace * faceCount;
 
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::getFaceNodeConnectivityCells() - Converting FNCArray to GF::Node array." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::getFaceNodeConnectivityCells() - Converting FNCArray to GF::Node array." << endl);
     fncCellArray = getFncArrayAsGFCells(faceNodeConnectivityArray);
 
     // adjust for the start_index (cardinal or ordinal array access)
     int startIndex = getStartIndex(faceNodeConnectivityArray);
     if (startIndex != 0) {
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::getFaceNodeConnectivityCells() - Applying startIndex to GF::Node array." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getFaceNodeConnectivityCells() - Applying startIndex to GF::Node array." << endl);
         for (int j = 0; j < total_size; j++) {
             fncCellArray[j] -= startIndex;
         }
@@ -845,8 +808,7 @@ void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpr
     BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - Applying GridField operator." << endl);
     GF::GridField *resultGF = op.getResult();
     resultGridField = resultGF;
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::applyRestrictOperator() - GridField operator applied and result obtained." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - GridField operator applied and result obtained." << endl);
     BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - END" << endl);
 }
 
@@ -881,8 +843,7 @@ void TwoDMeshTopology::convertResultGridFieldStructureToDapObjects(vector<BaseTy
     // Add the new face node connectivity array - make sure it has the same attributes as the original.
     BESDEBUG("ugrid",
             "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - Adding the new face node connectivity array to the response." << endl);
-    libdap::Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField,
-            faceNodeConnectivityArray);
+    libdap::Array *resultFaceNodeConnectivityDapArray = getGridFieldCellArrayAsDapArray(resultGridField, faceNodeConnectivityArray);
     results->push_back(resultFaceNodeConnectivityDapArray);
 
     results->push_back(getMeshVariable()->ptr_duplicate());
@@ -900,15 +861,14 @@ libdap::Array *TwoDMeshTopology::getNewFncDapArray(libdap::Array *templateArray,
     // Is the template array a 2D array?
     int dimCount = templateArray->dimensions(true);
     if (dimCount != 2)
-        throw Error(malformed_expr, "Expected a 2 dimensional array. The array '"
-                + templateArray->name() + "' has " + libdap::long_to_string(dimCount)
-                + " dimensions.");
+        throw Error(malformed_expr,
+                "Expected a 2 dimensional array. The array '" + templateArray->name() + "' has " + libdap::long_to_string(dimCount) + " dimensions.");
 
     // Is the template array really 3xN?
     libdap::Array::Dim_iter di = templateArray->dim_begin();
     if (di->c_size != 3) {
-        string msg = "Expected a 2 dimensional array with shape of 3xN! The array '" + templateArray->name()
-                + "' has a first dimension of size " + libdap::long_to_string(di->c_size);
+        string msg = "Expected a 2 dimensional array with shape of 3xN! The array '" + templateArray->name() + "' has a first dimension of size "
+                + libdap::long_to_string(di->c_size);
         throw Error(malformed_expr, msg);
     }
 
@@ -935,10 +895,9 @@ libdap::Array *TwoDMeshTopology::getNewFncDapArray(libdap::Array *templateArray,
 /**
  * Takes a GF::GridField, extracts it's rank 2 GF::CellArray. The GF::CellArray content is
  * extracted and re-packed into a 3xN DAP Array. This is the inverse operation to
- * getFncArrayAsGFNodes()
+ * getFncArrayAsGFCells()
  */
-libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField,
-        libdap::Array *sourceFcnArray)
+libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray)
 {
     BESDEBUG("ugrid", "TwoDMeshTopology::getGridFieldCellArrayAsDapArray() - BEGIN" << endl);
 
@@ -948,6 +907,7 @@ libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *
     // This is a vector of size N holding vectors of size 3
     vector<vector<int> > nodes2 = gfCellArray->makeArrayInts();
 
+    // This gets an empty DAP Array that we stuff with values later on.
     libdap::Array *resultFncDapArray = getNewFncDapArray(sourceFcnArray, nodes2.size());
 
     // Make a vector to hold the re-packed cell nodes.
@@ -956,11 +916,13 @@ libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *
     // adjust for the start_index (cardinal or ordinal array access)
     int startIndex = getStartIndex(sourceFcnArray);
     if (startIndex != 0)
-        BESDEBUG("ugrid", "TwoDMeshTopology::getGridFieldCellArrayAsDapArray() - Updating locations to match source FaceNodeConnectivity array." << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::getGridFieldCellArrayAsDapArray() - Updating locations to match source FaceNodeConnectivity array." << endl);
 
-    // Re-pack the mesh nodes.
+    // Re-pack the mesh nodes. This transforms the Nx3 Cell Array from gridfields to
+    // a 3 x N DAP Array.
     for (unsigned int firstDim = 0; firstDim < 3; firstDim++) {
         for (unsigned int secondDim = 0; secondDim < nodes2.size(); secondDim++) {
+            // TODO used direct access instead of .at()
             dods_int32 val = nodes2.at(secondDim).at(firstDim) + startIndex;
             // TODO optimize; no push_back
             rowMajorNodes.push_back(val);
@@ -1034,8 +996,7 @@ static libdap::Array::Dim_iter copySizeOneDimensions(libdap::Array *sourceArray,
  * Retrieves a single dimensional rank 0 GF attribute array from a GF::GridField and places the data into
  * DAP array of the appropriate type.
  */
-libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templateArray, locationType rank,
-        GF::GridField *resultGridField)
+libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templateArray, locationType rank, GF::GridField *resultGridField)
 {
     BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - BEGIN" << endl);
 
@@ -1095,7 +1056,8 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
     }
 
     // Copy the source objects attributes.
-    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
+    BESDEBUG("ugrid",
+            "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
     dapArray->set_attr_table(templateArray->get_attr_table());
 
     BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - DONE" << endl);
@@ -1107,24 +1069,22 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
  * Retrieves a single dimensional GF attribute array from a GF::GridField and places the data into
  * DAP array of the appropriate type.
  */
-void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type dapType, locationType rank,
-        void *target)
+void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type dapType, locationType rank, void *target)
 {
     BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - BEGIN" << endl);
 
     // The result variable is assumed to be bound to the GridField at 'rank'
     // Try to get the Attribute from 'rank' with the same name as the source array
-    BESDEBUG("ugrid",
-            "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::GridField Attribute '" << attrName << "'" << endl);
+    BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::GridField Attribute '" << attrName << "'" << endl);
 
     GF::Array *gfa = 0;
     if (resultGridField->IsAttribute(rank, attrName)) {
         gfa = resultGridField->GetAttribute(rank, attrName);
     }
     else {
-        string msg = "Oddly, the requested attribute '" + attrName + "' associated with rank "
-                + libdap::long_to_string(rank) + " does not appear in the resultGridField object! \n"
-                + "resultGridField->MaxRank(): " + libdap::long_to_string(resultGridField->MaxRank());
+        string msg = "Oddly, the requested attribute '" + attrName + "' associated with rank " + libdap::long_to_string(rank)
+                + " does not appear in the resultGridField object! \n" + "resultGridField->MaxRank(): "
+                + libdap::long_to_string(resultGridField->MaxRank());
 
         throw InternalErr(__FILE__, __LINE__, "ERROR  - Unable to locate requested GridField attribute. " + msg);
     }
@@ -1136,8 +1096,7 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
     case dods_uint32_c:
     case dods_int32_c: {
         // Get the data
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::Array as libdap::Array of libdap::Int32." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::Array as libdap::Array of libdap::Int32." << endl);
         vector<dods_int32> GF_ints = gfa->makeArray();
 #if 0
         // Removing this reduced the runtime by ~1s for one test case
@@ -1150,16 +1109,14 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
         BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieved GF_ints: "<< endl << s.str());
 #endif
 
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
         memcpy(target, &GF_ints[0], GF_ints.size() * sizeof(dods_int32));
         break;
     }
     case dods_float32_c:
     case dods_float64_c: {
         // Get the data
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::Array as libdap::Array of libdap::Float64." << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieving GF::Array as libdap::Array of libdap::Float64." << endl);
         vector<dods_float64> GF_floats = gfa->makeArrayf();
 #if 0
         stringstream s;
@@ -1168,14 +1125,13 @@ void TwoDMeshTopology::getResultGFAttributeValues(string attrName, libdap::Type 
         }
         BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Retrieved GF_floats: "<< endl << s.str());
 #endif
-        BESDEBUG("ugrid",
-                "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
+        BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - Copying GF result to target memory" << endl);
         memcpy(target, &GF_floats[0], GF_floats.size() * sizeof(dods_float64));
         break;
 
     }
     default:
-        throw InternalErr(__FILE__, __LINE__,  "Unknown DAP type encountered when converting to gridfields result values");
+        throw InternalErr(__FILE__, __LINE__, "Unknown DAP type encountered when converting to gridfields result values");
     }
 
     BESDEBUG("ugrid", "TwoDMeshTopology::getResultGFAttributeValues() - END" << endl);
@@ -1228,8 +1184,8 @@ void TwoDMeshTopology::addIndexVariable(locationType location)
     int size = getInputGridSize(location);
     string name = getIndexVariableName(location);
 
-    BESDEBUG("ugrid", "TwoDMeshTopology::addIndexVariable() - Adding index variable '" << name
-            << "'  size: " << libdap::long_to_string(size) << " at rank " << libdap::long_to_string(location) << endl);
+    BESDEBUG("ugrid",
+            "TwoDMeshTopology::addIndexVariable() - Adding index variable '" << name << "'  size: " << libdap::long_to_string(size) << " at rank " << libdap::long_to_string(location) << endl);
 
     GF::Array *indexArray = newGFIndexArray(name, size, sharedIntArrays);
     d_inputGridField->AddAttribute(location, indexArray);

@@ -30,10 +30,6 @@
 
 #include "LocationType.h"
 
-//using namespace std;
-//using namespace libdap;
-//using namespace ugrid;
-
 namespace libdap {
     class Array;
 }

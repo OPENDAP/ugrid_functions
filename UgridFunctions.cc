@@ -31,26 +31,25 @@ using std::endl;
 #include "BESDebug.h"
 #include "ugr5.h"
 
-//namespace ugrid {
-
-static string getFunctionNames(){
+static string getFunctionNames()
+{
     vector<string> names;
     libdap::ServerFunctionsList::TheList()->getFunctionNames(&names);
 
     string msg;
-    for(std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
-        if(!msg.empty())
-            msg += ", ";
+    for (std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
+        if (!msg.empty()) msg += ", ";
 
         msg += *it;
     }
     return msg;
 }
-void UgridFunctions::initialize(const string &/*modname*/) {
-	BESDEBUG( "UgridFunctions", "initialize() - BEGIN" << endl );
+void UgridFunctions::initialize(const string &/*modname*/)
+{
+    BESDEBUG("UgridFunctions", "initialize() - BEGIN" << endl);
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
-#if 0
 
+#if 0
     BESDEBUG("UgridFunctions", "initialize() - Adding gf3::UGridRestrictFunction_03()" << endl);
     libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
@@ -71,11 +70,12 @@ void UgridFunctions::initialize(const string &/*modname*/) {
 
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
 
-    BESDEBUG( "UgridFunctions", "initialize() - END" << endl );
+    BESDEBUG("UgridFunctions", "initialize() - END" << endl);
 }
 
-void UgridFunctions::terminate(const string &/*modname*/) {
-	BESDEBUG( "UgridFunctions", "Removing UgridFunctions Modules (this does nothing)." << endl );
+void UgridFunctions::terminate(const string &/*modname*/)
+{
+    BESDEBUG("UgridFunctions", "Removing UgridFunctions Modules (this does nothing)." << endl);
 }
 
 /** @brief dumps information about this object
@@ -84,19 +84,14 @@ void UgridFunctions::terminate(const string &/*modname*/) {
  *
  * @param strm C++ i/o stream to dump the information to
  */
-void UgridFunctions::dump(ostream &strm) const {
-	strm << BESIndent::LMarg << "UgridFunctions::dump - (" << (void *) this << ")" << endl;
+void UgridFunctions::dump(ostream &strm) const
+{
+    strm << BESIndent::LMarg << "UgridFunctions::dump - (" << (void *) this << ")" << endl;
 }
 
 extern "C" {
-	BESAbstractModule *maker() {
-		return new UgridFunctions;
-	}
+BESAbstractModule *maker()
+{
+    return new UgridFunctions;
 }
-
-
-
-
-//} // namespace ugrid
-
-
+}

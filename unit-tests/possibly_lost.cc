@@ -202,17 +202,10 @@ public:
     }
 
     void printFunctionNames(){
-        vector<string> *names = new vector<string>();
-        SingletonList::TheList()->getFunctionNames(names);
+        vector<string> names;
+        SingletonList::TheList()->getFunctionNames(&names);
         DBG(cerr << "PossiblyLost::possibly_lost_solution() - SingletonList::getFunctionNames(): " << endl);
-        DBG(copy(names->begin(), names->end(), ostream_iterator<string>(cerr, ", ")));
-#if 0
-        for(unsigned int i=0; i<names->size() ;i++){
-            DBG(cerr <<  "   name["<< i << "]: "<< (*names)[i] << endl);
-        }
-#endif
-        delete names;
-
+        DBG(copy(names.begin(), names.end(), ostream_iterator<string>(cerr, ", ")));
     }
 
     void possibly_lost_solution(){

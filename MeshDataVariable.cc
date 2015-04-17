@@ -38,10 +38,13 @@
 #include "MeshDataVariable.h"
 #include "TwoDMeshTopology.h"
 
+#ifdef NDEBUG
+#undef BESDEBUG
+#define BESDEBUG( x, y )
+#endif
+
+
 using namespace std;
-//using namespace libdap;
-//using namespace ugrid;
-//using std::endl;
 
 namespace ugrid {
 

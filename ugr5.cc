@@ -42,17 +42,16 @@
 
 #include <curl/curl.h>
 
-#define DODS_DEBUG
-
-#include "BaseType.h"
-#include "Int32.h"
-#include "Str.h"
-#include "Array.h"
-#include "Structure.h"
-#include "Error.h"
+#include <BaseType.h>
+#include <Int32.h>
+#include <Str.h>
+#include <Array.h>
+#include <Structure.h>
+#include <Error.h>
+#include <util.h>
+#include <escaping.h>
 
 #include "BESDebug.h"
-#include "util.h"
 
 #include "ugrid_utils.h"
 #include "MeshDataVariable.h"
@@ -60,6 +59,11 @@
 #include "NDimensionalArray.h"
 
 #include "ugr5.h"
+
+#ifdef NDEBUG
+#undef BESDEBUG
+#define BESDEBUG( x, y )
+#endif
 
 using namespace std;
 using namespace libdap;
@@ -88,7 +92,6 @@ struct UgridRestrictArgs
  */
 static void addRangeVar(DDS *dds, libdap::Array *rangeVar, map<string, vector<MeshDataVariable *> *> *rangeVariables)
 {
-
     MeshDataVariable *mdv = new MeshDataVariable();
     mdv->init(rangeVar);
     string meshVarName = mdv->getMeshName();
@@ -98,8 +101,7 @@ static void addRangeVar(DDS *dds, libdap::Array *rangeVar, map<string, vector<Me
     if (meshVar == 0) {
         string msg = "The range variable '" + mdv->getName() + "' references the mesh variable '" + meshVarName
                 + "' which cannot be located in this dataset.";
-        BESDEBUG("ugrid", "addRangeVar() - " << msg << endl);
-        throw Error(no_such_variable, msg);
+        throw Error(malformed_expr, msg);
     }
 
     // Get the rangeVariable vector for this mesh name from the map.
@@ -121,7 +123,6 @@ static void addRangeVar(DDS *dds, libdap::Array *rangeVar, map<string, vector<Me
     }
 
     requestedRangeVarsForMesh->push_back(mdv);
-
 }
 
 /**
@@ -166,14 +167,20 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[])
     args.filterExpression = dynamic_cast<Str&>(*bt).value();
     BESDEBUG("ugrid", "args.filterExpression: '" << args.filterExpression << "' (AS RECEIVED)" << endl);
 
+#if 0
     int decodedLength;
+    // TODO Use escaping.cc code
     CURL *curl = curl_easy_init();
     char *decodedFilterExpression = curl_easy_unescape(curl, args.filterExpression.c_str(),
             args.filterExpression.size(), &decodedLength);
     curl_easy_cleanup(curl);
     args.filterExpression = string(decodedFilterExpression, decodedLength);
+#endif
+
+    args.filterExpression = www2id(args.filterExpression);
+
     BESDEBUG("ugrid", "args.filterExpression: '" << args.filterExpression << "' (URL DECODED)" << endl);
-    curl_free(decodedFilterExpression);
+    //curl_free(decodedFilterExpression);
 
     // --------------------------------------------------
     // Process the range variables selected by the user.
@@ -551,7 +558,8 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
             libdap::Array *restrictedRangeVarArray = restrictRangeVariableByOneDHyperSlab(mdv,
                     location_subset_indices[mdv->getGridLocation()]);
 
-            BESDEBUG("ugrid", "ugr5() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
+            BESDEBUG("ugrid",
+                    "ugr5() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
 
             dapResults.push_back(restrictedRangeVarArray);
         }
@@ -569,9 +577,10 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
                 bt->set_read_p(true);
             }
 
-                //continue;
+            //continue;
 #endif
-            BESDEBUG("ugrid", "ugr5() - Adding variable "<< (*i)->name() << " to DAP structure " << dapResult->name() << endl);
+            BESDEBUG("ugrid",
+                    "ugr5() - Adding variable "<< (*i)->name() << " to DAP structure " << dapResult->name() << endl);
             dapResult->add_var_nocopy(*i);
         }
     }
