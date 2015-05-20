@@ -42,33 +42,19 @@ static string getFunctionNames()
 
         msg += *it;
     }
+
     return msg;
 }
+
 void UgridFunctions::initialize(const string &/*modname*/)
 {
     BESDEBUG("UgridFunctions", "initialize() - BEGIN" << endl);
-    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
-
-#if 0
-    BESDEBUG("UgridFunctions", "initialize() - Adding gf3::UGridRestrictFunction_03()" << endl);
-    libdap::ServerFunctionsList::TheList()->add_function(new gf3::UGridRestrictFunction_03());
-    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
-
-    BESDEBUG("UgridFunctions", "initialize() - Adding ugrid_restrict::UGridRestrictFunction()" << endl);
-    libdap::ServerFunctionsList::TheList()->add_function(new ugrid_restrict::UGridRestrictFunction());
-    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
-    BESDEBUG("UgridFunctions", "initialize() - Adding UGR4 function..." << endl);
-    ugrid::UGR4 *ugr4 = new ugrid::UGR4();
-    libdap::ServerFunctionsList::TheList()->add_function(ugr4);
-    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
-#endif
-
-    BESDEBUG("UgridFunctions", "initialize() - Adding UGR5 function..." << endl);
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames() << endl);
 
     ugrid::UGR5 *ugr5 = new ugrid::UGR5();
     libdap::ServerFunctionsList::TheList()->add_function(ugr5);
 
-    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames()<< endl);
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames() << endl);
 
     BESDEBUG("UgridFunctions", "initialize() - END" << endl);
 }
