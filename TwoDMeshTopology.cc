@@ -134,7 +134,6 @@ TwoDMeshTopology::~TwoDMeshTopology()
  */
 void TwoDMeshTopology::init(string meshVarName, DDS *dds)
 {
-
     if (_initialized) return;
 
     d_meshVar = dds->var(meshVarName);
@@ -142,6 +141,8 @@ void TwoDMeshTopology::init(string meshVarName, DDS *dds)
     if (!d_meshVar) throw Error("Unable to locate variable: " + meshVarName);
 
     dimension = getAttributeValue(d_meshVar, UGRID_TOPOLOGY_DIMENSION);
+    if (dimension.empty())
+        dimension = getAttributeValue(d_meshVar, UGRID_DIMENSION);
 
     if (dimension.empty()) {
         string msg = "ugr5(): The mesh topology variable  '" + d_meshVar->name() + "' is missing the required attribute named '"

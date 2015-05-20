@@ -49,6 +49,7 @@ namespace ugrid {
 #define UGRID_FACE_NODE_CONNECTIVITY "face_node_connectivity"
 
 #define UGRID_TOPOLOGY_DIMENSION "topology_dimension"
+#define UGRID_DIMENSION "dimension"     // Old-style; still using in some ugrids. jhrg 5/19/15
 #define UGRID_LOCATION "location"
 #define UGRID_GRID_LOCATION "grid_location"
 #define UGRID_NODE "node"
