@@ -52,6 +52,7 @@
 #include "Error.h"
 
 #include "BESDebug.h"
+#include "BESStopWatch.h"
 #include "util.h"
 
 #include "ugrid_utils.h"
@@ -438,6 +439,10 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(
  array. */
 void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
+	BESStopWatch sw;
+	if (BESISDEBUG( TIMING_LOG ))
+		sw.start("ugrid::ugr5()", "[function_invocation]");
+
 	BESDEBUG("ugrid", "ugr5() - BEGIN" << endl);
 
 	string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
