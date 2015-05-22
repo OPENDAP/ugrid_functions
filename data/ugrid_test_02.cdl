@@ -1,5 +1,12 @@
 
-netcdf ugrid_test_01 {
+// This is the same CDL as ugrid_test_01 _except_ that
+// fvcom_mesh is given the value '_' (i.e., no value).
+// This mirrors what often happens in reality. It's possible
+// to use NcML to patch this, but the process is tedious.
+//
+// jhrg 4/16/15
+
+netcdf ugrid_test_02 {
 dimensions:
 	condition = 4 ;
 	time = 3 ;
@@ -42,7 +49,7 @@ variables:
 		bogusMeshRef:location = "node" ;
 data:
 
- fvcom_mesh = 1;
+ fvcom_mesh = _;
  
  X = -1.0, 0.0, 1.0, 1.5,  1.0,  0.0, -1.0, -1.5, 0.0 ;
 

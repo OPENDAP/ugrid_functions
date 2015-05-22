@@ -43,17 +43,12 @@
 #include "gridfields/accumulate.h"
 #include <gridfields/implicit0cells.h>
 
-
 #include "LocationType.h"
-
 
 static bool debug = false;
 
 #undef DBG
 #define DBG(x) do { if (debug) (x); } while(false);
-
-
-
 
 //using namespace GF;
 
@@ -75,11 +70,11 @@ private:
     int *faceNodeConnectivity;
     vector<coordinate *> *coordinates;
 public:
-    ugrid():name(""),nodeCount(0),nodesPerFace(0),faceCount(0),faceNodeConnectivity(0),coordinates(0){}
-    ~ugrid(){
+    ugrid():name(""),nodeCount(0),nodesPerFace(0),faceCount(0),faceNodeConnectivity(0),coordinates(0) {}
+    ~ugrid() {
         delete faceNodeConnectivity;
-        if(coordinates){
-            for(int i=0; i<coordinates->size();i++){
+        if(coordinates) {
+            for(int i=0; i<coordinates->size();i++) {
                 delete (*coordinates)[i]->vals;
             }
             delete coordinates;
@@ -88,16 +83,14 @@ public:
 };
 #endif
 
-
-
-
-class GFTests: public CppUnit::TestFixture {
+class GFTests: public CppUnit::TestFixture
+{
 
 private:
 
-
-
-    void buildNewOcotoPieGridField(GF::GridField **gf, GF::Grid **g, GF::Node **fncaMeshNodes, vector<GF::Array *> *gfAttributes){
+    void buildNewOcotoPieGridField(GF::GridField **gf, GF::Grid **g, GF::Node **fncaMeshNodes,
+            vector<GF::Array *> *gfAttributes)
+    {
 
         string name = "octo-pie";
         int nodeCount = 9;
@@ -106,36 +99,25 @@ private:
 
         // This array is organized like a Ugrid Face Node Connectivity array,
         // and will need to be repackaged for the GF API. (see below)
-        int octopieFNCA[] ={
-         1, 2, 3, 4, 5, 6, 7, 8,
-         2, 3, 4, 5, 6, 7, 8, 1,
-         9, 9, 9, 9, 9, 9, 9, 9};
+        int octopieFNCA[] = { 1, 2, 3, 4, 5, 6, 7, 8, 2, 3, 4, 5, 6, 7, 8, 1, 9, 9, 9, 9, 9, 9, 9, 9 };
 
-        float xcoord_values[] = {
-                -1.0, 0.0, 1.0, 1.5,  1.0,  0.0, -1.0, -1.5, 0.0
-        };
-        float ycoord_values[] = {
-                 1.0, 1.5, 1.0, 0.0, -1.0, -1.5, -1.0,  0.0, 0.0
-        };
+        float xcoord_values[] = { -1.0, 0.0, 1.0, 1.5, 1.0, 0.0, -1.0, -1.5, 0.0 };
+        float ycoord_values[] = { 1.0, 1.5, 1.0, 0.0, -1.0, -1.5, -1.0, 0.0, 0.0 };
 
-        float oneDnodedata[] = {
-                0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8
-        };
+        float oneDnodedata[] = { 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 };
 
 #if 0
         // Unused
         float twoDnodedata[] = {
-                0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8,
-                1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8,
-                2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
+            0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8,
+            1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8,
+            2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
         };
         float oneDFaceData[] = {
-                0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8
+            0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8
         };
 #endif
-        int index[] = {
-                0, 1, 2, 3, 4, 5, 6, 7, 8
-        };
+        int index[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
         GF::Array *coordinate, *nodeData; // unused. 4/7/14 jhrg , *faceData;
 
@@ -150,11 +132,11 @@ private:
         (*g)->setKCells(implicitNodes, node);
 
         // Create the Cell Array (aka the Face Node Connectivity array in the Ugrid Specification)
-        *fncaMeshNodes = new GF::Node[ faceCount * nodesPerFace ];
+        *fncaMeshNodes = new GF::Node[faceCount * nodesPerFace];
 
         DBG(cerr << "GFTests::getTestGrid() - Re-packing and copying FNC Array array to GF:Node array." << endl);
         for (int fIndex = 0; fIndex < faceCount; fIndex++) {
-            for(int nIndex=0; nIndex<nodesPerFace ; nIndex++){
+            for (int nIndex = 0; nIndex < nodesPerFace; nIndex++) {
                 (*fncaMeshNodes)[nodesPerFace * fIndex + nIndex] = octopieFNCA[fIndex + (faceCount * nIndex)];
             }
         }
@@ -164,37 +146,34 @@ private:
 
         // Attach the Cell Mesh to the grid at rank 2
         // This 2 stands for rank 2, or faces.
-        DBG( cerr << "GFTests::getTestGrid() - Attaching Cell array to GF::Grid" << endl);
+        DBG(cerr << "GFTests::getTestGrid() - Attaching Cell array to GF::Grid" << endl);
         (*g)->setKCells(faceNodeConnectivityCells, face);
 
         // The Grid is complete. Now we make a GridField from the Grid
         DBG(cerr << "GFTests::getTestGrid() - Constructing new GF::GridField from GF::Grid" << endl);
         *gf = new GF::GridField(*g);
 
-
         DBG(cerr << "GFTests::getTestGrid() - Adding X coordinate." << endl);
         coordinate = new GF::Array("X", GF::FLOAT);
-        coordinate->copyFloatData(xcoord_values,nodeCount);
-        (*gf)->AddAttribute(node,coordinate);
+        coordinate->copyFloatData(xcoord_values, nodeCount);
+        (*gf)->AddAttribute(node, coordinate);
         gfAttributes->push_back(coordinate);
 
         DBG(cerr << "GFTests::getTestGrid() - Adding Y coordinate." << endl);
         coordinate = new GF::Array("Y", GF::FLOAT);
-        coordinate->copyFloatData(ycoord_values,nodeCount);
+        coordinate->copyFloatData(ycoord_values, nodeCount);
         (*gf)->AddAttribute(node, coordinate);
         gfAttributes->push_back(coordinate);
 
-
         DBG(cerr << "GFTests::getTestGrid() - Adding oneDnodedata data." << endl);
         nodeData = new GF::Array("oneDnodedata", GF::FLOAT);
-        nodeData->copyFloatData(oneDnodedata,nodeCount);
+        nodeData->copyFloatData(oneDnodedata, nodeCount);
         (*gf)->AddAttribute(node, nodeData);
         gfAttributes->push_back(nodeData);
 
-
         DBG(cerr << "GFTests::getTestGrid() - Adding index data." << endl);
         nodeData = new GF::Array("index", GF::INT);
-        nodeData->copyIntData(index,nodeCount);
+        nodeData->copyIntData(index, nodeCount);
         (*gf)->AddAttribute(node, nodeData);
         gfAttributes->push_back(nodeData);
 
@@ -206,31 +185,28 @@ private:
         gfAttributes->push_back(faceData);
 #endif
 
-
     }
-
 
 public:
 
     // Called once before everything gets tested
-    GFTests() {
-        //    DBG(cerr << " BindTest - Constructor" << endl);
-
+    GFTests()
+    {
     }
 
     // Called at the end of the test
-    ~GFTests() {
-       //    DBG(cerr << " BindTest - Destructor" << endl);
+    ~GFTests()
+    {
     }
 
     // Called before each test
-    void setup() {
-        //    DBG(cerr << " BindTest - setup()" << endl);
+    void setup()
+    {
     }
 
     // Called after each test
-    void tearDown() {
-        //    DBG(cerr << " tearDown()" << endl);
+    void tearDown()
+    {
     }
 
     CPPUNIT_TEST_SUITE( GFTests );
@@ -239,7 +215,8 @@ public:
 
     CPPUNIT_TEST_SUITE_END();
 
-    void gf_test() {
+    void gf_test()
+    {
         try {
 
             DBG(cerr << " gf_test - BEGIN" << endl);
@@ -248,14 +225,14 @@ public:
             GF::Grid *opieGrid;
             GF::Node *fncaMeshNodes;
             vector<GF::Array *> gfAttributes;
+
             buildNewOcotoPieGridField(&opieGridField, &opieGrid, &fncaMeshNodes, &gfAttributes);
 
-
             // Build the restriction operator;
-            DBG(cerr << "GFTests::gf_test() - Constructing new GF::RestrictOp using user "<<
-                    "supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
+            DBG(cerr << "GFTests::gf_test() - Constructing new GF::RestrictOp using user "
+                            << "supplied 'dimension' value and filter expression combined with the GF:GridField "
+                            << endl);
             GF::RestrictOp op = GF::RestrictOp("X>=0", node, opieGridField);
-
 
             // Apply the operator and get the result;
             DBG(cerr << "GFTests::gf_test() - Applying GridField operator." << endl);
@@ -269,27 +246,25 @@ public:
             //GF::Array *oneDFaceDataResult = resultGF->GetAttribute(face, "oneDFaceData");
             //oneDFaceDataResult->print();
 
-
-
             delete resultGF;
             delete opieGridField;
-            for(unsigned int i=0; i<gfAttributes.size();i++){
+            for (unsigned int i = 0; i < gfAttributes.size(); i++) {
                 delete gfAttributes[i];
             }
             delete opieGrid;
             delete fncaMeshNodes;
 
-
             CPPUNIT_ASSERT(true);
-        } catch (std::string &e) {
+        }
+        catch (std::string &e) {
             cerr << "Error: " << e << endl;
             CPPUNIT_ASSERT(false);
-        } catch (...) {
+        }
+        catch (...) {
             cerr << "Unknown Error." << endl;
             CPPUNIT_ASSERT(false);
         }
     }
-
 
 };
 // BindTest
@@ -298,13 +273,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION(GFTests);
 
 } // namespace ugrid
 
-int main(int argc, char*argv[]) {
+int main(int argc, char*argv[])
+{
     CppUnit::TextTestRunner runner;
     runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
 
     GetOpt getopt(argc, argv, "d");
-    char option_char;
-    while ((option_char = getopt()) != EOF)
+    int option_char;
+    while ((option_char = getopt()) != -1)
         switch (option_char) {
         case 'd':
             debug = 1;  // debug is a static global

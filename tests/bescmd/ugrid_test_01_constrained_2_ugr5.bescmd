@@ -4,11 +4,14 @@
   <bes:setContext name="dap_explicit_containers">no</bes:setContext>
   <bes:setContext name="errors">xml</bes:setContext>
   <bes:setContext name="max_response_size">0</bes:setContext>
+  
   <bes:setContainer name="catalogContainer" space="catalog">/data/ugrid_test_01.nc</bes:setContainer>
   <bes:define name="d1" space="default">
     <bes:container name="catalogContainer">
-      <bes:constraint>ugr5(0,threeDnodedata[2][1:1:2][0:*],"X%3E=0")</bes:constraint>
+      <!-- "X %3E= 0" -->
+      <bes:constraint>ugr5(0,threeDnodedata[2][1:1:2][0:*], "X &gt;= 0")</bes:constraint>
     </bes:container>
   </bes:define>
+  
   <bes:get type="dods" definition="d1" />
 </bes:request>

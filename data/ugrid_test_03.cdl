@@ -1,13 +1,25 @@
 
-netcdf ugrid_test_01 {
+// This is the same CDL as ugrid_test_01 _except_ that
+// fvcom_mesh is given the value '_' (i.e., no value).
+// This mirrors what often happens in reality. It's possible
+// to use NcML to patch this, but the process is tedious.
+//
+// In this version, the dummy mesh variable is an array,
+// but it still has no values. (ugrid_test_02 has a scalar
+// mesh var.)
+//
+// jhrg 4/16/15
+
+netcdf ugrid_test_03 {
 dimensions:
 	condition = 4 ;
 	time = 3 ;
 	faces = 8 ;
 	nodes = 9 ;
 	three = 3 ;
+	one = 1;
 variables:
-	int fvcom_mesh ;
+	int fvcom_mesh(one) ;
 		fvcom_mesh:face_node_connectivity = "fnca" ;
 		fvcom_mesh:standard_name = "mesh_topology" ;
 		fvcom_mesh:topology_dimension = 2 ;
@@ -42,7 +54,7 @@ variables:
 		bogusMeshRef:location = "node" ;
 data:
 
- fvcom_mesh = 1;
+ fvcom_mesh = _;
  
  X = -1.0, 0.0, 1.0, 1.5,  1.0,  0.0, -1.0, -1.5, 0.0 ;
 

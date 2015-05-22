@@ -32,6 +32,9 @@
 
 #include <pthread.h>
 
+#include <iostream>
+#include <iterator>
+
 #include <cppunit/TextTestRunner.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
@@ -199,14 +202,10 @@ public:
     }
 
     void printFunctionNames(){
-        vector<string> *names = new vector<string>();
-        SingletonList::TheList()->getFunctionNames(names);
+        vector<string> names;
+        SingletonList::TheList()->getFunctionNames(&names);
         DBG(cerr << "PossiblyLost::possibly_lost_solution() - SingletonList::getFunctionNames(): " << endl);
-        for(unsigned int i=0; i<names->size() ;i++){
-            DBG(cerr <<  "   name["<< i << "]: "<< (*names)[i] << endl);
-        }
-        delete names;
-
+        DBG(copy(names.begin(), names.end(), ostream_iterator<string>(cerr, ", ")));
     }
 
     void possibly_lost_solution(){
@@ -245,8 +244,8 @@ int main(int argc, char*argv[]) {
     runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
 
     GetOpt getopt(argc, argv, "d");
-    char option_char;
-    while ((option_char = getopt()) != EOF)
+    int option_char;
+    while ((option_char = getopt()) != -1)
         switch (option_char) {
         case 'd':
             debug = 1;  // debug is a static global

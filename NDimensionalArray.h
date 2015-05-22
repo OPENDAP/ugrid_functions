@@ -31,8 +31,6 @@
 
 #include "Array.h"
 
-
-
 namespace libdap {
 
 static string NDimensionalArray_debug_key = "ugrid";

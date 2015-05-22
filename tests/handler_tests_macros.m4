@@ -1,7 +1,4 @@
 
-# 
-# These macros are used for both the netcdf3 and netcdf4 tests.
-
 AT_INIT([bes.conf besstandalone getdap])
 # AT_COPYRIGHT([])
 
