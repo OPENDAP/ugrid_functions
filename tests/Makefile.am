@@ -17,13 +17,13 @@ TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 noinst_DATA = bes.conf
 
-CLEANFILES = *.log *.sum gmon.out
+CLEANFILES = *.log *.sum gmon.out $(TESTSUITE) $(srcdir)/package.m4
 
-EXTRA_DIST = bescmd ugrid_functionsTest.at $(TESTSUITE) \
-atlocal.in package.m4 bes.conf.in bes.conf.modules.in \
+EXTRA_DIST = bescmd $(TESTSUITE).at $(TESTSUITE) atlocal.in	\
+$(srcdir)/package.m4 bes.conf.in bes.conf.modules.in		\
 handler_tests_macros.m4
 
-DISTCLEANFILES = bes.conf
+DISTCLEANFILES = bes.conf atconfig
 
 if DAP_MODULES
 BES_CONF_IN = bes.conf.modules.in
@@ -53,16 +53,12 @@ check-local: atconfig atlocal $(srcdir)/package.m4 $(TESTSUITE)
 
 clean-local:
 	test ! -f '$(TESTSUITE)' || $(SHELL) '$(TESTSUITE)' --clean
-	-rm $(srcdir)/package.m4
-	
-distclean-local:
-	-rm atconfig
 
 AUTOTEST = $(AUTOM4TE) --language=autotest
 
 % : %.at 
 	$(AUTOTEST) -I '$(srcdir)' -o $@ $@.at
-	
+
 # The `:;' works around a Bash 3.2 bug when the output is not writeable.
 $(srcdir)/package.m4: $(top_srcdir)/configure.ac
 	:;{ \
