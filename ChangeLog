@@ -1,3 +1,76 @@
+2015-09-11  James Gallagher  <jgallagher@opendap.org>
+
+	Modified Makefile.am to support distcheck
+
+2015-08-04  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed package.m4 in the autoconf dirs Makefile.am files
+
+2015-05-22  Nathan Potter  <ndp@opendap.org>
+
+	Added new BESStopWatch support.
+
+	Added new BESStopWatch support.
+
+2015-05-20  James Gallagher  <jgallagher@opendap.org>
+
+	Recognizes "topology_dimension" and "dimension" attributes
+	Yes, now looks for both attributes, using "dimension" if the
+	longer name cannot be found. This means more data can be used
+	w/o NcML.
+
+	Formatting changes and removed instrumentation clutter.
+
+2015-05-12  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed getopt() use. Patch from O. Poplawski.
+
+2015-05-05  James Gallagher  <jgallagher@opendap.org>
+
+	Removed code in the unused dir
+	This was showing up in searches and confusing otherwise simple
+	debugging tasks.
+
+2015-04-17  James Gallagher  <jgallagher@opendap.org>
+
+	Added tests for Nx3 data
+	Built up a small CDL-based dataset that tests this. It has the same
+	data as the other CDL-based tests and thus it is clear the code is
+	working (assuming the 3xN code is getting the correct values).
+
+	sorting out the renci_1,2.bescmd files
+	...I seem to have modified and removed/added the files at the same
+	time. At least git thinks so.
+
+	Now supports Nx3 as wellas 3xN Face-node connectivity arrays
+
+	Formatting, BESDEBUG cleanup, some minor eff. improvements.
+
+2015-04-16  James Gallagher  <jgallagher@opendap.org>
+
+	Fixed issue with mesh var read.
+	Previous commit was actually just the new test files I added. This
+	commit contains the fixed code.
+
+	Fixed bug: The function did not read a value for the mesh variable.
+	It's sort of silly, because the 'mesh variable' is only a container
+	for attributes, and its value is never used. However, DAP requires a
+	value in order to send the result back to the client. The function
+	as it is now, works correctly with a file that conforms to 'ugrid 0.9'
+	although our code is somewhat lenient (e.g., while the 'cf_role'
+	attribute is required by the specification, our code will sort it out
+	if the data file otehrwise conforms to the spec but does not
+	include that attribute.
+
+2015-04-09  James Gallagher  <jgallagher@opendap.org>
+
+	Merge branch 'master' of https://github.com/opendap/ugrid_functions
+
+	Modified Makefile.am to support bes distcheck
+
+2015-04-06  James Gallagher  <jgallagher@opendap.org>
+
+	Version 1.0.2
 2015-03-19  James Gallagher  <jgallagher@opendap.org>
 
 	Fix for	distclean and the modules build.
