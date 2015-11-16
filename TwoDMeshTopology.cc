@@ -287,7 +287,10 @@ void TwoDMeshTopology::setLocationCoordinateDimension(MeshDataVariable *mdv)
 
 /**
  * Locates the the DAP variable identified by the face_node_connectivity attribute of the
- * meshTopology variable.
+ * meshTopology variable. The located variable is QC'd against the expectations of the fnoc var
+ * and an exception throw if there is a problem. Finally the dimensions are checked to determine
+ * which one represents the set of faces. The assumption is that the number of faces will always
+ * be larger than the (max) number of nodes per face.
  */
 void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS *dds)
 {
@@ -689,7 +692,7 @@ int TwoDMeshTopology::getResultGridSize(locationType dim)
 }
 
 /**
- * Takes a row major 3xN Face node connectivity DAP array
+ * Takes a Face node connectivity DAP array, either Nx3 or 3xN,
  * and converts it to a collection GF::Cells organized as
  * 0,N,2N; 1,1+N,1+2N;
  *
@@ -733,6 +736,10 @@ GF::Node *TwoDMeshTopology::getFncArrayAsGFCells(libdap::Array *fncVar)
         delete[] temp_nodes;
     }
     else {
+        // This dataset/file stores the face-node connectivity array as an Nx3 which is what
+        // gridfields expects. We can use the libdap::BaseType::value() method to slurp
+        // up the stuff.
+
         if (fncVar->type() == dods_int32_c || fncVar->type() == dods_uint32_c) {
             cells = new GF::Node[faceCount * nodesPerFace];
             fncVar->value(cells);
@@ -776,7 +783,8 @@ int TwoDMeshTopology::getStartIndex(libdap::Array *array)
 }
 
 /**
- * Converts a row major 3xN Face node connectivity DAP array into a GF::CellArray
+ * Converts a Face node connectivity DAP array (either 3xN or Nx3)
+ * into a GF::CellArray
  */
 GF::CellArray *TwoDMeshTopology::getFaceNodeConnectivityCells()
 {
@@ -866,53 +874,10 @@ void TwoDMeshTopology::convertResultGridFieldStructureToDapObjects(vector<BaseTy
     BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - END" << endl);
 }
 
-#if 0
 /**
- * Get a new 3xN DAP Array of Int32 with the same name, attributes, and dimension names
- * as the templateArray. Make the new array's second dimension size N.
- * Returns a DAP Array with an Int32 type template.
- */
-libdap::Array *TwoDMeshTopology::getNewFncDapArray(libdap::Array *templateArray, int N)
-{
-    // Is the template array a 2D array?
-    int dimCount = templateArray->dimensions(true);
-    if (dimCount != 2)
-        throw Error(malformed_expr,
-                "Expected a 2 dimensional array. The array '" + templateArray->meshVarName() + "' has " + libdap::long_to_string(dimCount) + " dimensions.");
-
-    // Is the template array really 3xN?
-    libdap::Array::Dim_iter di = templateArray->dim_begin();
-    if (di->c_size != 3) {
-        string msg = "Expected a 2 dimensional array with shape of 3xN! The array '" + templateArray->meshVarName() + "' has a first dimension of size "
-                + libdap::long_to_string(di->c_size);
-        throw Error(malformed_expr, msg);
-    }
-
-    // Get a new template variable for our new array (should be just like the template for the source array)
-    libdap::Array *newArray = new libdap::Array(templateArray->name(), new Int32(templateArray->name()));
-
-    //Add the first dimension (size 3 same same as template array's first dimension)
-    newArray->append_dim(3, di->meshVarName);
-
-    // Add the second dimension to the result array, but use only the name from the template array's
-    // second dimension. The size will be from the passed parameter N
-    di++;
-    newArray->append_dim(N, di->name);
-
-    // Copy the attributes of the template array to our new array.
-    newArray->set_attr_table(templateArray->get_attr_table());
-
-    // make the new array big enough to hold all the values.
-    newArray->reserve_value_capacity(3 * N);
-
-    return newArray;
-}
-#endif
-
-/**
- * Takes a GF::GridField, extracts it's rank 2 GF::CellArray. The GF::CellArray content is
- * extracted and re-packed into a 3xN DAP Array. This is the inverse operation to
- * getFncArrayAsGFCells()
+ * Takes a GF::GridField, extracts it's rank 2 GF::CellArray. The GF::CellArray content (Nx3) is
+ * extracted and if needed, re-packed into a DAP Array to match the source dataset (3xN or Nx3 depending).
+ * This is the inverse operation to getFncArrayAsGFCells()
  */
 libdap::Array *TwoDMeshTopology::getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray)
 {

@@ -82,8 +82,28 @@ static string ugrSyntax = "ugr5(dim:int32, rangeVariable:string, [rangeVariable:
  */
 struct UgridRestrictArgs
 {
+    /**
+     * The dimension holds the UGrid "dimensionality" to which to apply the filter expression.
+     *
+     * 0 - node
+     * 1 - edge
+     * 2 - face
+     * 3 - volume
+     *
+     */
     locationType dimension;
+
+    /**
+     * the rangeVars are libdap::Array variables from the dataset that have been identified
+     * (via the constraint expression arguments to the ugrid function) as the ones to provide
+     * in the subset data response, in addition the domain variables required for the ugrid to
+     * remain meaningful.
+     */
     vector<libdap::Array *> rangeVars;
+
+    /**
+     * Holds a domain filter expression that will be passed to the ugrid library.
+     */
     string filterExpression;
 };
 
@@ -138,8 +158,7 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[])
     UgridRestrictArgs args;
     args.rangeVars = vector<libdap::Array *>();
 
-    // Check number of arguments; BESDEBUG is a macro. Use #define
-    // DODS_DEBUG to activate the debugging stuff.
+    // Check number of arguments;
     if (argc < 3)
         throw Error(malformed_expr,
                 "Wrong number of arguments to ugrid restrict function: " + ugrSyntax + " was passed "
