@@ -498,7 +498,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
     // FIXME fix the names of the variables in the mesh_topology attributes
     // If the server side function can be made to return a DDS or a collection of BaseType's then the
     // names won't change and the original mesh_topology variable and it's metadata will be valid
-    Structure *dapResult = new Structure("ugr_result");
+    Structure *dapResult = new Structure("ugr_result_unwrap");
 
     // Since we only want each ugrid structure to appear in the results one time  (cause otherwise we might be trying to add
     // the same variables with the same names to the result multiple times.) we grind on this by iterating over the
