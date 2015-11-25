@@ -40,6 +40,7 @@
 #include <gridfields/restrict.h>
 #include <gridfields/refrestrict.h>
 #include <gridfields/array.h>
+#include <gridfields/GFError.h>
 
 #include "BaseType.h"
 #include "Int32.h"
@@ -53,6 +54,7 @@
 #include "TwoDMeshTopology.h"
 
 #include "BESDebug.h"
+#include "BESError.h"
 
 #ifdef NDEBUG
 #undef BESDEBUG
@@ -822,7 +824,7 @@ void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpr
     // I think this function could be done with just the following single line:
     // resultGridField = GF::RefRestrictOp::Restrict(filterExpression,loc,d_inputGridField);
 
-    // Build the restriction operator;
+    // Build the restriction operator
     BESDEBUG("ugrid",
             "TwoDMeshTopology::applyRestrictOperator() - Constructing new GF::RestrictOp using user "<< "supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
     GF::RestrictOp op = GF::RestrictOp(filterExpression, loc, d_inputGridField);
@@ -830,8 +832,10 @@ void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpr
     // Apply the operator and get the result;
     BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - Applying GridField operator." << endl);
     GF::GridField *resultGF = op.getResult();
+
     resultGridField = resultGF;
     BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - GridField operator applied and result obtained." << endl);
+
     BESDEBUG("ugrid", "TwoDMeshTopology::applyRestrictOperator() - END" << endl);
 }
 
@@ -841,6 +845,12 @@ void TwoDMeshTopology::convertResultGridFieldStructureToDapObjects(vector<BaseTy
 
     BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - Normalizing Grid." << endl);
     resultGridField->GetGrid()->normalize();
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::convertResultGridFieldStructureToDapObjects() - resultGridField->MaxRank(): "<< resultGridField->MaxRank() << endl);
+
+    if(resultGridField->MaxRank() < 0){
+        throw BESError("Oops! The ugrid constraint expression resulted in an empty response.",BES_SYNTAX_USER_ERROR,__FILE__,__LINE__);
+    }
 
     // Add the node coordinate arrays to the results.
     BESDEBUG("ugrid",
@@ -1035,8 +1045,9 @@ libdap::Array *TwoDMeshTopology::getGFAttributeAsDapArray(libdap::Array *templat
 
     // The result variable is assumed to be bound to the GridField at 'rank'
     // Try to get the Attribute from 'rank' with the same name as the source array
-    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Retrieving GF::GridField Attribute '" << templateArray->name() << "'" << endl);
-    GF::Array* gfa = resultGridField->GetAttribute(rank, templateArray->name());
+    BESDEBUG("ugrid", "TwoDMeshTopology::getGFAttributeAsDapArray() - Retrieving rank "<< rank << " GF::GridField Attribute '" << templateArray->name() << "'" << endl);
+    GF::Array* gfa = 0;
+    gfa = resultGridField->GetAttribute(rank, templateArray->name());
 
     libdap::Array *dapArray;
     BaseType *templateVar = templateArray->var();

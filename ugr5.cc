@@ -52,6 +52,7 @@
 #include <escaping.h>
 
 #include "BESDebug.h"
+#include "BESError.h"
 #include "BESStopWatch.h"
 #include "util.h"
 
@@ -59,6 +60,7 @@
 #include "MeshDataVariable.h"
 #include "TwoDMeshTopology.h"
 #include "NDimensionalArray.h"
+#include <gridfields/GFError.h>
 
 #include "ugr5.h"
 
@@ -453,7 +455,7 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(MeshDataVariable *mdv
  array. */
 void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
-
+try {
 	BESStopWatch sw;
 	if (BESISDEBUG( TIMING_LOG ))
 		sw.start("ugrid::ugr5()", "[function_invocation]");
@@ -605,6 +607,10 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
     delete meshToRangeVarsMap;
 
     BESDEBUG("ugrid", "ugr5() - END" << endl);
+}
+catch(GFError &gfe){
+    throw BESError(gfe.get_message(),gfe.get_error_type(),gfe.get_file(),gfe.get_line());
+}
 
     return;
 }
