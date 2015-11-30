@@ -31,13 +31,12 @@
 #include "LocationType.h"
 
 namespace libdap {
-    class Array;
+class Array;
 }
 
 namespace ugrid {
 
-class MeshDataVariable
-{
+class MeshDataVariable {
 
 private:
 
@@ -88,19 +87,43 @@ public:
 
     MeshDataVariable();
 
-    void setGridLocation(locationType loc) { myGridLocation = loc; }
-    locationType getGridLocation() const  { return myGridLocation; }
+    void setGridLocation(locationType loc)
+    {
+        myGridLocation = loc;
+    }
+    locationType getGridLocation() const
+    {
+        return myGridLocation;
+    }
 
-    void setMeshName(string mName)  { meshName = mName; }
-    string getMeshName() const { return meshName; }
+    void setMeshName(string mName)
+    {
+        meshName = mName;
+    }
+    string getMeshName() const
+    {
+        return meshName;
+    }
 
-    string getName() const { return meshDataVar->name(); }
+    string getName() const
+    {
+        return meshDataVar->name();
+    }
 
-    libdap::Array *getDapArray() const { return meshDataVar; }
+    libdap::Array *getDapArray() const
+    {
+        return meshDataVar;
+    }
 
-    libdap::Array::Dim_iter getLocationCoordinateDimension() const { return _coordinateDimension; }
+    libdap::Array::Dim_iter getLocationCoordinateDimension() const
+    {
+        return _coordinateDimension;
+    }
 
-    void setLocationCoordinateDimension(libdap::Array::Dim_iter cdim) { _coordinateDimension = cdim; }
+    void setLocationCoordinateDimension(libdap::Array::Dim_iter cdim)
+    {
+        _coordinateDimension = cdim;
+    }
 
     void init(libdap::Array *dapArray);
 };

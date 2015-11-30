@@ -67,34 +67,40 @@ NDimensionalArray::NDimensionalArray()
 #endif
 
 NDimensionalArray::NDimensionalArray(libdap::Array *a) :
-        _dapType(dods_null_c), _shape(0), _currentLastDimensionSlabIndex(0), _totalValueCount(0), _sizeOfValue(0), _storage(0)
+    _dapType(dods_null_c), _shape(0), _currentLastDimensionSlabIndex(0), _totalValueCount(0), _sizeOfValue(0), _storage(
+        0)
 {
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(libdap::Array *) - BEGIN"<< endl);
 
     _shape = new vector<unsigned int>(a->dimensions(true), (unsigned int) 1);
     _totalValueCount = computeConstrainedShape(a, _shape);
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
     _dapType = a->var()->type();
     BESDEBUG(NDimensionalArray_debug_key,
-            "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
+        "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
 
     allocateStorage(_totalValueCount, _dapType);
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(libdap::Array *) - END"<< endl);
 }
 
 NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *shape, libdap::Type dapType) :
-        _dapType(dods_null_c), _shape(0), _currentLastDimensionSlabIndex(0), _totalValueCount(0), _sizeOfValue(0), _storage(0)
+    _dapType(dods_null_c), _shape(0), _currentLastDimensionSlabIndex(0), _totalValueCount(0), _sizeOfValue(0), _storage(
+        0)
 {
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *, libdap::Type) - BEGIN"<< endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *, libdap::Type) - BEGIN"<< endl);
 
     _shape = new vector<unsigned int>(*shape);
     _totalValueCount = computeArraySizeFromShapeVector(_shape);
     _dapType = dapType;
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
     BESDEBUG(NDimensionalArray_debug_key,
-            "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
+        "NDimensionalArray::NDimensionalArray() - _shape" <<vectorToIndices(_shape) << endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::NDimensionalArray() - Total Value Count: " << _totalValueCount << " element(s) of type '"<< libdap::type_name(_dapType) << "'" << endl);
     allocateStorage(_totalValueCount, _dapType);
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *, libdap::Type) - END"<< endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::NDimensionalArray(std::vector<unsigned int> *, libdap::Type) - END"<< endl);
 
 }
 
@@ -136,34 +142,38 @@ long NDimensionalArray::computeConstrainedShape(libdap::Array *a, vector<unsigne
     long totalSize = 1;
 
     BESDEBUG(NDimensionalArray_debug_key,
-            "NDimensionalArray::computeConstrainedShape() - Array has " << a->dimensions(true) << " dimensions."<< endl);
+        "NDimensionalArray::computeConstrainedShape() - Array has " << a->dimensions(true) << " dimensions."<< endl);
 
     stringstream msg;
 
     for (dIt = a->dim_begin(); dIt != a->dim_end(); dIt++) {
         BESDEBUG(NDimensionalArray_debug_key,
-                "NDimensionalArray::computeConstrainedShape() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
+            "NDimensionalArray::computeConstrainedShape() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
         start = a->dimension_start(dIt, true);
         stride = a->dimension_stride(dIt, true);
         stop = a->dimension_stop(dIt, true);
         BESDEBUG(NDimensionalArray_debug_key,
-                "NDimensionalArray::computeConstrainedShape() - start: " << start << "  stride: " << stride << "  stop: "<<stop<< endl);
+            "NDimensionalArray::computeConstrainedShape() - start: " << start << "  stride: " << stride << "  stop: "<<stop<< endl);
 
         dimSize = 1 + ((stop - start) / stride);
-        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - dimSize: " << dimSize << endl);
+        BESDEBUG(NDimensionalArray_debug_key,
+            "NDimensionalArray::computeConstrainedShape() - dimSize: " << dimSize << endl);
 
         (*shape)[dimNum++] = dimSize;
         totalSize *= dimSize;
     }
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - totalSize: " << totalSize << endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::computeConstrainedShape() - totalSize: " << totalSize << endl);
     BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::computeConstrainedShape() - END." << endl);
 
     return totalSize;
 }
 
-void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(libdap::Array *a, vector<unsigned int> *location)
+void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(libdap::Array *a,
+    vector<unsigned int> *location)
 {
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - BEGIN." << endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - BEGIN." << endl);
 
     libdap::Array::Dim_iter dIt;
     libdap::Array::Dim_iter next_dIt;
@@ -174,7 +184,7 @@ void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(li
     int dimNum = 0;
 
     BESDEBUG(NDimensionalArray_debug_key,
-            "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Array has " << a->dimensions(true) << " dimensions."<< endl);
+        "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Array has " << a->dimensions(true) << " dimensions."<< endl);
 
     stringstream msg;
 
@@ -183,16 +193,16 @@ void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(li
         next_dIt++;
 
         BESDEBUG(NDimensionalArray_debug_key,
-                "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
+            "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
         start = a->dimension_start(dIt, true);
         stride = a->dimension_stride(dIt, true);
         stop = a->dimension_stop(dIt, true);
         BESDEBUG(NDimensionalArray_debug_key,
-                "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - start: " << start << "  stride: " << stride << "  stop: "<<stop<< endl);
+            "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - start: " << start << "  stride: " << stride << "  stop: "<<stop<< endl);
 
         if (next_dIt != a->dim_end() && start != stop && stride != 1) {
             msg << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - The array '" << a->name()
-                    << "' has not been constrained to a last dimension hyperslab.";
+                << "' has not been constrained to a last dimension hyperslab.";
             BESDEBUG(NDimensionalArray_debug_key, msg.str() << endl);
             throw Error(msg.str());
 
@@ -200,25 +210,27 @@ void NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray(li
         if (next_dIt == a->dim_end()) {
             if (start != 0 || stride != 1 || stop != ((unsigned int) a->dimension_size(dIt) - 1)) {
                 msg << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - The array '" << a->name()
-                        << "' has not been constrained to a last dimension hyperslab.";
+                    << "' has not been constrained to a last dimension hyperslab.";
                 BESDEBUG(NDimensionalArray_debug_key, msg.str() << endl);
                 throw Error(msg.str());
 
             }
 
             BESDEBUG(NDimensionalArray_debug_key,
-                    "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - location"<< vectorToIndices(location) << endl);
-            BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - END." << endl);
+                "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - location"<< vectorToIndices(location) << endl);
+            BESDEBUG(NDimensionalArray_debug_key,
+                "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - END." << endl);
             return;
         }
 
         BESDEBUG(NDimensionalArray_debug_key,
-                "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Adding location "<< start << " to dimension " << location->size() << endl);
+            "NDimensionalArray::retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Adding location "<< start << " to dimension " << location->size() << endl);
 
         location->push_back(start);
     }
 
-    msg << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Method Failure - this line should never be reached.";
+    msg
+        << "retrieveLastDimHyperSlabLocationFromConstrainedArrray() - Method Failure - this line should never be reached.";
     BESDEBUG(NDimensionalArray_debug_key, msg.str() << endl);
     throw Error(msg.str());
 
@@ -245,7 +257,7 @@ void NDimensionalArray::allocateStorage(long numValues, Type dapType)
 {
 
     BESDEBUG(NDimensionalArray_debug_key,
-            "NDimensionalArray::allocateStorage() - Allocating memory for " << numValues << " element(s) of type '"<< libdap::type_name(dapType) << "'" << endl);
+        "NDimensionalArray::allocateStorage() - Allocating memory for " << numValues << " element(s) of type '"<< libdap::type_name(dapType) << "'" << endl);
 
     switch (dapType) {
     case dods_byte_c:
@@ -283,7 +295,8 @@ void NDimensionalArray::allocateStorage(long numValues, Type dapType)
 void NDimensionalArray::confirmStorage()
 {
     if (_storage == 0) {
-        string msg = "ERROR - NDimensionalArray storage has been relinquished. Instance is no longer viable for set/get operations.";
+        string msg =
+            "ERROR - NDimensionalArray storage has been relinquished. Instance is no longer viable for set/get operations.";
         BESDEBUG(NDimensionalArray_debug_key, msg << endl);
         throw InternalErr(__FILE__, __LINE__, msg);
     }
@@ -295,8 +308,8 @@ void NDimensionalArray::confirmStorage()
 void NDimensionalArray::confirmType(Type dapType)
 {
     if (_dapType != dapType) {
-        string msg = "NDimensionalArray::setValue() - Passed value does not match template array type. Expected " + libdap::type_name(_dapType)
-                + " received " + libdap::type_name(dapType);
+        string msg = "NDimensionalArray::setValue() - Passed value does not match template array type. Expected "
+            + libdap::type_name(_dapType) + " received " + libdap::type_name(dapType);
         BESDEBUG(NDimensionalArray_debug_key, msg << endl);
         throw InternalErr(__FILE__, __LINE__, msg);
     }
@@ -309,7 +322,8 @@ void NDimensionalArray::confirmLastDimSize(unsigned int n)
 {
     unsigned long elementCount = getLastDimensionElementCount();
     if (elementCount != n) {
-        string msg = "NDimensionalArray::setLastDimensionHyperSlab() - Passed valueCount does not match size of last dimension hyper-slab. ";
+        string msg =
+            "NDimensionalArray::setLastDimensionHyperSlab() - Passed valueCount does not match size of last dimension hyper-slab. ";
         msg += "Last dimension hyper-slab has " + libdap::long_to_string(elementCount) + " elements. ";
         msg += "Received a valueCount of  " + libdap::long_to_string(n);
         BESDEBUG(NDimensionalArray_debug_key, msg << endl);
@@ -444,22 +458,26 @@ dods_float64 NDimensionalArray::setValue(std::vector<unsigned int> *location, do
  * and the number of elements in the hyper-slab. The passed the location vector, identifies the requested slab.The location vector must
  * have N-1 elements where N is the number of dimensions in the NDimensionalArray.
  */
-void NDimensionalArray::getLastDimensionHyperSlab(std::vector<unsigned int> *location, void **slab, unsigned int *elementCount)
+void NDimensionalArray::getLastDimensionHyperSlab(std::vector<unsigned int> *location, void **slab,
+    unsigned int *elementCount)
 {
     BESDEBUG(NDimensionalArray_debug_key, endl<< endl <<"NDimensionalArray::getLastDimensionHyperSlab() - BEGIN"<<endl);
     confirmStorage();
     if (location->size() != _shape->size() - 1) {
-        string msg = "NDimensionalArray::getLastDimensionHyperSlab() - Passed location vector doesn't match array shape.";
+        string msg =
+            "NDimensionalArray::getLastDimensionHyperSlab() - Passed location vector doesn't match array shape.";
         BESDEBUG(NDimensionalArray_debug_key, msg << endl);
         throw InternalErr(__FILE__, __LINE__, msg);
     }
 
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getLastDimensionHyperSlab() - location" <<vectorToIndices(location) << endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::getLastDimensionHyperSlab() - location" <<vectorToIndices(location) << endl);
 
     vector<unsigned int> slabLocation(*location);
 
     slabLocation.push_back(0);
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getLastDimensionHyperSlab() - slabLocation" <<vectorToIndices(&slabLocation) << endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::getLastDimensionHyperSlab() - slabLocation" <<vectorToIndices(&slabLocation) << endl);
 
     unsigned int storageIndex = getStorageIndex(_shape, &slabLocation);
 
@@ -474,7 +492,7 @@ void NDimensionalArray::getNextLastDimensionHyperSlab(void **slab)
 
     unsigned int storageIndex = _shape->back() * _currentLastDimensionSlabIndex++;
     BESDEBUG(NDimensionalArray_debug_key,
-            "NDimensionalArray::getNextLastDimensionHyperSlab() - Storage Index:"<< libdap::long_to_string(storageIndex) << endl);
+        "NDimensionalArray::getNextLastDimensionHyperSlab() - Storage Index:"<< libdap::long_to_string(storageIndex) << endl);
     *slab = &((char *) _storage)[storageIndex * _sizeOfValue];
 
 }
@@ -494,16 +512,19 @@ long NDimensionalArray::getStorageIndex(vector<unsigned int> *shape, vector<unsi
         throw Error(msg);
     }
 
-    BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - Shape and location have the same number of elements." << endl);
+    BESDEBUG(NDimensionalArray_debug_key,
+        "NDimensionalArray::getStorageIndex() - Shape and location have the same number of elements." << endl);
 
     long dimIndex = 0;
     long chunkSize = 1;
 
     for (dimIndex = shape->size() - 1; dimIndex >= 0; dimIndex--) {
-        BESDEBUG(NDimensionalArray_debug_key, "NDimensionalArray::getStorageIndex() - dimIndex=" << libdap::long_to_string(dimIndex) << endl);
+        BESDEBUG(NDimensionalArray_debug_key,
+            "NDimensionalArray::getStorageIndex() - dimIndex=" << libdap::long_to_string(dimIndex) << endl);
 
         if ((*location)[dimIndex] >= (*shape)[dimIndex]) {
-            string msg = "NDimensionalArray::getStorageIndex() - The location vector references a value that does not match the array shape. ";
+            string msg =
+                "NDimensionalArray::getStorageIndex() - The location vector references a value that does not match the array shape. ";
             msg += "location[" + libdap::long_to_string(dimIndex) + "]=";
             msg += libdap::long_to_string((*location)[dimIndex]) + " ";
             msg += "shape[" + libdap::long_to_string(dimIndex) + "]=";
@@ -524,7 +545,8 @@ long NDimensionalArray::getStorageIndex(vector<unsigned int> *shape, vector<unsi
  * number of dimensions in the NDimensionalArray). The number of values passed in must match the size of the last dimension
  * hyper-slab, and the type of the values must match the underlying type of the NDimensionalArray.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_byte *values, unsigned int valueCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_byte *values,
+    unsigned int valueCount)
 {
     confirmType(dods_byte_c);
     confirmLastDimSize(valueCount);
@@ -536,7 +558,8 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  * number of dimensions in the NDimensionalArray). The number of values passed in must match the size of the last dimension
  * hyper-slab, and the type of the values must match the underlying type of the NDimensionalArray.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_int16 *values, unsigned int valueCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_int16 *values,
+    unsigned int valueCount)
 {
     confirmType(dods_int16_c);
     confirmLastDimSize(valueCount);
@@ -548,7 +571,8 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  * number of dimensions in the NDimensionalArray). The number of values passed in must match the size of the last dimension
  * hyper-slab, and the type of the values must match the underlying type of the NDimensionalArray.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_uint16 *values, unsigned int valueCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_uint16 *values,
+    unsigned int valueCount)
 {
     confirmType(dods_uint16_c);
     confirmLastDimSize(valueCount);
@@ -560,7 +584,8 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  * number of dimensions in the NDimensionalArray). The number of values passed in must match the size of the last dimension
  * hyper-slab, and the type of the values must match the underlying type of the NDimensionalArray.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_int32 *values, unsigned int valueCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_int32 *values,
+    unsigned int valueCount)
 {
     confirmType(dods_int32_c);
     confirmLastDimSize(valueCount);
@@ -572,7 +597,8 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  * number of dimensions in the NDimensionalArray). The number of values passed in must match the size of the last dimension
  * hyper-slab, and the type of the values must match the underlying type of the NDimensionalArray.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_uint32 *values, unsigned int valueCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_uint32 *values,
+    unsigned int valueCount)
 {
     confirmType(dods_uint32_c);
     confirmLastDimSize(valueCount);
@@ -584,7 +610,8 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  * number of dimensions in the NDimensionalArray). The number of values passed in must match the size of the last dimension
  * hyper-slab, and the type of the values must match the underlying type of the NDimensionalArray.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_float32 *values, unsigned int valueCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_float32 *values,
+    unsigned int valueCount)
 {
     confirmType(dods_float32_c);
     confirmLastDimSize(valueCount);
@@ -596,7 +623,8 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  * number of dimensions in the NDimensionalArray). The number of values passed in must match the size of the last dimension
  * hyper-slab, and the type of the values must match the underlying type of the NDimensionalArray.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_float64 *values, unsigned int valueCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, dods_float64 *values,
+    unsigned int valueCount)
 {
     confirmType(dods_float64_c);
     confirmLastDimSize(valueCount);
@@ -607,7 +635,8 @@ void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *loc
  * This private method uses 'memcopy' to perform a byte by byte copy of the passed values array onto the last dimension
  * hyper-slab referenced by the N-1 element vector location.
  */
-void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, void *values, unsigned int byteCount)
+void NDimensionalArray::setLastDimensionHyperSlab(std::vector<unsigned int> *location, void *values,
+    unsigned int byteCount)
 {
     confirmStorage();
     void *slab;
@@ -639,7 +668,8 @@ long NDimensionalArray::getLastDimensionElementCount()
 libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray)
 {
 
-    if (_shape->size() != templateArray->dimensions(true)) throw Error("Template Array has different number of dimensions than NDimensional Array!!");
+    if (_shape->size() != templateArray->dimensions(true))
+        throw Error("Template Array has different number of dimensions than NDimensional Array!!");
 
     libdap::Array *resultDapArray;
 
@@ -680,7 +710,8 @@ libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray)
         break;
     }
     default:
-        throw InternalErr(__FILE__, __LINE__, "Unknown DAP type encountered when converting to gridfields internal type.");
+        throw InternalErr(__FILE__, __LINE__,
+            "Unknown DAP type encountered when converting to gridfields internal type.");
     }
 
     libdap::Array::Dim_iter dimIt;
@@ -691,7 +722,7 @@ libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray)
 
     // Copy the source objects attributes.
     BESDEBUG(NDimensionalArray_debug_key,
-            "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
+        "TwoDMeshTopology::getGFAttributeAsDapArray() - Copying libdap::Attribute's from template array " << templateArray->name() << endl);
     resultDapArray->set_attr_table(templateArray->get_attr_table());
 
     switch (_dapType) {
@@ -724,7 +755,8 @@ libdap::Array *NDimensionalArray::getArray(libdap::Array *templateArray)
         break;
     }
     default:
-        throw InternalErr(__FILE__, __LINE__, "Unknown DAP type encountered when converting to gridfields internal type.");
+        throw InternalErr(__FILE__, __LINE__,
+            "Unknown DAP type encountered when converting to gridfields internal type.");
     }
 
     return resultDapArray;
@@ -770,7 +802,8 @@ string NDimensionalArray::toString_worker(vector<unsigned int> *location)
             break;
         }
         default:
-            throw InternalErr(__FILE__, __LINE__, "Unknown DAP type encountered when converting to gridfields internal type.");
+            throw InternalErr(__FILE__, __LINE__,
+                "Unknown DAP type encountered when converting to gridfields internal type.");
         }
         s << endl;
 

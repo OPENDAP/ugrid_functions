@@ -34,7 +34,7 @@ using namespace std;
 //using namespace libdap;
 
 namespace {
-    class Array;
+class Array;
 }
 
 namespace ugrid {
@@ -71,7 +71,7 @@ namespace ugrid {
 GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays);
 GF::Array *newGFIndexArray(string name, long size, vector<int*> *sharedIntArrays);
 
-string getAttributeValue(libdap::BaseType *bt, string aName) ;
+string getAttributeValue(libdap::BaseType *bt, string aName);
 bool matchesCfRoleOrStandardName(libdap::BaseType *bt, string aValue);
 
 bool checkAttributeValue(libdap::BaseType *bt, string aName, string aValue);
@@ -88,7 +88,8 @@ libdap::Type getGridfieldsReturnType(libdap::Type type);
  * @param a
  * @return Data from a DAP array of type DODS in an array of type T
  */
-template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
+template<typename DODS, typename T> T *extract_array_helper(libdap::Array *a)
+{
     int length = a->length();
 
     DODS *src = new DODS[length];
@@ -100,7 +101,7 @@ template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
     for (int i = 0; i < length; ++i)
         dest[i] = (T) src[i];
 
-    delete [] src;
+    delete[] src;
 
     return dest;
 }
@@ -122,11 +123,12 @@ template<typename DODS, typename T>T *extract_array_helper(libdap::Array *a) {
  * @return An array of type T where T is determined by the lvalue of the
  * call to the function.
  */
-template<typename T> T *extractArray(libdap::Array *a) {
+template<typename T> T *extractArray(libdap::Array *a)
+{
 
     // Simple types are Byte, ..., Float64, String and Url.
-    if ((a->type() == libdap::dods_array_c && !a->var()->is_simple_type())
-        || a->var()->type() == libdap::dods_str_c || a->var()->type() == libdap::dods_url_c)
+    if ((a->type() == libdap::dods_array_c && !a->var()->is_simple_type()) || a->var()->type() == libdap::dods_str_c
+        || a->var()->type() == libdap::dods_url_c)
         throw libdap::Error(malformed_expr, "The function requires a DAP numeric-type array argument.");
 
     a->read();
@@ -160,10 +162,10 @@ template<typename T> T *extractArray(libdap::Array *a) {
 
     default:
         throw libdap::InternalErr(__FILE__, __LINE__,
-                "The argument list built by the CE parser contained an unsupported numeric type.");
+            "The argument list built by the CE parser contained an unsupported numeric type.");
     }
 }
 
-}// namespace ugrid
+}    // namespace ugrid
 
 #endif // _UgridUtilities_h

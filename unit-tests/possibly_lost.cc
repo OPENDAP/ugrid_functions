@@ -61,26 +61,30 @@ private:
 
     std::multimap<std::string, libdap::ServerFunction *> d_func_list;
 
-    static void initialize_instance() {
+    static void initialize_instance()
+    {
         if (d_instance == 0) {
             d_instance = new SingletonList;
-            #if HAVE_ATEXIT
-             atexit(delete_instance);
-            #endif
+#if HAVE_ATEXIT
+            atexit(delete_instance);
+#endif
         }
     }
 
-    static void delete_instance() {
+    static void delete_instance()
+    {
         delete d_instance;
         d_instance = 0;
     }
 
-
-    virtual ~SingletonList() {
-        std::multimap<string,libdap::ServerFunction *>::iterator fit;
-        for(fit=d_func_list.begin(); fit!=d_func_list.end() ; fit++){
+    virtual ~SingletonList()
+    {
+        std::multimap<string, libdap::ServerFunction *>::iterator fit;
+        for (fit = d_func_list.begin(); fit != d_func_list.end(); fit++) {
             libdap::ServerFunction *func = fit->second;
-            DBG(cerr << "SingletonList::~SingletonList() - Deleting ServerFunction " << func->getName() << " from SingletonList." << endl);
+            DBG(
+                cerr << "SingletonList::~SingletonList() - Deleting ServerFunction " << func->getName()
+                    << " from SingletonList." << endl);
             delete func;
         }
         d_func_list.clear();
@@ -89,31 +93,36 @@ private:
     friend class PossiblyLost;
 
 protected:
-    SingletonList() {}
+    SingletonList()
+    {
+    }
 
 public:
 
-
-    static SingletonList * TheList() {
+    static SingletonList * TheList()
+    {
         pthread_once(&instance_control, initialize_instance);
 
         return d_instance;
     }
 
-
-    virtual void add_function(libdap::ServerFunction *func){
-        d_func_list.insert(std::make_pair(func->getName(),func));
+    virtual void add_function(libdap::ServerFunction *func)
+    {
+        d_func_list.insert(std::make_pair(func->getName(), func));
     }
 
-    void getFunctionNames(vector<string> *names){
-        if(d_func_list.empty()){
+    void getFunctionNames(vector<string> *names)
+    {
+        if (d_func_list.empty()) {
             DBG(cerr << "SingletonList::getFunctionNames() - Function list is empty." << endl);
             return;
         }
-        std::multimap<string,libdap::ServerFunction *>::iterator fit;
-        for(fit=d_func_list.begin(); fit!=d_func_list.end() ; fit++){
+        std::multimap<string, libdap::ServerFunction *>::iterator fit;
+        for (fit = d_func_list.begin(); fit != d_func_list.end(); fit++) {
             libdap::ServerFunction *func = fit->second;
-            DBG(cerr << "SingletonList::getFunctionNames() - Adding function '"<< func->getName() << "' to names list." << endl);
+            DBG(
+                cerr << "SingletonList::getFunctionNames() - Adding function '" << func->getName() << "' to names list."
+                    << endl);
             names->push_back(func->getName());
         }
     }
@@ -124,10 +133,8 @@ SingletonList *SingletonList::d_instance = 0;
 
 void possibly_lost_function(int /*argc*/, libdap::BaseType */*argv*/[], libdap::DDS &/*dds*/, libdap::BaseType **btpp)
 {
-    string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-            + "<function name=\"ugr4\" version=\"0.1\">\n"
-            + "Valgrind Possibly Lost Error Test.\n" + "usage: possibly_lost_test()"
-            + "\n"+"</function>";
+    string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n") + "<function name=\"ugr4\" version=\"0.1\">\n"
+        + "Valgrind Possibly Lost Error Test.\n" + "usage: possibly_lost_test()" + "\n" + "</function>";
 
     libdap::Str *response = new libdap::Str("info");
     response->set_value(info);
@@ -136,11 +143,13 @@ void possibly_lost_function(int /*argc*/, libdap::BaseType */*argv*/[], libdap::
 
 }
 
-class PLTF : public libdap::ServerFunction {
-public :
-    PLTF() {
+class PLTF: public libdap::ServerFunction {
+public:
+    PLTF()
+    {
         setName("pltf");
-        setDescriptionString("This is a unit test to determine why valgrind is returning possibly lost errors on this code pattern.");
+        setDescriptionString(
+            "This is a unit test to determine why valgrind is returning possibly lost errors on this code pattern.");
         setUsageString("pltf()");
         setRole("http://services.opendap.org/dap4/unit-tests/possibly_lost_test");
         setDocUrl("http://docs.opendap.org/index.php/unit-tests");
@@ -150,65 +159,71 @@ public :
     }
 };
 
-
-
 class PossiblyLost: public CppUnit::TestFixture {
 
 public:
 
     // Called once before everything gets tested
-    PossiblyLost() {
+    PossiblyLost()
+    {
         //    DBG(cerr << " BindTest - Constructor" << endl);
 
     }
 
     // Called at the end of the test
-    ~PossiblyLost() {
-       //    DBG(cerr << " BindTest - Destructor" << endl);
+    ~PossiblyLost()
+    {
+        //    DBG(cerr << " BindTest - Destructor" << endl);
     }
 
     // Called before each test
-    void setup() {
+    void setup()
+    {
         //    DBG(cerr << " BindTest - setup()" << endl);
     }
 
     // Called after each test
-    void tearDown() {
+    void tearDown()
+    {
         //    DBG(cerr << " tearDown()" << endl);
     }
 
-    CPPUNIT_TEST_SUITE( PossiblyLost );
+CPPUNIT_TEST_SUITE( PossiblyLost );
 
     CPPUNIT_TEST(possibly_lost_fail);
     CPPUNIT_TEST(possibly_lost_solution);
 
-    CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST_SUITE_END()
+    ;
 
-
-    void possibly_lost_fail(){
+    void possibly_lost_fail()
+    {
         DBG(cerr << endl);
-
 
         PLTF *ssf = new PLTF();
         ssf->setName("Possibly_Lost_FAIL");
 
         //printFunctionNames();
 
-        DBG(cerr << "PossiblyLost::possibly_lost_solution() - Adding function(): " << ssf->getDescriptionString() << endl);
+        DBG(
+            cerr << "PossiblyLost::possibly_lost_solution() - Adding function(): " << ssf->getDescriptionString()
+                << endl);
         SingletonList::TheList()->add_function(ssf);
 
         printFunctionNames();
 
     }
 
-    void printFunctionNames(){
+    void printFunctionNames()
+    {
         vector<string> names;
         SingletonList::TheList()->getFunctionNames(&names);
         DBG(cerr << "PossiblyLost::possibly_lost_solution() - SingletonList::getFunctionNames(): " << endl);
         DBG(copy(names.begin(), names.end(), ostream_iterator<string>(cerr, ", ")));
     }
 
-    void possibly_lost_solution(){
+    void possibly_lost_solution()
+    {
         DBG(cerr << endl);
 
         PLTF *ssf = new PLTF();
@@ -216,7 +231,9 @@ public:
 
         printFunctionNames();
 
-        DBG(cerr << "PossiblyLost::possibly_lost_solution() - Adding function(): " << ssf->getDescriptionString() << endl);
+        DBG(
+            cerr << "PossiblyLost::possibly_lost_solution() - Adding function(): " << ssf->getDescriptionString()
+                << endl);
         SingletonList::TheList()->add_function(ssf);
 
         printFunctionNames();
@@ -238,8 +255,8 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(PossiblyLost);
 
-
-int main(int argc, char*argv[]) {
+int main(int argc, char*argv[])
+{
     CppUnit::TextTestRunner runner;
     runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
 

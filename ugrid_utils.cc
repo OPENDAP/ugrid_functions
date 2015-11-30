@@ -72,7 +72,7 @@ GF::e_Type getGridfieldsInternalTypeMap(Type type)
     }
     default:
         throw InternalErr(__FILE__, __LINE__,
-                "Unknown DAP type encountered when converting to gridfields internal type.");
+            "Unknown DAP type encountered when converting to gridfields internal type.");
     }
 }
 
@@ -92,10 +92,10 @@ Type getGridfieldsReturnType(Type type)
     }
     default:
         throw InternalErr(__FILE__, __LINE__,
-                "Unknown GF::e_Type type encountered when resolving gridfields result type mapping for dap type "
-                        + libdap::type_name(type));
-    } DBG(cerr << " getGridfieldsReturnType() - Return type for " << libdap::type_name(type) <<
-            " is " << libdap::type_name(retType) << endl);
+            "Unknown GF::e_Type type encountered when resolving gridfields result type mapping for dap type "
+                + libdap::type_name(type));
+    }DBG(cerr << " getGridfieldsReturnType() - Return type for " << libdap::type_name(type) <<
+        " is " << libdap::type_name(retType) << endl);
 
     return retType;
 }
@@ -130,7 +130,7 @@ GF::Array *newGFIndexArray(string name, long size, vector<int*> *sharedIntArrays
 GF::Array *extractGridFieldArray(libdap::Array *a, vector<int*> *sharedIntArrays, vector<float*> *sharedFloatArrays)
 {
     if ((a->type() == dods_array_c && !a->var()->is_simple_type()) || a->var()->type() == dods_str_c
-            || a->var()->type() == dods_url_c)
+        || a->var()->type() == dods_url_c)
         throw Error(malformed_expr, "The function requires a DAP numeric-type array argument.");
 
     DBG(cerr << "extract_gridfield_array() - " << "Reading data values into DAP Array '" << a->name() <<"'"<< endl);
@@ -224,7 +224,7 @@ string getAttributeValue(BaseType *bt, string aName)
 {
     AttrTable &at = bt->get_attr_table();
     DBG(cerr << "getAttributeValue() - " << "Checking to see if the variable " << bt->name()
-            << "' has an attribute '"<< aName << "'"<<endl);
+        << "' has an attribute '"<< aName << "'"<<endl);
 
     // Confirm that submitted variable has an attribute called aName and return its value.
     AttrTable::Attr_iter loc = at.simple_find(aName);
@@ -259,7 +259,7 @@ bool checkAttributeValue(BaseType *bt, string aName, string aValue)
 
     AttrTable &at = bt->get_attr_table();
     DBG(cerr << "checkAttributeValue() - " << "Checking to see if the variable " << bt->name()
-            << "' has an attribute '"<< aName << "' with value '" << aValue << "'"<<endl);
+        << "' has an attribute '"<< aName << "' with value '" << aValue << "'"<<endl);
 
     // Confirm that submitted variable has an attribute called aName whose value is aValue.
     AttrTable::Attr_iter loc = at.simple_find(aName);

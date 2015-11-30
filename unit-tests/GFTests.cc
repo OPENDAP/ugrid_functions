@@ -83,13 +83,12 @@ public:
 };
 #endif
 
-class GFTests: public CppUnit::TestFixture
-{
+class GFTests: public CppUnit::TestFixture {
 
 private:
 
     void buildNewOcotoPieGridField(GF::GridField **gf, GF::Grid **g, GF::Node **fncaMeshNodes,
-            vector<GF::Array *> *gfAttributes)
+        vector<GF::Array *> *gfAttributes)
     {
 
         string name = "octo-pie";
@@ -209,11 +208,12 @@ public:
     {
     }
 
-    CPPUNIT_TEST_SUITE( GFTests );
+CPPUNIT_TEST_SUITE( GFTests );
 
     CPPUNIT_TEST(gf_test);
 
-    CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST_SUITE_END()
+    ;
 
     void gf_test()
     {
@@ -229,9 +229,9 @@ public:
             buildNewOcotoPieGridField(&opieGridField, &opieGrid, &fncaMeshNodes, &gfAttributes);
 
             // Build the restriction operator;
-            DBG(cerr << "GFTests::gf_test() - Constructing new GF::RestrictOp using user "
-                            << "supplied 'dimension' value and filter expression combined with the GF:GridField "
-                            << endl);
+            DBG(
+                cerr << "GFTests::gf_test() - Constructing new GF::RestrictOp using user "
+                    << "supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
             GF::RestrictOp op = GF::RestrictOp("X>=0", node, opieGridField);
 
             // Apply the operator and get the result;

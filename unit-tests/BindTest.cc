@@ -42,14 +42,10 @@
 #include "gridfields/arrayreader.h"
 #include "gridfields/accumulate.h"
 
-
 static bool debug = false;
 
 #undef DBG
 #define DBG(x) do { if (debug) (x); } while(false);
-
-
-
 
 using namespace GF;
 
@@ -70,7 +66,8 @@ class BindTest: public CppUnit::TestFixture {
 
 private:
 
-    Grid *makeGrid(int scale, string name) {
+    Grid *makeGrid(int scale, string name)
+    {
         CellArray *twocells;
         CellArray *onecells;
         // Unused CellArray *zerocells;
@@ -108,7 +105,8 @@ private:
         return grid;
     }
 
-    Array *makeFloatArray(int size, const char *name) {
+    Array *makeFloatArray(int size, const char *name)
+    {
         Array *arr;
         arr = new Array(name, FLOAT, size);
         float *data;
@@ -124,7 +122,8 @@ private:
     /**
      *
      */
-    GridField *makeGridField(int size, string /*gridname*/, const char */*datname*/, int k) {
+    GridField *makeGridField(int size, string /*gridname*/, const char */*datname*/, int k)
+    {
 
         Grid *G;
         GridField *GF;
@@ -144,33 +143,39 @@ private:
 public:
 
     // Called once before everything gets tested
-    BindTest() {
+    BindTest()
+    {
         //    DBG(cerr << " BindTest - Constructor" << endl);
 
     }
 
     // Called at the end of the test
-    ~BindTest() {
+    ~BindTest()
+    {
         //    DBG(cerr << " BindTest - Destructor" << endl);
     }
 
     // Called before each test
-    void setup() {
+    void setup()
+    {
         //    DBG(cerr << " BindTest - setup()" << endl);
     }
 
     // Called after each test
-    void tearDown() {
+    void tearDown()
+    {
         //    DBG(cerr << " tearDown()" << endl);
     }
 
-    CPPUNIT_TEST_SUITE( BindTest );
+CPPUNIT_TEST_SUITE( BindTest );
 
     CPPUNIT_TEST(bind_test);
 
-    CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST_SUITE_END()
+    ;
 
-    void bind_test() {
+    void bind_test()
+    {
         DBG(cerr << " bind_test - BEGIN" << endl);
 
         try {
@@ -225,7 +230,7 @@ public:
             for (int i = 0; i < size; i++) {
                 ints[i] = i - size/2.0;
                 msg += libdap::long_to_string(ints[i]) + "   ";
-            } DBG(cerr << endl << "Int array input: "<< msg << endl);
+            }DBG(cerr << endl << "Int array input: "<< msg << endl);
 
             DBG(cerr << endl <<"Memory Backed ArrayReader - integers"<< endl);
             memArrayReader = arf.makeArrayReader(ints, size);
@@ -238,7 +243,7 @@ public:
             vector<int> gf_ints = gfa->makeArray();
             msg.clear();
             for (int i = 0; i < gf_ints.size(); i++)
-                msg += libdap::long_to_string(gf_ints[i]) + "   ";
+            msg += libdap::long_to_string(gf_ints[i]) + "   ";
 
             DBG(cerr << endl << "Int array result: "<< msg << endl << endl << endl);
 #endif
@@ -276,10 +281,12 @@ public:
 #endif
 
             CPPUNIT_ASSERT(true);
-        } catch (std::string &e) {
+        }
+        catch (std::string &e) {
             cerr << "Error: " << e << endl;
             CPPUNIT_ASSERT(false);
-        } catch (...) {
+        }
+        catch (...) {
             cerr << "Unknown Error." << endl;
             CPPUNIT_ASSERT(false);
         }
@@ -292,7 +299,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(BindTest);
 
 } // namespace ugrid
 
-int main(int argc, char*argv[]) {
+int main(int argc, char*argv[])
+{
     CppUnit::TextTestRunner runner;
     runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
 

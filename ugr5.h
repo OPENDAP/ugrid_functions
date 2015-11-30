@@ -1,4 +1,3 @@
-
 // This file is part of libdap, A C++ implementation of the OPeNDAP Data
 // Access Protocol.
 
@@ -37,7 +36,7 @@
 
 namespace ugrid {
 
-void ugr5(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp) ;
+void ugr5(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp);
 
 /**
  * The UGR4 class encapsulates the function 'ugr4::ugr4'
@@ -48,9 +47,11 @@ class UGR5: public libdap::ServerFunction {
 private:
 
 public:
-    UGR5() {
+    UGR5()
+    {
         setName("ugr5");
-        setDescriptionString("This function can subset the range variables of a two dimensional triangular mesh unstructured grid.");
+        setDescriptionString(
+            "This function can subset the range variables of a two dimensional triangular mesh unstructured grid.");
         setUsageString("ugr5(0, node_var [,node_var_2,...,node_var_n], 'relational query over domain')");
         setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
         setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
@@ -63,7 +64,6 @@ public:
 
 };
 
-
-}// namespace ugrid_restrict
+} // namespace ugrid_restrict
 
 #endif /* UGR5_H_ */

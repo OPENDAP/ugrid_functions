@@ -1,4 +1,3 @@
-
 // Copyright (c) 2012 OPeNDAP, Inc.
 // Authors: Nathan Potter <ndp@opendap.org>
 //          James Gallagher <jgallagher@opendap.org>

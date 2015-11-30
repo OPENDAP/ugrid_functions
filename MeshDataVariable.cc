@@ -43,7 +43,6 @@
 #define BESDEBUG( x, y )
 #endif
 
-
 using namespace std;
 
 namespace ugrid {
@@ -68,9 +67,9 @@ static locationType determineLocationType(libdap::Array *rangeVar)
 
     if (locationString.empty()) {
         string msg = "MeshDataVariable::determineLocation() - The range variable '" + rangeVar->name()
-                + "' is missing the required attribute named '" +
-                UGRID_LOCATION + "' and its alternate attribute named '" +
-                UGRID_GRID_LOCATION + "'";
+            + "' is missing the required attribute named '" +
+            UGRID_LOCATION + "' and its alternate attribute named '" +
+            UGRID_GRID_LOCATION + "'";
         BESDEBUG("ugrid", msg);
         throw Error(msg);
     }
@@ -92,8 +91,8 @@ static locationType determineLocationType(libdap::Array *rangeVar)
         return face;
     }
     string msg = "determineLocation() - The range variable '" + rangeVar->name() + "' has a '" + UGRID_LOCATION
-            + "' attribute with an unrecognized value of  '" + locationString + "' The acceptable values are: '"
-            + UGRID_NODE + "', '" + UGRID_EDGE + "', and '" + UGRID_FACE + "'";
+        + "' attribute with an unrecognized value of  '" + locationString + "' The acceptable values are: '"
+        + UGRID_NODE + "', '" + UGRID_EDGE + "', and '" + UGRID_FACE + "'";
     BESDEBUG("ugrid", msg);
     throw Error(msg);
 
@@ -105,7 +104,7 @@ void MeshDataVariable::init(libdap::Array *rangeVar)
 
     meshDataVar = rangeVar;
     BESDEBUG("ugrid",
-            "MeshDataVariable::init() - The user submitted the range data array: " << rangeVar->name() << endl);
+        "MeshDataVariable::init() - The user submitted the range data array: " << rangeVar->name() << endl);
 
     locationType rank = determineLocationType(rangeVar);
 
@@ -114,13 +113,13 @@ void MeshDataVariable::init(libdap::Array *rangeVar)
     meshName = getAttributeValue(rangeVar, UGRID_MESH);
     if (meshName.empty()) {
         string msg = "MeshDataVariable::init() - The range variable '" + rangeVar->name()
-                + "' is missing the required attribute named '" + UGRID_MESH + "' ";
+            + "' is missing the required attribute named '" + UGRID_MESH + "' ";
         BESDEBUG("ugrid", msg);
         throw Error(msg);
     }
 
     BESDEBUG("ugrid",
-            "MeshDataVariable::init() - Range data array '" << meshDataVar->name() << "' references the 'mesh' variable '" << meshName << "'" << endl);
+        "MeshDataVariable::init() - Range data array '" << meshDataVar->name() << "' references the 'mesh' variable '" << meshName << "'" << endl);
 
     _initialized = true;
 }

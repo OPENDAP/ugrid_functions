@@ -46,8 +46,7 @@ static bool debug = false;
 
 namespace libdap {
 
-class NDimArrayTest: public CppUnit::TestFixture
-{
+class NDimArrayTest: public CppUnit::TestFixture {
 public:
     // Called once before everything gets tested
     NDimArrayTest()
@@ -112,7 +111,9 @@ CPPUNIT_TEST_SUITE( NDimArrayTest );
         }
         long constrainedSize = libdap::NDimensionalArray::computeConstrainedShape(&test, &shape);
 
-        DBG(cerr << " setLastDimesnionHyperSlab_test() - constrainedSize=" << libdap::long_to_string(constrainedSize) << endl);
+        DBG(
+            cerr << " setLastDimesnionHyperSlab_test() - constrainedSize=" << libdap::long_to_string(constrainedSize)
+                << endl);
         CPPUNIT_ASSERT(constrainedSize == 10000);
 
         NDimensionalArray nda(&test);
@@ -131,13 +132,17 @@ CPPUNIT_TEST_SUITE( NDimArrayTest );
         for (unsigned long i = 0; i < lastDimSize; i++)
             stuff[i] = pi;
 
-        DBG(cerr << " setLastDimesnionHyperSlab_test() - setting slab values to " << libdap::double_to_string(pi) << endl);
+        DBG(
+            cerr << " setLastDimesnionHyperSlab_test() - setting slab values to " << libdap::double_to_string(pi)
+                << endl);
         nda.setLastDimensionHyperSlab(&location, stuff, nda.getLastDimensionElementCount());
 
         dods_float64 *slab;
         unsigned int slabElementCount = 0;
         nda.getLastDimensionHyperSlab(&location, (void**) &slab, &slabElementCount);
-        DBG(cerr << " setLastDimesnionHyperSlab_test() - Retrieved  slab. Slab element count " << slabElementCount << endl);
+        DBG(
+            cerr << " setLastDimesnionHyperSlab_test() - Retrieved  slab. Slab element count " << slabElementCount
+                << endl);
 
         CPPUNIT_ASSERT(slabElementCount == lastDimSize);
 
@@ -180,7 +185,9 @@ CPPUNIT_TEST_SUITE( NDimArrayTest );
         }
 
         unsigned long constrainedSize = libdap::NDimensionalArray::computeConstrainedShape(&test, &shape);
-        DBG(cerr << " getLastDimesnionHyperSlab_test() - constrainedSize=" << libdap::long_to_string(constrainedSize) << endl);
+        DBG(
+            cerr << " getLastDimesnionHyperSlab_test() - constrainedSize=" << libdap::long_to_string(constrainedSize)
+                << endl);
         CPPUNIT_ASSERT(constrainedSize == 50000);
 
         NDimensionalArray nda(&test);
@@ -196,7 +203,9 @@ CPPUNIT_TEST_SUITE( NDimArrayTest );
         location[0] = 0;
         location[1] = 0;
         nda.getLastDimensionHyperSlab(&location, &firstSlab, &slabElementCount);
-        DBG(cerr << " getLastDimesnionHyperSlab_test() - slab elementCount=" << libdap::long_to_string(slabElementCount) << endl);
+        DBG(
+            cerr << " getLastDimesnionHyperSlab_test() - slab elementCount=" << libdap::long_to_string(slabElementCount)
+                << endl);
         DBG(cerr << " getLastDimesnionHyperSlab_test() - first Slab address=" << firstSlab << endl);
 
         location[0] = 0;
@@ -275,7 +284,9 @@ CPPUNIT_TEST_SUITE( NDimArrayTest );
             CPPUNIT_ASSERT(false);
         }
         catch (libdap::Error &e) {
-            DBG(cerr << " getStorageIndex_test() - Correctly Detected Bounds Violation. Error Message: " << e.get_error_message() << endl);
+            DBG(
+                cerr << " getStorageIndex_test() - Correctly Detected Bounds Violation. Error Message: "
+                    << e.get_error_message() << endl);
             CPPUNIT_ASSERT(true);
 
         }
@@ -286,7 +297,9 @@ CPPUNIT_TEST_SUITE( NDimArrayTest );
     void checkLocationIndex(vector<unsigned int> *shape, vector<unsigned int> *location, long index)
     {
         for (unsigned int i = 0; i < location->size(); i++) {
-            DBG(cerr << " checkLocation() - location[" << libdap::long_to_string(i) << "]=" << libdap::long_to_string((*location)[i]) << endl);
+            DBG(
+                cerr << " checkLocation() - location[" << libdap::long_to_string(i) << "]="
+                    << libdap::long_to_string((*location)[i]) << endl);
         }
 
         long storageIndex = libdap::NDimensionalArray::getStorageIndex(shape, location);

@@ -49,8 +49,7 @@ namespace ugrid {
  * Identifies the location/rank/dimension that various grid components are associated with.
  */
 
-class TwoDMeshTopology
-{
+class TwoDMeshTopology {
 
 private:
     /**
@@ -180,7 +179,6 @@ private:
      */
     //vector<string> *edgeCoordinateNames;
     //vector<Array *> *edgeCoordinateArrays;
-
     GF::Grid *gridTopology;
     GF::GridField *d_inputGridField;
     GF::GridField *resultGridField;
@@ -203,7 +201,7 @@ private:
     GF::CellArray *getFaceNodeConnectivityCells();
 
     libdap::Array *getGFAttributeAsDapArray(libdap::Array *sourceArray, locationType rank,
-            GF::GridField *resultGridField);
+        GF::GridField *resultGridField);
     libdap::Array *getGridFieldCellArrayAsDapArray(GF::GridField *resultGridField, libdap::Array *sourceFcnArray);
     // libdap::Array *getNewFncDapArray(libdap::Array *templateArray, int N);
 
@@ -216,9 +214,15 @@ public:
 
     void init(string meshVarName, libdap::DDS *dds);
 
-    string meshVarName() const { return getMeshVariable()->name(); }
+    string meshVarName() const
+    {
+        return getMeshVariable()->name();
+    }
 
-    libdap::BaseType *getMeshVariable() const { return d_meshVar; }
+    libdap::BaseType *getMeshVariable() const
+    {
+        return d_meshVar;
+    }
 
     void buildBasicGfTopology();
     void applyRestrictOperator(locationType loc, string filterExpression);

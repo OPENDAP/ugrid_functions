@@ -22,7 +22,6 @@
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
 
-
 #ifndef UGRIDFUNCTIONS_H_
 #define UGRIDFUNCTIONS_H_
 
@@ -32,7 +31,7 @@
 
 class UgridFunctions: public BESAbstractModule {
 public:
-	UgridFunctions()
+    UgridFunctions()
     {
     }
     virtual ~UgridFunctions()
@@ -43,10 +42,6 @@ public:
 
     virtual void dump(ostream &strm) const;
 };
-
-
-
-
 
 //} /* namespace ugrid */
 #endif /* UGRIDFUNCTIONS_H_ */
