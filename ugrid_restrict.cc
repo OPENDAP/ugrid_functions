@@ -62,7 +62,7 @@
 #include "NDimensionalArray.h"
 #include <gridfields/GFError.h>
 
-#include "ugr5.h"
+#include "ugrid_restrict.h"
 
 #ifdef NDEBUG
 #undef BESDEBUG
@@ -77,7 +77,6 @@ namespace ugrid {
 /**
  * Function syntax
  */
-static string ugrSyntax = "ugr5(dim:int32, rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
 
 /**
  * Function Arguments
@@ -148,25 +147,37 @@ static void addRangeVar(DDS *dds, libdap::Array *rangeVar, map<string, vector<Me
     requestedRangeVarsForMesh->push_back(mdv);
 }
 
+
+string usage(string fnc){
+
+    string usage = fnc+"(rangeVariable:string, [rangeVariable:string, ... ] condition:string)";
+
+    return usage;
+}
+
 /**
  * Process the functions arguments and return the structure containing their values.
  */
-static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[])
+static UgridRestrictArgs processUgrArgs(string func_name, locationType dimension, int argc, BaseType *argv[])
 {
 
     BESDEBUG("ugrid", "processUgrArgs() - BEGIN" << endl);
 
     UgridRestrictArgs args;
+    args.dimension = dimension;
+    BESDEBUG("ugrid", "args.dimension: " << libdap::long_to_string(args.dimension) << endl);
+
     args.rangeVars = vector<libdap::Array *>();
 
     // Check number of arguments;
-    if (argc < 3)
+    if (argc < 2)
         throw Error(malformed_expr,
-            "Wrong number of arguments to ugrid restrict function: " + ugrSyntax + " was passed " + long_to_string(argc)
+            "Wrong number of arguments to ugrid restrict function: " + usage(func_name) + " was passed " + long_to_string(argc)
                 + " argument(s)");
 
     BaseType * bt;
 
+#if 0
     // ---------------------------------------------
     // Process the first arg, which is the rank of the Restriction Clause
     bt = argv[0];
@@ -176,13 +187,14 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[])
 
     args.dimension = (locationType) dynamic_cast<Int32&>(*argv[0]).value();
     BESDEBUG("ugrid", "args.dimension: " << libdap::long_to_string(args.dimension) << endl);
+#endif
 
     // ---------------------------------------------
     // Process the last argument, the relational/filter expression used to restrict the ugrid content.
     bt = argv[argc - 1];
     if (bt->type() != dods_str_c)
         throw Error(malformed_expr,
-            "Wrong type for third argument, expected DAP String. " + ugrSyntax + "  was passed a/an "
+            "Wrong type for third argument, expected DAP String. " + usage(func_name) + "  was passed a/an "
                 + bt->type_name());
 
     args.filterExpression = dynamic_cast<Str&>(*bt).value();
@@ -198,17 +210,17 @@ static UgridRestrictArgs processUgrArgs(int argc, BaseType *argv[])
     // following loop will try to find at least one rangeVar,
     // and it won't try to process the first or last members
     // of argv.
-    for (int i = 1; i < (argc - 1); i++) {
+    for (int i = 0; i < (argc - 1); i++) {
         bt = argv[i];
         if (bt->type() != dods_array_c)
             throw Error(malformed_expr,
-                "Wrong type for second argument, expected DAP Array. " + ugrSyntax + "  was passed a/an "
+                "Wrong type for second argument, expected DAP Array. " + usage(func_name) + "  was passed a/an "
                     + bt->type_name());
 
         libdap::Array *newRangeVar = dynamic_cast<libdap::Array*>(bt);
         if (newRangeVar == 0) {
             throw Error(malformed_expr,
-                "Wrong type for second argument. " + ugrSyntax + "  was passed a/an " + bt->type_name());
+                "Wrong type for second argument. " + usage(func_name) + "  was passed a/an " + bt->type_name());
         }
         args.rangeVars.push_back(newRangeVar);
     }
@@ -437,6 +449,8 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(MeshDataVariable *mdv
 /**
  Subset an irregular mesh (aka unstructured grid).
 
+ @param func_name Name of the function being called (used for error and info messages)
+ @param location The location in the grid (node, edge, or face) to which the filter expression will be applied.
  @param argc Count of the function's arguments
  @param argv Array of pointers to the functions arguments
  @param dds Reference to the DDS object for the complete dataset.
@@ -451,18 +465,18 @@ static libdap::Array *restrictRangeVariableByOneDHyperSlab(MeshDataVariable *mdv
 
  @exception Error Thrown If the Array is not a one dimensional
  array. */
-void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
+void ugrid_restrict(string func_name, locationType location, int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 {
     try { // This top level try block is used to catch gridfields library errors.
 
         BESStopWatch sw;
-        if (BESISDEBUG(TIMING_LOG)) sw.start("ugrid::ugr5()", "[function_invocation]");
+        if (BESISDEBUG(TIMING_LOG)) sw.start("ugrid::ugrid_restrict()", "[function_invocation]");
 
-        BESDEBUG("ugrid", "ugr5() - BEGIN" << endl);
+        BESDEBUG("ugrid", "ugrid_restrict() - BEGIN" << endl);
 
         string info = string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-            + "<function name=\"ugr5\" version=\"0.1\">\n" + "Server function for Unstructured grid operations.\n"
-            + "usage: " + ugrSyntax + "\n" + "</function>";
+            + "<function name=\"ugrid_restrict\" version=\"0.1\">\n" + "Server function for Unstructured grid operations.\n"
+            + "usage: " + usage(func_name) + "\n" + "</function>";
 
         if (argc == 0) {
             Str *response = new Str("info");
@@ -472,7 +486,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         }
 
         // Process and QC the arguments
-        UgridRestrictArgs args = processUgrArgs(argc, argv);
+        UgridRestrictArgs args = processUgrArgs(func_name, location, argc, argv);
 
         // Each range variable is associated with a "mesh" i.e. a mesh topology variable. Since there may be more than one mesh in a
         // dataset, and the user may request more than one range variable for each mesh we need to sift through the list of requested
@@ -484,9 +498,9 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         for (it = args.rangeVars.begin(); it != args.rangeVars.end(); ++it) {
             addRangeVar(&dds, *it, meshToRangeVarsMap);
         }
-        BESDEBUG("ugrid", "ugr5() - The user requested "<< args.rangeVars.size() << " range data variables." << endl);
+        BESDEBUG("ugrid", "ugrid_restrict() - The user requested "<< args.rangeVars.size() << " range data variables." << endl);
         BESDEBUG("ugrid",
-            "ugr5() - The user's request referenced "<< meshToRangeVarsMap->size() << " mesh topology variables." << endl);
+            "ugrid_restrict() - The user's request referenced "<< meshToRangeVarsMap->size() << " mesh topology variables." << endl);
 
         // ----------------------------------
         // OK, so up to this point we have not read any data from the data set, but we have QC'd the inputs and verified that
@@ -514,7 +528,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
             // Grid field to Dap Objects should return all of the Ugrid structural stuff - mesh variable, node coordinate variables,
             // face and edge coordinate variables if present.
             BESDEBUG("ugrid",
-                "ugr5() - Adding restricted mesh_topology structure for mesh '" << meshVariableName << "' to DAP response." << endl);
+                "ugrid_restrict() - Adding restricted mesh_topology structure for mesh '" << meshVariableName << "' to DAP response." << endl);
 
             TwoDMeshTopology *tdmt = new TwoDMeshTopology();
             tdmt->init(meshVariableName, &dds);
@@ -528,23 +542,23 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
             vector<vector<unsigned int> *> location_subset_indices(3);
 
             long nodeResultSize = tdmt->getResultGridSize(node);
-            BESDEBUG("ugrid", "ugr5() - there are "<< nodeResultSize << " nodes in the subset." << endl);
+            BESDEBUG("ugrid", "ugrid_restrict() - there are "<< nodeResultSize << " nodes in the subset." << endl);
             vector<unsigned int> node_subset_index(nodeResultSize);
             if (nodeResultSize > 0) {
                 tdmt->getResultIndex(node, &node_subset_index[0]);
             }
             location_subset_indices[node] = &node_subset_index;
 
-            BESDEBUG("ugrid2", "ugr5() - node_subset_index"<< vectorToString(&node_subset_index) << endl);
+            BESDEBUG("ugrid2", "ugrid_restrict() - node_subset_index"<< vectorToString(&node_subset_index) << endl);
 
             long faceResultSize = tdmt->getResultGridSize(face);
-            BESDEBUG("ugrid", "ugr5() - there are "<< faceResultSize << " faces in the subset." << endl);
+            BESDEBUG("ugrid", "ugrid_restrict() - there are "<< faceResultSize << " faces in the subset." << endl);
             vector<unsigned int> face_subset_index(faceResultSize);
             if (faceResultSize > 0) {
                 tdmt->getResultIndex(face, &face_subset_index[0]);
             }
             location_subset_indices[face] = &face_subset_index;
-            BESDEBUG("ugrid2", "ugr5() - face_subset_index: "<< vectorToString(&face_subset_index) << endl);
+            BESDEBUG("ugrid2", "ugrid_restrict() - face_subset_index: "<< vectorToString(&face_subset_index) << endl);
 
             // This gets all the stuff that's attached to the grid - which at this point does not include the range variables but does include the
             // index variable. good enough for now but need to drop the index....
@@ -552,7 +566,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
             tdmt->convertResultGridFieldStructureToDapObjects(&dapResults);
 
             BESDEBUG("ugrid",
-                "ugr5() - Restriction of mesh_topology '"<< tdmt->getMeshVariable()->name() << "' structure completed." << endl);
+                "ugrid_restrict() - Restriction of mesh_topology '"<< tdmt->getMeshVariable()->name() << "' structure completed." << endl);
 
             // now that we have the mesh topology variable we are going to look at each of the requested
             // range variables (aka MeshDataVariable instances) and we're going to subset that using the
@@ -562,7 +576,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
                 MeshDataVariable *mdv = *rvit;
 
                 BESDEBUG("ugrid",
-                    "ugr5() - Processing MeshDataVariable  '"<< mdv->getName() << "' associated with rank/location: "<< mdv->getGridLocation() << endl);
+                    "ugrid_restrict() - Processing MeshDataVariable  '"<< mdv->getName() << "' associated with rank/location: "<< mdv->getGridLocation() << endl);
 
                 tdmt->setLocationCoordinateDimension(mdv);
 
@@ -574,18 +588,18 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
                     location_subset_indices[mdv->getGridLocation()]);
 
                 BESDEBUG("ugrid",
-                    "ugr5() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
+                    "ugrid_restrict() - Adding resulting dapArray  '"<< restrictedRangeVarArray->name() << "' to dapResults." << endl);
 
                 dapResults.push_back(restrictedRangeVarArray);
             }
 
             delete tdmt;
 
-            BESDEBUG("ugrid", "ugr5() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
+            BESDEBUG("ugrid", "ugrid_restrict() - Adding GF::GridField results to DAP structure " << dapResult->name() << endl);
 
             for (vector<BaseType *>::iterator i = dapResults.begin(); i != dapResults.end(); ++i) {
                 BESDEBUG("ugrid",
-                    "ugr5() - Adding variable "<< (*i)->name() << " to DAP structure " << dapResult->name() << endl);
+                    "ugrid_restrict() - Adding variable "<< (*i)->name() << " to DAP structure " << dapResult->name() << endl);
                 dapResult->add_var_nocopy(*i);
             }
         }
@@ -594,7 +608,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
         // TODO replace with auto_ptr. jhrg 4/17/15
 
-        BESDEBUG("ugrid", "ugr5() - Releasing maps and vectors..." << endl);
+        BESDEBUG("ugrid", "ugrid_restrict() - Releasing maps and vectors..." << endl);
         for (mit = meshToRangeVarsMap->begin(); mit != meshToRangeVarsMap->end(); ++mit) {
             vector<MeshDataVariable *> *requestedRangeVarsForMesh = mit->second;
             vector<MeshDataVariable *>::iterator rvit;
@@ -606,7 +620,7 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
         }
         delete meshToRangeVarsMap;
 
-        BESDEBUG("ugrid", "ugr5() - END" << endl);
+        BESDEBUG("ugrid", "ugrid_restrict() - END" << endl);
     }
     catch (GFError &gfe) {
         throw BESError(gfe.get_message(), gfe.get_error_type(), gfe.get_file(), gfe.get_line());
@@ -614,5 +628,81 @@ void ugr5(int argc, BaseType *argv[], DDS &dds, BaseType **btpp)
 
     return;
 }
+
+
+
+
+
+/**
+ @brief Subset an irregular mesh (aka unstructured grid) by evaluating a filter expression
+ against the node values of the ugrid.
+
+ @param argc Count of the function's arguments
+ @param argv Array of pointers to the functions arguments
+ @param dds Reference to the DDS object for the complete dataset.
+ This holds pointers to all of the variables and attributes in the
+ dataset.
+ @param btpp Return the function result in an instance of BaseType
+ referenced by this pointer to a pointer. We could have used a
+ BaseType reference, instead of pointer to a pointer, but we didn't.
+ This is a value-result parameter.
+
+ @return void
+
+ @exception Error Thrown If the Array is not a one dimensional
+ array. */
+void ugnr(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
+    ugrid_restrict("ugnr",node,argc,argv,dds,btpp);
+}
+
+
+
+/**
+ @brief Subset an irregular mesh (aka unstructured grid) by evaluating a filter expression
+ against the edge values of the ugrid.
+
+ @param argc Count of the function's arguments
+ @param argv Array of pointers to the functions arguments
+ @param dds Reference to the DDS object for the complete dataset.
+ This holds pointers to all of the variables and attributes in the
+ dataset.
+ @param btpp Return the function result in an instance of BaseType
+ referenced by this pointer to a pointer. We could have used a
+ BaseType reference, instead of pointer to a pointer, but we didn't.
+ This is a value-result parameter.
+
+ @return void
+
+ @exception Error Thrown If the Array is not a one dimensional
+ array. */
+void uger(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
+    ugrid_restrict("uger",edge,argc,argv,dds,btpp);
+}
+
+
+/**
+ @brief Subset an irregular mesh (aka unstructured grid) by evaluating a filter expression
+ against the face values of the ugrid.
+
+ @param argc Count of the function's arguments
+ @param argv Array of pointers to the functions arguments
+ @param dds Reference to the DDS object for the complete dataset.
+ This holds pointers to all of the variables and attributes in the
+ dataset.
+ @param btpp Return the function result in an instance of BaseType
+ referenced by this pointer to a pointer. We could have used a
+ BaseType reference, instead of pointer to a pointer, but we didn't.
+ This is a value-result parameter.
+
+ @return void
+
+ @exception Error Thrown If the Array is not a one dimensional
+ array. */
+void ugfr(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
+    ugrid_restrict("ugfr",face,argc,argv,dds,btpp);
+}
+
+
+
 
 } // namespace ugrid_restrict

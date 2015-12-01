@@ -7,7 +7,7 @@
   <bes:setContainer name="catalogContainer" space="catalog">/data/ugrid_test_02.nc</bes:setContainer>
   <bes:define name="d1" space="default">
     <bes:container name="catalogContainer">
-      <bes:constraint>ugr5(0,oneDnodedata,twoDnodedata,threeDnodedata,"X &gt;= 0")</bes:constraint>
+      <bes:constraint>ugnr(celldata, "X &gt;= 0")</bes:constraint>
     </bes:container>
   </bes:define>
   <bes:get type="dods" definition="d1" />

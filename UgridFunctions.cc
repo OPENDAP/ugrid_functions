@@ -29,7 +29,7 @@ using std::endl;
 #include "UgridFunctions.h"
 #include "ServerFunctionsList.h"
 #include "BESDebug.h"
-#include "ugr5.h"
+#include "ugrid_restrict.h"
 
 static string getFunctionNames()
 {
@@ -51,8 +51,18 @@ void UgridFunctions::initialize(const string &/*modname*/)
     BESDEBUG("UgridFunctions", "initialize() - BEGIN" << endl);
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames() << endl);
 
-    ugrid::UGR5 *ugr5 = new ugrid::UGR5();
-    libdap::ServerFunctionsList::TheList()->add_function(ugr5);
+    ugrid::UGNR *ugnr = new ugrid::UGNR();
+    libdap::ServerFunctionsList::TheList()->add_function(ugnr);
+
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames() << endl);
+
+    ugrid::UGER *uger = new ugrid::UGER();
+    libdap::ServerFunctionsList::TheList()->add_function(uger);
+
+    BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames() << endl);
+
+    ugrid::UGFR *ugfr = new ugrid::UGFR();
+    libdap::ServerFunctionsList::TheList()->add_function(ugfr);
 
     BESDEBUG("UgridFunctions", "initialize() - function names: " << getFunctionNames() << endl);
 

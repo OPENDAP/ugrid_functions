@@ -2,13 +2,13 @@
 
 m4_include([handler_tests_macros.m4])
 
-AT_BESCMD_RESPONSE_TEST([ugrid_test_01_unconstrained_ugr5.bescmd])
-AT_BESCMD_RESPONSE_TEST([ugrid_test_01_constrained_ugr5.bescmd])
+AT_BESCMD_RESPONSE_TEST([ugrid_test_01_unconstrained_ugnr.bescmd])
+AT_BESCMD_RESPONSE_TEST([ugrid_test_01_constrained_ugnr.bescmd])
 
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_constrained_2_ugr5.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_constrained_2_ugnr.bescmd])
 
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_celldata_ugr5.bescmd])
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_nodedata_ugr5.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_celldata_ugnr.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_nodedata_ugnr.bescmd])
 
 # These tests get the same data as the ugrid_test_01... tests but using
 # ugrid_test_02.nc instead of ...01.nc. The '02' file has the mesh variable
@@ -16,15 +16,15 @@ AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_01_nodedata_ugr5.bescmd])
 # 03 tests have the mesh as a 1D array but still with no values.
 # jhrg 4/16/15
 
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_02_celldata_ugr5.bescmd])
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_02_nodedata_ugr5.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_02_celldata_ugnr.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_02_nodedata_ugnr.bescmd])
 
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_03_celldata_ugr5.bescmd])
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_03_nodedata_ugr5.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_03_celldata_ugnr.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_03_nodedata_ugnr.bescmd])
 
 # These tests use a Nx3 FNC array - that matches the spec - the other tests
 # are using a 3xN. Both organizations are pretty common.
 # jhrg 4/17/15
 
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_04_celldata_ugr5.bescmd])
-AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_04_nodedata_ugr5.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_04_celldata_ugnr.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_04_nodedata_ugnr.bescmd])
