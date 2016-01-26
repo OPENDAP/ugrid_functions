@@ -45,11 +45,11 @@ AUTOM4TE = autom4te
 
 TESTSUITE = $(srcdir)/ugrid_functionsTest
 
-$(TESTSUITE): $(srcdir)/handler_tests_macros.m4 $(srcdir)/package.m4 \
-$(srcdir)/ugrid_functionsTest.at
-
-check-local: atconfig atlocal $(srcdir)/package.m4 $(TESTSUITE)
+check-local: $(TESTSUITE) atconfig atlocal 
 	$(SHELL) '$(TESTSUITE)' $(TESTSUITEFLAGS)
+
+installcheck-local: $(TESTSUITE) atconfig atlocal 
+	$(SHELL) '$(TESTSUITE)' AUTOTEST_PATH='$(bindir)' $(TESTSUITEFLAGS)
 
 clean-local:
 	test ! -f '$(TESTSUITE)' || $(SHELL) '$(TESTSUITE)' --clean
@@ -57,7 +57,7 @@ clean-local:
 
 AUTOTEST = $(AUTOM4TE) --language=autotest
 
-% : %.at 
+$(TESTSUITE): $(TESTSUITE).at $(srcdir)/package.m4 $(srcdir)/handler_tests_macros.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@ $@.at
 
 # The `:;' works around a Bash 3.2 bug when the output is not writeable.
