@@ -1,3 +1,11 @@
+News for version 1.0.5
+
+Changed the name of the result structure so that now the bes (3.17)
+will unpack it and return a collection of variables that netCDF3 will
+be able to read.
+
+Minor updates, see the ChangeLog
+
 News for version 1.0.4
 
 Minor updates, see the ChangeLog

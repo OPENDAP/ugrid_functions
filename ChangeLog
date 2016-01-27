@@ -1,3 +1,35 @@
+2016-01-26  James Gallagher  <jgallagher@opendap.org>
+
+	Updated autotest tests, macros and Makefile.am files
+
+2015-12-01  Nathan Potter  <ndp@opendap.org>
+
+	Updated test files to reflect changes to function names
+
+2015-11-30  Nathan Potter  <ndp@opendap.org>
+
+	Code reformetting
+
+2015-11-25  Nathan Potter  <ndp@opendap.org>
+
+	Improved error handling for ugr5. Gridfields messages now connected to BES error output.
+
+2015-11-18  Nathan Potter  <ndp@opendap.org>
+
+	Changed name of result structure so that the unpacking code in the BESDapResponseBuilder will in fact unpack it.
+
+2015-11-16  James Gallagher  <jgallagher@opendap.org>
+
+	Tests updated for the code in bes branch functionPromoter
+
+2015-11-16  Nathan Potter  <ndp@opendap.org>
+
+	Updated comments
+
+2015-10-27  James Gallagher  <jgallagher@opendap.org>
+
+	Update for bes 3.16.0 release
+	
 2015-10-01  Nathan Potter  <ndp@opendap.org>
 
 	Committing changes (mostly to bes.conf.in files) in support of
