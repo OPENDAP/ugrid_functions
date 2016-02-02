@@ -5,7 +5,7 @@
   <bes:setContext name="errors">xml</bes:setContext>
   <bes:setContext name="max_response_size">0</bes:setContext>
   
-  <!-- This file has a zer-length 'time' array. jhrg 2/2/16 -->
+  <!-- This file has a zero-length 'time' array. jhrg 2/2/16 -->
   
   <bes:setContainer name="catalogContainer" space="catalog">/data/maxele.63.nc</bes:setContainer>
   
