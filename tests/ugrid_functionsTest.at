@@ -28,3 +28,8 @@ AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_03_nodedata_ugnr.bescmd])
 
 AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_04_celldata_ugnr.bescmd])
 AT_BESCMD_BINARYDATA_RESPONSE_TEST([ugrid_test_04_nodedata_ugnr.bescmd])
+
+# Tests using the RENCI data. jhrg 2/2/16
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([renci_ugnr_1.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([renci_ugnr_2.bescmd])
+AT_BESCMD_BINARYDATA_RESPONSE_TEST([renci_ugnr_3.bescmd])
