@@ -521,6 +521,19 @@ void ugrid_restrict(string func_name, locationType location, int argc, BaseType 
         // names won't change and the original mesh_topology variable and it's metadata will be valid
         Structure *dapResult = new Structure("ugr_result_unwrap");
 
+        // Now we need to grab an top level metadata (attriubutes) and copy them into the dapResult Structure
+        // Add any global attributes to the netcdf file
+#if 1
+        AttrTable &globals = dds.get_attr_table();
+        BESDEBUG("ugrid", "ugrid_restrict() - Copying Global Attributes" << endl << globals << endl);
+
+        AttrTable *newDatasetAttrTable = new AttrTable(globals);
+        dapResult->set_attr_table(*newDatasetAttrTable);
+        BESDEBUG("ugrid", "ugrid_restrict() - Result Structure attrs: " << endl << dapResult->get_attr_table() << endl);
+
+
+#endif
+
         // Since we only want each ugrid structure to appear in the results one time  (cause otherwise we might be trying to add
         // the same variables with the same names to the result multiple times.) we grind on this by iterating over the
         // names of the mesh topology names.
