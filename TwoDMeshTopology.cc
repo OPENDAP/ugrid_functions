@@ -134,6 +134,64 @@ TwoDMeshTopology::~TwoDMeshTopology()
 /**
  * @TODO only call this from the constructor?? Seems like the thing to do, but then the constructor will be possibly throwing an Error - Is that OK?
  */
+void TwoDMeshTopology::init(string meshVarName, map<string, BaseType *> topLevelVars)
+{
+    if (_initialized) return;
+
+    d_meshVar = topLevelVars[meshVarName];
+
+    if (!d_meshVar) throw Error("Unable to locate variable: " + meshVarName);
+
+    dimension = getAttributeValue(d_meshVar, UGRID_TOPOLOGY_DIMENSION);
+    if (dimension.empty()) dimension = getAttributeValue(d_meshVar, UGRID_DIMENSION);
+
+    if (dimension.empty()) {
+        string msg = "ugr5(): The mesh topology variable  '" + d_meshVar->name()
+            + "' is missing the required attribute named '" + UGRID_TOPOLOGY_DIMENSION + "'";
+        BESDEBUG("ugrid", "TwoDMeshTopology::init() - " << msg);
+        throw Error(msg);
+    }
+
+    // Retrieve the node coordinate arrays for the mesh
+    ingestNodeCoordinateArrays(d_meshVar, topLevelVars);
+
+    // Why would we retrieve this? I think Bill said that this needs to be recomputed after a restrict operation.
+    // @TODO Verify that Bill actually said that this needs to be recomputed.
+    // Retrieve the face coordinate arrays (if any)  for the mesh
+    ingestFaceCoordinateArrays(d_meshVar, topLevelVars);
+
+    // Inspect and QC the face node connectivity array for the mesh
+    ingestFaceNodeConnectivityArray(d_meshVar, topLevelVars);
+
+    // Load d_meshVar with some data value - needed because this variable
+    // will be returned as part of the result and DAP does not allow
+    // empty variables. Since this code is designed to work with the UGrid
+    // specification being developed as an extension to (or in conjunction
+    // with) CF, I am assuming the UGrids will always be netCDF files and
+    // that the dummy mesh variable will always get a value when read()
+    // is called because netCDF guarantees that reading missing values
+    // returns the 'fill value'.
+    // See https://www.unidata.ucar.edu/software/netcdf/docs/netcdf-c/Fill-Values.html
+    // jhrg 4/15/15
+    try {
+        d_meshVar->read();    // read() sets read_p to true
+    }
+    catch (Error &e) {
+        throw Error(malformed_expr,
+            "ugr5(): While trying to read the UGrid mesh variable, an error occurred: " + e.get_error_message());
+    }
+    catch (std::exception &e) {
+        throw Error(malformed_expr,
+            string("ugr5(): While trying to read the UGrid mesh variable, an error occurred: ") + e.what());
+    }
+
+    _initialized = true;
+}
+
+#if 0
+/**
+ * @TODO only call this from the constructor?? Seems like the thing to do, but then the constructor will be possibly throwing an Error - Is that OK?
+ */
 void TwoDMeshTopology::init(string meshVarName, DDS *dds)
 {
     if (_initialized) return;
@@ -187,6 +245,8 @@ void TwoDMeshTopology::init(string meshVarName, DDS *dds)
 
     _initialized = true;
 }
+#endif
+
 
 void TwoDMeshTopology::setNodeCoordinateDimension(MeshDataVariable *mdv)
 {
@@ -298,7 +358,7 @@ void TwoDMeshTopology::setLocationCoordinateDimension(MeshDataVariable *mdv)
  * which one represents the set of faces. The assumption is that the number of faces will always
  * be larger than the (max) number of nodes per face.
  */
-void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS *dds)
+void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, map<string, BaseType *> topLevelVars)
 {
 
     BESDEBUG("ugrid", "TwoDMeshTopology::ingestFaceNodeConnectivityArray() - Locating FNCA" << endl);
@@ -320,7 +380,7 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
 
     // Find the variable using the name
 
-    BaseType *btp = dds->var(face_node_connectivity_var_name);
+    BaseType *btp = topLevelVars[face_node_connectivity_var_name];
 
     if (btp == 0)
         throw Error(
@@ -443,7 +503,7 @@ void TwoDMeshTopology::ingestFaceNodeConnectivityArray(libdap::BaseType *meshTop
  * throws an error if the node_coordinates attribute is missing, if the coordinates are not arrays, and
  * if the arrays are not all the same shape.
  */
-void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds)
+void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, map<string, BaseType *> topLevelVars)
 {
     BESDEBUG("ugrid",
         "TwoDMeshTopology::ingestFaceCoordinateArrays() - BEGIN Gathering face coordinate arrays..." << endl);
@@ -474,7 +534,7 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
                 "TwoDMeshTopology::ingestFaceCoordinateArrays() - Processing face coordinate '"<< faceCoordinateName << "'." << endl);
 
             //Now that we have the name of the coordinate variable get it from the DDS!!
-            BaseType *btp = dds->var(faceCoordinateName);
+            BaseType *btp = topLevelVars[faceCoordinateName];
             if (btp == 0)
                 throw Error(
                     "Could not locate the " UGRID_FACE_COORDINATES " variable named '" + faceCoordinateName + "'! "
@@ -553,6 +613,119 @@ void TwoDMeshTopology::ingestFaceCoordinateArrays(libdap::BaseType *meshTopology
 
 }
 
+/**
+ * Returns the coordinate variables identified in the meshTopology variable's node_coordinates attribute.
+ * throws an error if the node_coordinates attribute is missing, if the coordinates are not arrays, and
+ * if the arrays are not all the same shape.
+ */
+void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, map<string, BaseType *> topLevelVars)
+{
+    BESDEBUG("ugrid",
+        "TwoDMeshTopology::ingestNodeCoordinateArrays() - BEGIN Gathering node coordinate arrays..." << endl);
+
+    string node_coordinates;
+    AttrTable at = meshTopology->get_attr_table();
+
+    AttrTable::Attr_iter iter_nodeCoors = at.simple_find(UGRID_NODE_COORDINATES);
+    if (iter_nodeCoors != at.attr_end()) {
+        node_coordinates = at.get_attr(iter_nodeCoors, 0);
+    }
+    else {
+        throw Error("Could not locate the " UGRID_NODE_COORDINATES " attribute in the " UGRID_MESH_TOPOLOGY
+        " variable! The mesh_topology variable is named " + meshTopology->name());
+    }
+    BESDEBUG("ugrid",
+        "TwoDMeshTopology::ingestNodeCoordinateArrays() - Located '"<< UGRID_NODE_COORDINATES << "' attribute." << endl);
+
+    if (nodeCoordinateArrays == 0) nodeCoordinateArrays = new vector<libdap::Array *>();
+
+    nodeCoordinateArrays->clear();
+
+    // Split the node_coordinates string up on spaces
+    // TODO make this work on situations where multiple spaces in the node_coorindates string doesn't hose the split()
+    vector<string> nodeCoordinateNames = split(node_coordinates, ' ');
+
+    // Find each variable in the resulting list
+    vector<string>::iterator coorName_it;
+    for (coorName_it = nodeCoordinateNames.begin(); coorName_it != nodeCoordinateNames.end(); ++coorName_it) {
+        string nodeCoordinateName = *coorName_it;
+
+        BESDEBUG("ugrid",
+            "TwoDMeshTopology::ingestNodeCoordinateArrays() - Processing node coordinate '"<< nodeCoordinateName << "'." << endl);
+
+        //Now that we have the name of the coordinate variable get it from the DDS!!
+        BaseType *btp = topLevelVars[nodeCoordinateName];
+        if (btp == 0)
+            throw Error(
+                "Could not locate the " UGRID_NODE_COORDINATES " variable named '" + nodeCoordinateName + "'! "
+                    + "The mesh_topology variable is named " + meshTopology->name());
+
+        libdap::Array *newNodeCoordArray = dynamic_cast<libdap::Array*>(btp);
+        if (newNodeCoordArray == 0) {
+            throw Error(malformed_expr,
+                "Node coordinate variable '" + nodeCoordinateName + "' is not an Array type. It's an instance of "
+                    + btp->type_name());
+        }
+        BESDEBUG("ugrid",
+            "TwoDMeshTopology::ingestNodeCoordinateArrays() - Found node coordinate array '"<< nodeCoordinateName << "'." << endl);
+
+        // Coordinate arrays MUST be single dimensioned.
+        if (newNodeCoordArray->dimensions(true) != 1) {
+            throw Error(malformed_expr,
+                "Node coordinate variable '" + nodeCoordinateName
+                    + "' has more than one dimension. That's just not allowed. It has "
+                    + long_to_string(newNodeCoordArray->dimensions(true)) + " dimensions.");
+        }
+        BESDEBUG("ugrid",
+            "TwoDMeshTopology::ingestNodeCoordinateArrays() - Node coordinate array '"<< nodeCoordinateName << "' has a single dimension." << endl);
+
+        // Make sure this node coordinate variable has the same size and meshVarName as all the others on the list - error if not true.
+        string dimName = newNodeCoordArray->dimension_name(newNodeCoordArray->dim_begin());
+        int dimSize = newNodeCoordArray->dimension_size(newNodeCoordArray->dim_begin(), true);
+
+        BESDEBUG("ugrid",
+            "TwoDMeshTopology::ingestNodeCoordinateArrays() - dimName: '"<< dimName << "' dimSize: " << libdap::long_to_string(dimSize) << endl);
+
+        if (nodeDimensionName.empty()) {
+            nodeDimensionName = dimName;
+        }
+        BESDEBUG("ugrid",
+            "TwoDMeshTopology::ingestNodeCoordinateArrays() - nodeDimensionName: '"<< nodeDimensionName << "' " << endl);
+        if (nodeDimensionName.compare(dimName) != 0) {
+            throw Error(
+                "The node coordinate array '" + nodeCoordinateName + "' has the named dimension '" + dimName
+                    + "' which differs from the expected  dimension meshVarName '" + nodeDimensionName
+                    + "'. The mesh_topology variable is named " + meshTopology->name());
+        }
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Node dimension names match." << endl);
+
+        if (nodeCount == 0) {
+            nodeCount = dimSize;
+        }
+        BESDEBUG("ugrid",
+            "TwoDMeshTopology::ingestNodeCoordinateArrays() - nodeCount: "<< libdap::long_to_string(nodeCount) << endl);
+
+        if (nodeCount != dimSize) {
+            throw Error(
+                "The node coordinate array '" + nodeCoordinateName + "' has a dimension size of "
+                    + libdap::long_to_string(dimSize) + " which differs from the the expected size of "
+                    + libdap::long_to_string(nodeCount) + " The mesh_topology variable is named "
+                    + meshTopology->name());
+        }
+        BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - Node counts match." << endl);
+
+        // Add variable to nodeCoordinateArrays vector.
+        nodeCoordinateArrays->push_back(newNodeCoordArray);
+        BESDEBUG("ugrid",
+            "TwoDMeshTopology::ingestNodeCoordinateArrays() - Coordinate array '"<< nodeCoordinateName << "' ingested." << endl);
+
+    }
+
+    BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - DONE" << endl);
+
+}
+
+#if 0
 /**
  * Returns the coordinate variables identified in the meshTopology variable's node_coordinates attribute.
  * throws an error if the node_coordinates attribute is missing, if the coordinates are not arrays, and
@@ -664,6 +837,8 @@ void TwoDMeshTopology::ingestNodeCoordinateArrays(libdap::BaseType *meshTopology
     BESDEBUG("ugrid", "TwoDMeshTopology::ingestNodeCoordinateArrays() - DONE" << endl);
 
 }
+#endif
+
 
 void TwoDMeshTopology::buildBasicGfTopology()
 {
@@ -867,7 +1042,8 @@ void TwoDMeshTopology::applyRestrictOperator(locationType loc, string filterExpr
 
     // Build the restriction operator
     BESDEBUG("ugrid",
-        "TwoDMeshTopology::applyRestrictOperator() - Constructing new GF::RestrictOp using user "<< "supplied 'dimension' value and filter expression combined with the GF:GridField " << endl);
+        "TwoDMeshTopology::applyRestrictOperator() - Constructing new GF::RestrictOp for dimension "
+            << loc << " with filter expression '" << filterExpression << "'  and combined with the d_inputGridField " << endl);
     GF::RestrictOp op = GF::RestrictOp(filterExpression, loc, d_inputGridField);
 
     // Apply the operator and get the result;

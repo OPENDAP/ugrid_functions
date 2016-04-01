@@ -34,25 +34,32 @@
 #include "DDS.h"
 #include "ServerFunction.h"
 
+#include "LocationType.h"
+
 namespace ugrid {
+
+string getUgrFunctionName(locationType feature);
 
 /**
  Subset an irregular mesh (aka unstructured grid or ugrid) by evaluating a filter expression
  against the node values of the ugrid.
 **/
-void ugnr(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp);
+void dap2_ugnr(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp);
+libdap::BaseType *dap4_ugnr(libdap::D4RValueList *dvl_args, libdap::DMR &dmr);
 
 /**
  Subset an irregular mesh (aka unstructured grid or ugrid) by evaluating a filter expression
  against the edge values of the ugrid.
 **/
-void uger(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp);
+void dap2_uger(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp);
+libdap::BaseType *dap4_uger(libdap::D4RValueList *dvl_args, libdap::DMR &dmr);
 
 /**
  Subset an irregular mesh (aka unstructured grid or ugrid) by evaluating a filter expression
  against the face values of the ugrid.
 **/
-void ugfr(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp);
+void dap2_ugfr(int argc, libdap::BaseType * argv[], libdap::DDS &dds, libdap::BaseType **btpp);
+libdap::BaseType *dap4_ugfr(libdap::D4RValueList *dvl_args, libdap::DMR &dmr);
 
 /**
  * The UGNR class encapsulates the function 'ugr::ugnr'
@@ -65,14 +72,15 @@ private:
 public:
     UGNR()
 {
-        setName("ugnr");
+        setName(getUgrFunctionName(node));
         setDescriptionString(
             ((string)"This function can subset the range variables of a two dimensional triangular mesh unstructured grid ") +
             "by applying a filter expression to the values of the grid associated with the nodes.");
         setUsageString("ugnr(node_var [,node_var_2,...,node_var_n], 'relational query over domain')");
         setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
         setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
-        setFunction(ugrid::ugnr);
+        setFunction(ugrid::dap2_ugnr);
+        setFunction(ugrid::dap4_ugnr);
         setVersion("1.0");
 }
     virtual ~UGNR()
@@ -87,14 +95,15 @@ private:
 public:
     UGER()
 {
-        setName("uger");
+        setName(getUgrFunctionName(edge));
         setDescriptionString(
             ((string)"This function can subset the range variables of a two dimensional triangular mesh unstructured grid ") +
             "by applying a filter expression to the values of the grid associated with the edges.");
         setUsageString("uger(node_var [,node_var_2,...,node_var_n], 'relational query over domain')");
         setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
         setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
-        setFunction(ugrid::uger);
+        setFunction(ugrid::dap2_uger);
+        setFunction(ugrid::dap4_uger);
         setVersion("1.0");
 }
     virtual ~UGER()
@@ -109,14 +118,15 @@ private:
 public:
     UGFR()
 {
-        setName("ugfr");
+        setName(getUgrFunctionName(face));
         setDescriptionString(
             ((string)"This function can subset the range variables of a two dimensional triangular mesh unstructured grid ") +
             "by applying a filter expression to the values of the grid associated with the faces.");
         setUsageString("ugfr(node_var [,node_var_2,...,node_var_n], 'relational query over domain')");
         setRole("http://services.opendap.org/dap4/server-side-function/unstructured_grids/ugrid_restrict");
         setDocUrl("http://docs.opendap.org/index.php/UGrid_Functions");
-        setFunction(ugrid::ugfr);
+        setFunction(ugrid::dap2_ugfr);
+        setFunction(ugrid::dap4_ugfr);
         setVersion("1.0");
 }
     virtual ~UGFR()

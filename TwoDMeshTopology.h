@@ -192,9 +192,15 @@ private:
 
     bool _initialized;
 
-    void ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS *dds);
-    void ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds);
-    void ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds);
+    //void ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, libdap::DDS *dds);
+    // void ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds);
+    // void ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, libdap::DDS *dds);
+
+    void ingestFaceNodeConnectivityArray(libdap::BaseType *meshTopology, map<string, BaseType *> topLevelVars);
+    void ingestNodeCoordinateArrays(libdap::BaseType *meshTopology, map<string, BaseType *> topLevelVars);
+    void ingestFaceCoordinateArrays(libdap::BaseType *meshTopology, map<string, BaseType *> topLevelVars);
+
+
 
     GF::Node *getFncArrayAsGFCells(libdap::Array *fncVar);
     int getStartIndex(libdap::Array *array);
@@ -213,6 +219,7 @@ public:
     ~TwoDMeshTopology();
 
     void init(string meshVarName, libdap::DDS *dds);
+    void init(string meshVarName, map<string, BaseType *> topLevelVars);
 
     string meshVarName() const
     {

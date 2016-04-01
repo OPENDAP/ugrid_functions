@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dataset xmlns="http://xml.opendap.org/ns/DAP/4.0#" dapVersion="4.0" dmrVersion="1.0" name="ugrid_test_01.nc">
+    <Dimension name="nodes" size="9"/>
+    <Dimension name="three" size="3"/>
+    <Dimension name="faces" size="8"/>
+    <Dimension name="time" size="3"/>
+    <Dimension name="condition" size="4"/>
+    <Int32 name="fvcom_mesh">
+        <Attribute name="face_node_connectivity" type="String">
+            <Value>fnca</Value>
+        </Attribute>
+        <Attribute name="standard_name" type="String">
+            <Value>mesh_topology</Value>
+        </Attribute>
+        <Attribute name="topology_dimension" type="Int32">
+            <Value>2</Value>
+        </Attribute>
+        <Attribute name="node_coordinates" type="String">
+            <Value>X Y</Value>
+        </Attribute>
+    </Int32>
+    <Float32 name="X">
+        <Dim name="/nodes"/>
+        <Attribute name="grid" type="String">
+            <Value>element</Value>
+        </Attribute>
+        <Attribute name="grid_location" type="String">
+            <Value>node</Value>
+        </Attribute>
+    </Float32>
+    <Float32 name="Y">
+        <Dim name="/nodes"/>
+        <Attribute name="grid" type="String">
+            <Value>element</Value>
+        </Attribute>
+        <Attribute name="grid_location" type="String">
+            <Value>node</Value>
+        </Attribute>
+    </Float32>
+    <Int32 name="fnca">
+        <Dim name="/three"/>
+        <Dim name="/faces"/>
+        <Attribute name="start_index" type="Int32">
+            <Value>1</Value>
+        </Attribute>
+        <Attribute name="standard_name" type="String">
+            <Value>face_node_connectivity</Value>
+        </Attribute>
+    </Int32>
+    <Float32 name="oneDnodedata">
+        <Dim name="/nodes"/>
+        <Attribute name="coordinates" type="String">
+            <Value>Y X</Value>
+        </Attribute>
+        <Attribute name="mesh" type="String">
+            <Value>fvcom_mesh</Value>
+        </Attribute>
+        <Attribute name="location" type="String">
+            <Value>node</Value>
+        </Attribute>
+    </Float32>
+    <Float32 name="twoDnodedata">
+        <Dim name="/time"/>
+        <Dim name="/nodes"/>
+        <Attribute name="coordinates" type="String">
+            <Value>Y X</Value>
+        </Attribute>
+        <Attribute name="mesh" type="String">
+            <Value>fvcom_mesh</Value>
+        </Attribute>
+        <Attribute name="location" type="String">
+            <Value>node</Value>
+        </Attribute>
+    </Float32>
+    <Float32 name="threeDnodedata">
+        <Dim name="/condition"/>
+        <Dim name="/time"/>
+        <Dim name="/nodes"/>
+        <Attribute name="coordinates" type="String">
+            <Value>Y X</Value>
+        </Attribute>
+        <Attribute name="mesh" type="String">
+            <Value>fvcom_mesh</Value>
+        </Attribute>
+        <Attribute name="location" type="String">
+            <Value>node</Value>
+        </Attribute>
+    </Float32>
+    <Float32 name="celldata">
+        <Dim name="/faces"/>
+        <Attribute name="mesh" type="String">
+            <Value>fvcom_mesh</Value>
+        </Attribute>
+        <Attribute name="location" type="String">
+            <Value>face</Value>
+        </Attribute>
+    </Float32>
+    <Float32 name="bogusMeshRef">
+        <Dim name="/nodes"/>
+        <Attribute name="coordinates" type="String">
+            <Value>Y X</Value>
+        </Attribute>
+        <Attribute name="mesh" type="String">
+            <Value>bogus</Value>
+        </Attribute>
+        <Attribute name="location" type="String">
+            <Value>node</Value>
+        </Attribute>
+    </Float32>
+</Dataset>
