@@ -50,6 +50,10 @@
 #include <Error.h>
 #include <util.h>
 #include <escaping.h>
+#include <D4RValue.h>
+#include <D4Group.h>
+#include <DMR.h>
+
 
 #include "BESDebug.h"
 #include "BESError.h"
@@ -63,6 +67,8 @@
 #include <gridfields/GFError.h>
 
 #include "ugrid_restrict.h"
+
+#define DEBUG_KEY "ugrid"
 
 #ifdef NDEBUG
 #undef BESDEBUG
@@ -629,6 +635,65 @@ void ugrid_restrict(string func_name, locationType location, int argc, BaseType 
     return;
 }
 
+BaseType *ugrid_restrict_worker(string func_name, locationType location, vector<BaseType *> argv, map<string, BaseType*> dds)
+{
+    int argc = argv.size();
+
+
+
+    return 0;
+}
+
+
+BaseType *dap2_ugr_worker(string featureKey, int argc, BaseType * argv[], DDS &dds, BaseType **btpp)
+{
+    BESDEBUG(DEBUG_KEY, "function_dap2_bind_shape() - BEGIN" << endl);
+
+    BESDEBUG(DEBUG_KEY, "function_dap2_bind_shape() - Building argument vector for geogrid_worker()" << endl);
+    vector<BaseType*> args;
+    for(int i=0; i< argc; i++){
+        BaseType * bt = argv[i];
+        BESDEBUG(DEBUG_KEY, "function_dap2_bind_shape() - Adding argument: "<< bt->name() << endl);
+        args.push_back(bt);
+    }
+
+    map<string,BaseType *> topLevelVars;
+    for (DDS::Vars_iter i = dds.var_begin(); i != dds.var_end(); i++) {
+        BaseType *bt = *i;
+        topLevelVars[bt->name()] = bt;
+    }
+
+    BaseType *result;
+    result = ugrid_restrict_worker(featureKey,face,args, topLevelVars);
+
+    BESDEBUG(DEBUG_KEY, "function_dap2_bind_shape() - END (result: "<< result->name() << ")" << endl);
+    return result;
+}
+
+
+BaseType *dap4_ugr_worker(string featureKey, D4RValueList *dvl_args, DMR &dmr)
+{
+    BESDEBUG(DEBUG_KEY, "function_dap4_ugfr() - Building argument vector for bbox_union_worker()" << endl);
+    vector<BaseType*> args;
+    for(unsigned int i=0; i< dvl_args->size(); i++){
+        BaseType * bt = dvl_args->get_rvalue(i)->value(dmr);
+        BESDEBUG(DEBUG_KEY, "function_dap4_ugfr() - Adding argument: "<< bt->name() << endl);
+        args.push_back(bt);
+    }
+
+    map<string,BaseType *> topLevelVars;
+
+    D4Group *root = dmr.root();
+    for (D4Group::Vars_iter i = root->var_begin(); i != root->var_end(); i++) {
+        BaseType *bt = *i;
+        topLevelVars[bt->name()] = bt;
+    }
+
+    BaseType *result = ugrid_restrict_worker(featureKey,face,args, topLevelVars);
+
+    BESDEBUG(DEBUG_KEY, "function_dap4_ugfr() - END (result: "<< result->name() << ")" << endl);
+    return result; //response.release();
+}
 
 
 
@@ -654,6 +719,12 @@ void ugrid_restrict(string func_name, locationType location, int argc, BaseType 
 void ugnr(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
     ugrid_restrict("ugnr",node,argc,argv,dds,btpp);
 }
+void dap2_ugnr(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
+    *btpp = dap2_ugr_worker("ugnr",argc, argv, dds, btpp);
+}
+BaseType *dap4_ugnr(D4RValueList *dvl_args, DMR &dmr){
+    return dap4_ugr_worker("ugnr",dvl_args,dmr);
+}
 
 
 
@@ -678,6 +749,12 @@ void ugnr(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
 void uger(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
     ugrid_restrict("uger",edge,argc,argv,dds,btpp);
 }
+void dap2_uger(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
+    *btpp = dap2_ugr_worker("uger",argc, argv, dds, btpp);
+}
+BaseType *dap4_uger(D4RValueList *dvl_args, DMR &dmr){
+    return dap4_ugr_worker("uger",dvl_args,dmr);
+}
 
 
 /**
@@ -701,6 +778,15 @@ void uger(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
 void ugfr(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
     ugrid_restrict("ugfr",face,argc,argv,dds,btpp);
 }
+
+void dap2_ugfr(int argc, BaseType *argv[], DDS &dds, BaseType **btpp) {
+    *btpp = dap2_ugr_worker("ugfr",argc, argv, dds, btpp);
+}
+BaseType *dap4_ugfr(D4RValueList *dvl_args, DMR &dmr){
+    return dap4_ugr_worker("ugfr",dvl_args,dmr);
+}
+
+
 
 
 
