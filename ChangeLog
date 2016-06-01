@@ -1,3 +1,31 @@
+2016-03-23  Nathan Potter  <ndp@opendap.org>
+
+	Added global metadata to funtion result structure.
+
+2016-02-03  James Gallagher  <jgallagher@opendap.org>
+
+	New tests for zero-length arrays and reversed coordinates
+	These replace the tests that use the huge data files
+
+	Added
+
+	Merge branch 'master' into hyrax_release_1.13
+
+	Merge pull request #1 from OPENDAP/BES-97
+	Bes 97
+
+2016-02-02  James Gallagher  <jgallagher@opendap.org>
+
+	Comment
+
+	Added a test for datasets with zero-length arrays
+
+2016-01-26  James Gallagher  <jgallagher@opendap.org>
+
+	Updated ChangeLog, etc., for the bes 3.17 release
+
+	Updated autotest tests, macros and Makefile.am files
+	
 2016-01-26  James Gallagher  <jgallagher@opendap.org>
 
 	Updated autotest tests, macros and Makefile.am files
