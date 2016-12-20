@@ -28,7 +28,7 @@
 	Updated ChangeLog, etc., for the bes 3.17 release
 
 	Updated autotest tests, macros and Makefile.am files
-	
+
 2016-01-26  James Gallagher  <jgallagher@opendap.org>
 
 	Updated autotest tests, macros and Makefile.am files
