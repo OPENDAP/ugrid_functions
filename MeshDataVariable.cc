@@ -29,9 +29,11 @@
 
 #include <gridfields/array.h>
 
-#include "Array.h"
-#include "BESDebug.h"
-#include "util.h"
+#include <Array.h>
+#include <util.h>
+
+#include <BESDebug.h>
+#include <BESUtil.h>
 
 #include "ugrid_utils.h"
 #include "LocationType.h"
